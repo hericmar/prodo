@@ -1,6 +1,3 @@
-# info about the build
-/src/assets/version.json
-
 .DS_Store
 .thumbs.db
 node_modules
