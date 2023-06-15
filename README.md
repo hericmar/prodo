@@ -12,3 +12,6 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 ```
+
+## References
+- RFC 5545 - Internet Calendaring and Scheduling Core Object Specification (iCalendar) - https://tools.ietf.org/html/rfc5545
