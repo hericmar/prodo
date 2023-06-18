@@ -3,5 +3,8 @@
 
 export default {
   failed: 'Action failed',
-  success: 'Action was successful'
+  success: 'Action was successful',
+  empty: 'Fill this fields.',
+
+  landing_description: 'New approach to productivity.'
 }

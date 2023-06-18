@@ -1,5 +1,5 @@
 import { boot } from 'quasar/wrappers'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosInstance } from 'axios'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -25,6 +25,23 @@ export default boot(({ app }) => {
   app.config.globalProperties.$api = api
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
+
+  api.interceptors.response.use(
+    (res) => res,
+    async (err: AxiosError) => {
+      const request = err.config
+
+      const isLoginRequest = request?.url?.endsWith('/token')
+      const isRefreshRequest = request?.url?.endsWith('/token/refresh')
+
+      // ensure the request is not login request
+      if (request?.url?.includes('/token/') && err.response) {
+        if (!isLoginRequest && !isRefreshRequest) {
+
+        }
+      }
+    }
+  )
 })
 
 export { api }
