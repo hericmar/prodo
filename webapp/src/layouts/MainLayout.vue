@@ -12,10 +12,17 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          <q-btn :to="{ name: 'index' }" flat>Quasar App</q-btn>
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          <q-btn
+            v-if="isAuthenticated"
+            @click="onLogout" flat>{{ $t('logout') }}</q-btn>
+          <q-btn
+            v-else
+            @click="onLogin" flat>{{ $t('login') }}</q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -45,9 +52,26 @@
   </q-layout>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue'
+import { useAuthStore } from 'stores/auth-store'
+import { router } from 'src/router'
+
+const authStore = useAuthStore()
+
+const onLogout = () => {
+  authStore.logout()
+    .then(() => {
+      router.push({ name: 'landing' })
+    })
+}
+
+const onLogin = async () => {
+  router.push({ name: 'login' })
+}
+
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const essentialLinks: EssentialLinkProps[] = [
   {

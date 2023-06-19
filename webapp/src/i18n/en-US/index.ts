@@ -4,7 +4,12 @@
 export default {
   failed: 'Action failed',
   success: 'Action was successful',
-  empty: 'Fill this fields.',
+  empty: 'Fill this field.',
 
-  landing_description: 'New approach to productivity.'
+  logout: 'Logout',
+  login: 'Login',
+
+  landing_description: 'New approach to productivity.',
+
+  login_title: 'Login to Prodo'
 }

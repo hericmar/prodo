@@ -1,5 +1,7 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosError, AxiosInstance } from 'axios'
+import { useAuthStore } from 'stores/auth-store'
+import router from 'src/router'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -13,7 +15,16 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+
+export interface ExtendedWindow extends Window {
+  PRODO_BASE_URL: string
+}
+
+const BASE_URL = import.meta.env.DEV
+  ? 'http://localhost:8000'
+  : (window as unknown as ExtendedWindow).PRODO_BASE_URL
+
+const api = axios.create({ baseURL: BASE_URL })
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
@@ -29,17 +40,33 @@ export default boot(({ app }) => {
   api.interceptors.response.use(
     (res) => res,
     async (err: AxiosError) => {
+      const onLogout = () => {
+        const authStore = useAuthStore()
+        authStore.logout()
+        router.push({ name: 'index' })
+      }
+
       const request = err.config
 
       const isLoginRequest = request?.url?.endsWith('/token')
       const isRefreshRequest = request?.url?.endsWith('/token/refresh')
 
       // ensure the request is not login request
-      if (request?.url?.includes('/token/') && err.response) {
-        if (!isLoginRequest && !isRefreshRequest) {
+      if (!isLoginRequest && err.response?.status === 401) {
+        const authStore = useAuthStore()
 
+        if (!isRefreshRequest) {
+          if (!authStore.refreshToken) {
+            onLogout()
+          }
+
+          return authStore.refreshToken()
+        } else {
+          onLogout()
         }
       }
+
+      return Promise.reject(err)
     }
   )
 })
