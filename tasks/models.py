@@ -50,13 +50,17 @@ class Task(Creatable, Updatable):
         """
         update sequence number when task is updated in the database
         """
-        previous = Task.objects.get(uid=self.uid)
+        try:
+            previous = Task.objects.get(uid=self.uid)
 
-        if not previous.active:
-            # TODO check if task is not already inactive, must be done in the database
-            raise ValidationError('Task is not active')
+            if not previous.active:
+                # TODO check if task is not already inactive, must be done in the database
+                raise ValidationError('Task is not active')
 
-        self.sequence += 1
+            self.sequence += 1
+        except Task.DoesNotExist:
+            pass
+
         super(Task, self).save(*args, **kwargs)
 
     def __str__(self):

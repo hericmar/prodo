@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { useTaskStore } from 'stores/task-store'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Task from 'components/SingleTask.vue'
 
 const taskStore = useTaskStore()
@@ -28,4 +28,8 @@ const onAddTask = () => {
 }
 
 const tasks = computed(() => taskStore.tasks)
+
+onMounted(() => {
+  taskStore.init()
+})
 </script>

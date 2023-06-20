@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
+import api from 'src/api'
 
-const REFRESH_TOKEN_NAME = 'refresh'
+export const REFRESH_TOKEN_NAME = 'refresh'
 export const AUTH_TOKEN_NAME = 'token'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     counter: 0,
     token: localStorage.getItem(AUTH_TOKEN_NAME),
-    refreshToken: localStorage.getItem(REFRESH_TOKEN_NAME)
+    refreshToken: localStorage.getItem(REFRESH_TOKEN_NAME),
+    message: ''
   }),
   getters: {
     doubleCount: (state) => state.counter * 2,
@@ -15,12 +17,19 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async login (username: string, password: string) {
-      localStorage.setItem(REFRESH_TOKEN_NAME, 'refresh')
-      localStorage.setItem(AUTH_TOKEN_NAME, 'token')
-      this.token = 'token'
-      this.refreshToken = 'refresh'
-
-      return Promise.resolve()
+      return api.auth.login(username, password)
+        .then((response) => {
+          const { refresh, access } = response.data
+          localStorage.setItem(AUTH_TOKEN_NAME, access)
+          localStorage.setItem(REFRESH_TOKEN_NAME, refresh)
+          this.token = access
+          this.refreshToken = refresh
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            this.message = 'login_unauthorized'
+          }
+        })
     },
     logout () {
       localStorage.removeItem(REFRESH_TOKEN_NAME)
