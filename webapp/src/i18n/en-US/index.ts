@@ -11,5 +11,7 @@ export default {
 
   landing_description: 'New approach to productivity.',
 
-  login_title: 'Login to Prodo'
+  login_title: 'Login to Prodo',
+
+  task_newInput: 'New task'
 }

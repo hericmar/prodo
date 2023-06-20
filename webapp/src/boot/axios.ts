@@ -1,6 +1,6 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosError, AxiosInstance } from 'axios'
-import { useAuthStore } from 'stores/auth-store'
+import { AUTH_TOKEN_NAME, useAuthStore } from 'stores/auth-store'
 import router from 'src/router'
 
 declare module '@vue/runtime-core' {
@@ -36,6 +36,16 @@ export default boot(({ app }) => {
   app.config.globalProperties.$api = api
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
+
+  axios.interceptors.request.use(
+    config => {
+      config.headers.Authorization = `Bearer ${localStorage.getItem(AUTH_TOKEN_NAME)}`
+      return config
+    },
+    error => {
+      return Promise.reject(error)
+    }
+  )
 
   api.interceptors.response.use(
     (res) => res,

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 const REFRESH_TOKEN_NAME = 'refresh'
-const AUTH_TOKEN_NAME = 'token'
+export const AUTH_TOKEN_NAME = 'token'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

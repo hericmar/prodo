@@ -1,0 +1,41 @@
+<template>
+  <q-item>
+    <q-item-section side>
+      <q-checkbox v-model="completed" />
+    </q-item-section>
+
+    <q-item-section>
+      <q-item-label>{{ props.task.summary }}</q-item-label>
+    </q-item-section>
+
+    <q-item-section side>
+      <div class="text-grey-8 q-gutter-xs">
+        <q-btn size="12px" flat dense round icon="more_vert">
+          <q-menu>
+            <q-list>
+              <q-item clickable v-ripple>
+                <q-item-section>Edit</q-item-section>
+              </q-item>
+              <q-item clickable v-ripple>
+                <q-item-section>Delete</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </div>
+    </q-item-section>
+  </q-item>
+</template>
+
+<script lang="ts" setup>
+import { Task } from 'stores/task-store'
+import { ref } from 'vue'
+
+interface Props {
+  task: Task
+}
+
+const props = defineProps<Props>()
+
+const completed = ref(props.task.completed)
+</script>

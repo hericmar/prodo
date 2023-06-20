@@ -1,0 +1,6 @@
+services:
+  web:
+    build: .
+    volumes:
+      - etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - .:/usr/share/webapps/prodo
