@@ -14,7 +14,9 @@
           <q-menu>
             <q-list>
               <q-item clickable v-close-popup>
-                <q-item-section>Edit</q-item-section>
+                <q-item-section
+                  @click="onEdit"
+                >Edit</q-item-section>
               </q-item>
               <q-item clickable v-close-popup>
                 <q-item-section
@@ -46,5 +48,9 @@ const completed = ref(props.task.completed !== null)
 
 const onDelete = () => {
   emitter.emit('on-delete', { task: props.task })
+}
+
+const onEdit = () => {
+  emitter.emit('on-edit', { task: props.task })
 }
 </script>

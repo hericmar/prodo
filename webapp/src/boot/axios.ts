@@ -1,7 +1,7 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosError, AxiosInstance } from 'axios'
 import { AUTH_TOKEN_NAME, useAuthStore } from 'stores/auth-store'
-import router from 'src/router'
+import { router } from 'src/router'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -53,7 +53,7 @@ export default boot(({ app }) => {
       const onLogout = () => {
         const authStore = useAuthStore()
         authStore.logout()
-        router.push({ name: 'index' })
+        router.push({ name: 'login' })
       }
 
       const request = err.config
@@ -61,16 +61,23 @@ export default boot(({ app }) => {
       const isLoginRequest = request?.url?.endsWith('/token')
       const isRefreshRequest = request?.url?.endsWith('/token/refresh')
 
+      console.log('isLoginRequest', isLoginRequest)
+
       // ensure the request is not login request
       if (!isLoginRequest && err.response?.status === 401) {
         const authStore = useAuthStore()
 
         if (!isRefreshRequest) {
           if (!authStore.refreshToken) {
-            onLogout()
+            return onLogout()
           }
 
-          return authStore.refreshToken()
+          try {
+            await authStore.refresh()
+            return api(request)
+          } catch (e) {
+            onLogout()
+          }
         } else {
           onLogout()
         }

@@ -1,4 +1,5 @@
 import { api } from 'boot/axios'
+import { Task } from 'src/stores/task-store'
 
 export default {
   auth: {
@@ -12,6 +13,11 @@ export default {
       return api.post('/api/v1/auth/token/blacklist', {
         refresh_token: refreshToken
       })
+    },
+    refresh (refreshToken: string) {
+      return api.post('/api/v1/auth/token/refresh', {
+        refresh: refreshToken
+      })
     }
   },
   task: {
@@ -22,6 +28,9 @@ export default {
       return api.post('/api/v1/tasks', {
         summary
       })
+    },
+    update (uid: string, task: Task) {
+      return api.put(`/api/v1/tasks/${uid}`, task)
     },
     delete (uid: string) {
       return api.delete(`/api/v1/tasks/${uid}`)

@@ -9,13 +9,11 @@ export interface Task {
 
 export type RootState = {
   tasks: Task[],
-  selected: Task | null
 }
 
 export const useTaskStore = defineStore('task', {
   state: () => ({
-    tasks: [],
-    selected: null
+    tasks: []
   } as RootState),
   actions: {
     init () {
@@ -33,8 +31,15 @@ export const useTaskStore = defineStore('task', {
         this.tasks = this.tasks.filter(t => t.uid !== task.uid)
       })
     },
-    select (task: Task) {
-      this.selected = task
+    update (task: Task) {
+      return api.task.update(task.uid, task).then(() => {
+        this.tasks = this.tasks.map(t => {
+          if (t.uid === task.uid) {
+            return task
+          }
+          return t
+        })
+      })
     }
   }
 })

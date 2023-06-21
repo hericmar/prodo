@@ -18,7 +18,7 @@
             <q-input
               filled
               v-model="username"
-              :placeholder="$t('username')"
+              :label="$t('username')"
               lazy-rules
               :rules="[ val => !!val || $t('empty') ]"
             />
@@ -27,7 +27,7 @@
               type="password"
               filled
               v-model="password"
-              :placeholder="$t('password')"
+              :label="$t('password')"
               lazy-rules
               :rules="[ val => !!val || $t('empty') ]"
             />

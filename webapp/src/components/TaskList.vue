@@ -1,12 +1,14 @@
 <template>
-  <q-input outlined
-           v-model="summary"
-           :label="$t('task_newInput')"
-           @keydown.enter="onAddTask" />
+  <q-card class="q-pa-sm sm">
+    <q-input outlined
+             v-model="summary"
+             :label="$t('task_newInput')"
+             @keydown.enter="onAddTask" />
 
-  <q-list>
-    <Task v-for="task in tasks" :key="task.uid" :task="task" />
-  </q-list>
+    <q-list>
+      <Task v-for="task in tasks" :key="task.uid" :task="task" />
+    </q-list>
+  </q-card>
 </template>
 
 <script lang="ts" setup>

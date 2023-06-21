@@ -8,6 +8,10 @@ export default {
 
   logout: 'Logout',
   login: 'Login',
+  username: 'Username',
+  password: 'Password',
+  summary: 'Summary',
+  description: 'Description',
 
   landing_description: 'New approach to productivity.',
 
