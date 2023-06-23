@@ -18,5 +18,7 @@ export default {
   login_title: 'Login to Prodo',
   login_unauthorized: 'Invalid credentials.',
 
-  task_newInput: 'New task'
+  task_newInput: 'New task',
+  task_interval: 'Interval',
+  task_wholeDay: 'Whole day'
 }

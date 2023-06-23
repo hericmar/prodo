@@ -4,6 +4,9 @@ import api from 'src/api'
 export interface Task {
   uid: string
   summary: string
+  description: string
+  start?: Date | null,
+  end?: Date | null,
   completed?: boolean
 }
 
@@ -18,6 +21,10 @@ export const useTaskStore = defineStore('task', {
   actions: {
     init () {
       api.task.list().then(response => {
+        response.data.forEach(task => {
+          task.start = new Date(task.start)
+          task.end = new Date(task.end)
+        })
         this.tasks = response.data
       })
     },

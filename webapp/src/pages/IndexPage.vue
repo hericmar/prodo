@@ -19,7 +19,7 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="confirmEdit" persistent>
+  <q-dialog v-model="confirmEdit" no-backdrop-dismiss :on-escape-key="() => confirmEdit = false">
     <q-card>
       <q-card-section>
         <TaskDetailForm :edited-task="task" />
