@@ -8,6 +8,7 @@ cryptography==41.0.1
 dateutils==0.6.12
 decorator==5.1.1
 Django==4.2.2
+django-cors-headers==4.1.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 dynaconf==3.1.12
@@ -18,6 +19,7 @@ pycparser==2.21
 pyhcl==0.4.4
 PyJWT==2.7.0
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3
 requests==2.31.0
 shortuuid==1.0.11
@@ -27,5 +29,4 @@ tzdata==2023.3
 urllib3==2.0.3
 validators==0.20.0
 win32-setctime==1.1.0
-django-cors-headers==4.1.0
-
+gunicorn==20.1.0

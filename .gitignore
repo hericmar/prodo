@@ -8,5 +8,4 @@ static/index.html
 
 venv/
 __pycache__/
-.env
 db.sqlite3
