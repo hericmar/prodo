@@ -1,11 +1,16 @@
 <template>
   <q-page
-    class="row items-center justify-evenly"
+    class="row justify-evenly"
   >
-    <TaskList />
+    <TaskList class="q-ma-lg" />
   </q-page>
 
-  <q-dialog v-model="confirmDelete" persistent>
+  <q-dialog
+    v-model="confirmDelete"
+    no-backdrop-dismiss
+    :on-escape-key="() => confirmDelete = false"
+    @keydown.enter="onDelete"
+  >
     <q-card>
       <q-card-section class="row items-center">
         <q-avatar icon="remove" color="primary" text-color="white" />
@@ -20,7 +25,7 @@
   </q-dialog>
 
   <q-dialog v-model="confirmEdit" no-backdrop-dismiss :on-escape-key="() => confirmEdit = false">
-    <q-card>
+    <q-card class="task-card">
       <q-card-section>
         <TaskDetailForm :edited-task="task" />
       </q-card-section>
@@ -66,3 +71,11 @@ emitter.on('on-edit-close', () => {
   task = undefined
 })
 </script>
+
+<style lang="sass">
+.task-card
+  @media (max-width: $breakpoint-xs)
+    width: 100%
+  @media (min-width: $breakpoint-xs)
+    width: 400px
+</style>

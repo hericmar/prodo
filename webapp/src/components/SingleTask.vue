@@ -1,11 +1,21 @@
 <template>
-  <q-item>
-    <q-item-section side>
-      <q-checkbox v-model="completed" />
+  <q-item class="q-pl-none" clickable @dblclick="onTaskClick">
+    <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
+
+    <q-item-section class="q-pl-xs" side>
+      <q-checkbox v-model="completed" @click="onCompletedClick" />
     </q-item-section>
 
     <q-item-section>
       <q-item-label>{{ props.task.summary }}</q-item-label>
+      <q-item-label v-if="props.task.description" caption>
+        {{ props.task.description }}
+      </q-item-label>
+      <q-item-label v-if="props.task.due" class="q-pt-sm">
+        <div class="flex self-center">
+          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDate(props.task.due) }}
+        </div>
+      </q-item-label>
     </q-item-section>
 
     <q-item-section side>
@@ -32,9 +42,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Task } from 'stores/task-store'
+import { Task, useTaskStore } from 'stores/task-store'
 import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
+import { formatDate } from 'src/utils/datetime'
 
 interface Props {
   task: Task
@@ -53,4 +64,26 @@ const onDelete = () => {
 const onEdit = () => {
   emitter.emit('on-edit', { task: props.task })
 }
+
+const onTaskClick = () => {
+  onEdit()
+}
+
+const taskStore = useTaskStore()
+
+const onCompletedClick = () => {
+  taskStore.toggle(props.task)
+}
 </script>
+
+<style>
+.missed-due {
+  background-color: #C10015;
+}
+
+.task-side {
+  width: 10px;
+  border-radius: 4px;
+  position: relative;
+}
+</style>

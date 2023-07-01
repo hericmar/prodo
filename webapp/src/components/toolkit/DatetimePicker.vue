@@ -57,13 +57,27 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const splitted = props.modelValue.toISOString().split('T')
-const formattedDate = splitted[0] + ' ' + splitted[1].substring(0, 5)
+let formattedDate = null
+if (props.modelValue) {
+  const splitted = props.modelValue.toISOString().split('T')
+  formattedDate = splitted[0] + ' ' + splitted[1].substring(0, 5)
+}
+
 const dateStr = ref(formattedDate)
 
 const onUpdate = () => {
+  console.log('onUpdate')
   emit('update:modelValue', new Date(dateStr.value))
 }
+
+watch(() => props.modelValue, (newValue, _) => {
+  if (newValue === null) {
+    dateStr.value = null
+  } else {
+    const splitted = newValue.toISOString().split('T')
+    dateStr.value = splitted[0] + ' ' + splitted[1].substring(0, 5)
+  }
+})
 
 watch(
   () => props.dateOnly,

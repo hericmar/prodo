@@ -7,7 +7,8 @@ export interface Task {
   description: string
   start?: Date | null,
   end?: Date | null,
-  completed?: boolean
+  completed?: Date | null,
+  due?: Date | null,
 }
 
 export type RootState = {
@@ -21,9 +22,16 @@ export const useTaskStore = defineStore('task', {
   actions: {
     init () {
       api.task.list().then(response => {
-        response.data.forEach(task => {
-          task.start = new Date(task.start)
-          task.end = new Date(task.end)
+        response.data.forEach((task: Task) => {
+          if (task.start) {
+            task.start = new Date(task.start)
+          }
+          if (task.end) {
+            task.end = new Date(task.end)
+          }
+          if (task.due) {
+            task.due = new Date(task.due)
+          }
         })
         this.tasks = response.data
       })
@@ -47,6 +55,14 @@ export const useTaskStore = defineStore('task', {
           return t
         })
       })
+    },
+    toggle (task: Task) {
+      if (task.completed === null) {
+        task.completed = new Date()
+      } else {
+        task.completed = null
+      }
+      this.update(task)
     }
   }
 })

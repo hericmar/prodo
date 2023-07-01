@@ -1,7 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header>
       <q-toolbar>
+        <!--
         <q-btn
           flat
           dense
@@ -10,9 +11,10 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
+        -->
 
         <q-toolbar-title>
-          <q-btn :to="{ name: 'index' }" flat>Quasar App</q-btn>
+          <q-btn :to="{ name: 'index' }" flat>Prodo</q-btn>
         </q-toolbar-title>
 
         <div>
@@ -26,6 +28,7 @@
       </q-toolbar>
     </q-header>
 
+    <!--
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
@@ -45,6 +48,7 @@
         />
       </q-list>
     </q-drawer>
+    -->
 
     <q-page-container>
       <router-view />

@@ -19,6 +19,6 @@ export default {
   login_unauthorized: 'Invalid credentials.',
 
   task_newInput: 'New task',
-  task_interval: 'Interval',
+  task_duration: 'Duration',
   task_wholeDay: 'Whole day'
 }

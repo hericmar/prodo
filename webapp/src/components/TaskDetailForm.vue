@@ -7,6 +7,11 @@
 
     <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined></q-input>
 
+    <div class="flex">
+      <DatetimePicker v-model="task.due" label="Due date"></DatetimePicker>
+      <q-btn flat icon="close" @click="task.due = null"></q-btn>
+    </div>
+
     <div class="block">
       <div class="row items-center">
         <div>
@@ -25,7 +30,7 @@
             round
             icon="add" />
         </div>
-        <h2 class="text-h6">{{ $t('task_interval') }}</h2>
+        <h2 class="text-h6">{{ $t('task_duration') }}</h2>
       </div>
 
       <div v-if="hasInterval" class="block q-col-gutter-md">
@@ -72,7 +77,7 @@ const task = ref<Task>(props.editedTask)
 
 console.log('task', task.value)
 
-const hasInterval = ref(!!task.value.start)
+const hasInterval = ref(task.value.start !== null)
 console.log('hasInterval', hasInterval.value)
 
 const onIntervalAdd = () => {

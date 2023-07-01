@@ -8,3 +8,11 @@ export function isTimeSet (date) {
     date.getSeconds() !== 0 ||
     date.getMilliseconds() !== 0
 }
+
+export function formatDate (date) {
+  if (!(date instanceof Date)) {
+    return ''
+  }
+
+  return date.toISOString().substr(0, 10)
+}
