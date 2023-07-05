@@ -1,0 +1,17 @@
+#!/sbin/openrc-run
+
+name="prodo"
+description="Prodo daemon"
+command="/usr/bin/prodo"
+command_user="prodo"
+command_args="start"
+command_background=true
+pidfile="/var/run/prodo.pid"
+output_log="/var/log/prodo.log"
+error_log="/var/log/prodo.log"
+
+depend() {
+    need net
+    use dns logger nginx
+    after firewall postgresql
+}

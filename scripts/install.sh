@@ -41,6 +41,14 @@ cp bin/prodo.sh /usr/bin/prodo
 chown root:$PRODO_GROUP /usr/bin/prodo
 chmod 750 /usr/bin/prodo
 
+# If open-rc is installed, copy etc/init.d/prodo to /etc/init.d
+if [ -d "/etc/init.d" ]; then
+  echo "OpenRC found. Creating init script..."
+  cp etc/init.d/prodo /etc/init.d/prodo
+  chown root:root /etc/init.d/prodo
+  chmod 700 /etc/init.d/prodo
+fi
+
 # Create python virtual environment if it doesn't exist
 if [ ! -d "$PRODO_DIR/venv" ]; then
   echo "Prodo virtual environment not found. Creating..."

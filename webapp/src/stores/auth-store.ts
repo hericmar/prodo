@@ -26,6 +26,9 @@ export const useAuthStore = defineStore('auth', {
           if (error.response.status === 401) {
             this.message = 'login_unauthorized'
             throw new Error('login_unauthorized')
+          } else {
+            this.message = 'error'
+            throw new Error('error')
           }
         })
     },
