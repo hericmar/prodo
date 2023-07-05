@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import mimetypes
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -40,7 +41,6 @@ CSRF_TRUSTED_ORIGINS = config.csrf_trusted_origins
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
-
 
 # Application definition
 
@@ -162,8 +162,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
-STATIC_ROOT = BASE_DIR.joinpath('static/')
+STATIC_ROOT = BASE_DIR.joinpath('static/static/')
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR.joinpath('media/')

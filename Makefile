@@ -9,3 +9,9 @@ build:
 install:
 	@echo "Installing prodo..."
 	scripts/install.sh
+
+uninstall:
+	@echo "Uninstalling prodo..."
+	rm -rf /usr/share/webapps/prodo
+	rm /usr/bin/prodo
+
