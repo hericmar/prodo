@@ -4,8 +4,15 @@ Simple web application for managing todo lists with export to calendar using iCa
 Application is available at `prodo.phire.cz`.
 
 ## Installation
+Build and install application using `make`:
 ```bash
 make && make install
+```
+
+Create database and collect static files into `static` directory:
+```bash
+prodo migrate
+prodo collectstatic
 ```
 
 ## Development
