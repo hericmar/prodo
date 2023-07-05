@@ -36,6 +36,7 @@ if not DEBUG:
     config = load_config('/etc/prodo/config.toml')
 
 ALLOWED_HOSTS = config.allowed_hosts
+CSRF_TRUSTED_ORIGINS = config.csrf_trusted_origins
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True

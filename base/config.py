@@ -17,6 +17,7 @@ class PostgresConfig:
 @dataclass
 class Config:
     allowed_hosts: list[str] = field(default_factory=lambda: ["localhost"])
+    csrf_trusted_origins: list[str] = field(default_factory=lambda: ["http://localhost"])
     postgres: PostgresConfig | None = None
 
 
