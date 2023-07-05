@@ -8,7 +8,7 @@ PRODO_DIR=/usr/share/webapps/prodo
 PRODO_CONFIG_DIR=/etc/prodo
 
 # Check if website is built
-if [ ! -d "webapp/build" ]; then
+if [ ! -d "static/assets" ]; then
   echo "Website not built. Please run 'make' first."
   exit 1
 fi
@@ -35,13 +35,11 @@ if [ ! -d "$PRODO_CONFIG_DIR" ]; then
   chmod -R 750 $PRODO_CONFIG_DIR
 fi
 
-# Copy prodo.sh to /usr/bin if it doesn't exist
-if [ ! -f "/usr/bin/prodo" ]; then
-  echo "Prodo executable not found. Creating..."
-  cp bin/prodo.sh /usr/bin/prodo
-  chown root:$PRODO_GROUP /usr/bin/prodo
-  chmod 750 /usr/bin/prodo
-fi
+# Copy prodo.sh to /usr/bin
+echo "Prodo executable not found. Creating..."
+cp bin/prodo.sh /usr/bin/prodo
+chown root:$PRODO_GROUP /usr/bin/prodo
+chmod 750 /usr/bin/prodo
 
 # Create python virtual environment if it doesn't exist
 if [ ! -d "$PRODO_DIR/venv" ]; then
@@ -52,7 +50,15 @@ fi
 
 # Copy files to prodo directory
 echo "Copying files to Prodo directory..."
-cp -r . $PRODO_DIR
+cp -r base $PRODO_DIR
+cp -r ical $PRODO_DIR
+cp -r prodo $PRODO_DIR
+cp -r tasks $PRODO_DIR
+cp -r users $PRODO_DIR
+cp -r static $PRODO_DIR
+
+cp manage.py $PRODO_DIR
+cp requirements.txt $PRODO_DIR
 
 # Activate virtual environment
 source $PRODO_DIR/venv/bin/activate
@@ -61,7 +67,3 @@ source $PRODO_DIR/venv/bin/activate
 echo "Installing dependencies..."
 pip install -r $PRODO_DIR/requirements.txt
 
-# Build frontend
-cd $PRODO_DIR/webapp
-pnpm install
-pnpm build

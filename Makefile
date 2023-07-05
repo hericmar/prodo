@@ -8,4 +8,4 @@ build:
 
 install:
 	@echo "Installing prodo..."
-	script/install.sh
+	scripts/install.sh

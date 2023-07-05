@@ -3,6 +3,6 @@ debug = false
 [postgres]
 host = "localhost"
 port = 5432
-name = "prodo"
+database = "prodo"
 user = "prodo"
 password = "password"

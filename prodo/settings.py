@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-i4k*1)z_l$p=2&_k-g659nf+9n(2=4@7^g3l%gon4aakn_x(07
 DEBUG = os.getenv('DEBUG', False)
 
 if not DEBUG:
-    config = load_config()
+    config = load_config('/etc/prodo/config.toml')
 
 ALLOWED_HOSTS = ["localhost"]
 

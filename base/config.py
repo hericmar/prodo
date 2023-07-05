@@ -16,7 +16,7 @@ class PostgresConfig:
 
 @dataclass
 class Config:
-    postgres: PostgresConfig | None
+    postgres: PostgresConfig | None = None
 
 
 def load_config(path: str) -> Config | None:
