@@ -49,6 +49,14 @@ if [ -d "/etc/init.d" ]; then
   chmod 700 /etc/init.d/prodo
 fi
 
+# Create log file if does not exists
+if [ ! -f "/var/log/prodo.log" ]; then
+  echo "Creating /var/log/prodo.log file..."
+  touch /var/log/prodo.log
+  chown prodo:prodo /var/log/prodo.log
+  chmod 700 /var/log/prodo.log
+fi
+
 # Create python virtual environment if it doesn't exist
 if [ ! -d "$PRODO_DIR/venv" ]; then
   echo "Prodo virtual environment not found. Creating..."
