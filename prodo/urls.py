@@ -22,7 +22,6 @@ from django.urls import path, include
 from rest_framework import routers
 
 from prodo import settings
-from tasks.views import ical_view
 
 router = routers.DefaultRouter()
 
@@ -56,7 +55,6 @@ def index_view(request):
 urlpatterns = [
     path('', index_view),
     path('admin/', admin.site.urls),
-    path('ical', ical_view),
     path('api/v1', include(router.urls)),
     path('api/v1/auth', include('users.urls')),
     path('api/v1/ical', include('ical.urls')),

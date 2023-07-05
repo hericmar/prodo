@@ -1,11 +1,15 @@
+from django.http import HttpResponse
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.generics import DestroyAPIView, RetrieveAPIView, CreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 
 from base.serializers import EmptySerializer
 from ical.models import Subscription
-from ical.serializers import SubscriptionSerializer
+from ical.serializers import SubscriptionSerializer, PostSubscriptionSerializer
+from tasks.models import Task
 
 
 class SubscriptionView(RetrieveAPIView, CreateAPIView, DestroyAPIView):
@@ -14,7 +18,7 @@ class SubscriptionView(RetrieveAPIView, CreateAPIView, DestroyAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return EmptySerializer
+            return PostSubscriptionSerializer
         return SubscriptionSerializer
 
     def get_queryset(self):
@@ -47,3 +51,54 @@ class SubscriptionView(RetrieveAPIView, CreateAPIView, DestroyAPIView):
             )
 
         Subscription.objects.filter(user=self.request.user).delete()
+
+
+@api_view(['GET'])
+@throttle_classes([UserRateThrottle])
+def ical_view(request, secret: str):
+    subscription = get_object_or_404(Subscription, secret=secret)
+    if subscription.secret != secret:
+        return Response(
+            {"error": ""},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    tasks = Task.objects.filter(active=True)
+
+    EVENT_TEMPLATE = """BEGIN:VEVENT
+DTSTAMP:{created}
+SUMMARY:{summary}
+DESCRIPTION:{description}
+UID:{uid}"""
+
+    events = []
+    for task in tasks:
+        event_data = {**task.__dict__}
+
+        if not event_data['start']:
+            continue
+
+        # event_data['uid'] = str(event_data['uid']) + '@prodo'
+        event_data['created'] = event_data['created'].strftime('%Y%m%dT%H%M%SZ')
+
+        event = EVENT_TEMPLATE.format(**event_data)
+
+        if 'start' in event_data and 'end' in event_data:
+            event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
+            event = event + "\nDTEND:" + event_data['end'].strftime('%Y%m%dT%H%M%SZ')
+
+        if event_data['rrule']:
+            event += "RRULE:" + event_data['rrule']
+
+        event += "\nEND:VEVENT"
+
+        events.append(event)
+
+    data = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Prodo//Tasks//EN
+{events}
+END:VCALENDAR
+""".format(events='\nEND:VEVENT\n'.join(events))
+
+    return HttpResponse(data.replace('\n', '\r\n'), content_type='text/calendar')

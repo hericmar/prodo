@@ -49,6 +49,9 @@
           </template>
         </q-input>
       </q-card-section>
+      <q-card-section>
+        <q-btn flat label="Remove" color="red" @click="onRemoveLink" v-if="link !== ''" />
+      </q-card-section>
       <q-card-actions>
         <q-btn flat label="Close" color="primary" @click="confirmLink = false" v-close-popup />
       </q-card-actions>
@@ -111,7 +114,15 @@ emitter.on('on-link', () => {
 
 const onCreateLink = () => {
   api.ical.create().then((res) => {
-    link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+    api.ical.get().then((res) => {
+      link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+    })
+  })
+}
+
+const onRemoveLink = () => {
+  api.ical.delete().then(() => {
+    link.value = ''
   })
 }
 
