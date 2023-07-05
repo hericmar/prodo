@@ -35,7 +35,7 @@ DEBUG = os.getenv('DEBUG', False)
 if not DEBUG:
     config = load_config('/etc/prodo/config.toml')
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = config.allowed_hosts
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True

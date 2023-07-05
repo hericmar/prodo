@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import dacite
@@ -16,6 +16,7 @@ class PostgresConfig:
 
 @dataclass
 class Config:
+    allowed_hosts: list[str] = field(default_factory=lambda: ["localhost"])
     postgres: PostgresConfig | None = None
 
 
