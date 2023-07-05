@@ -1,7 +1,10 @@
 <template>
   <q-card class="q-pa-sm task-list">
     <div class="flex justify-between items-baseline">
-      <h2 class="q-pl-xs q-mb-xs text-h6">Tasks</h2>
+      <div class="flex items-baseline">
+        <h2 class="q-pl-xs q-mb-xs text-h6">Tasks</h2>
+        <q-btn icon="link" flat color="grey" dense rounded @click="onLinkClick"></q-btn>
+      </div>
       <q-tabs
         v-model="tab"
         class="q-pb-sm flex"
@@ -29,6 +32,7 @@
 import { useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import Task from 'components/SingleTask.vue'
+import emitter from 'src/plugins/mitt'
 
 const taskStore = useTaskStore()
 
@@ -59,6 +63,12 @@ const tasks = computed(() => {
     })
   }
 })
+
+const onLinkClick = () => {
+  emitter.emit('on-link', {
+    list: ''
+  })
+}
 
 onMounted(() => {
   taskStore.init()

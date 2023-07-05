@@ -20,7 +20,7 @@ export interface ExtendedWindow extends Window {
   PRODO_BASE_URL: string
 }
 
-const BASE_URL = import.meta.env.DEV
+export const BASE_URL = import.meta.env.DEV
   ? 'http://localhost:8000'
   : (window as unknown as ExtendedWindow).PRODO_BASE_URL
 

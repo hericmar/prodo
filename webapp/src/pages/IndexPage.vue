@@ -31,6 +31,29 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+
+  <q-dialog v-model="confirmLink" no-backdrop-dismiss :on-escape-key="() => confirmLink = false">
+    <q-card class="task-card">
+      <q-card-section>
+        <h2 class="text-h6">{{ $t('subscription_header') }}</h2>
+        <p>{{ $t('subscription_url_description') }}</p>
+      </q-card-section>
+      <q-card-section>
+        <span v-if="link === ''" class="flex items-center">
+          <q-btn icon="add" round flat @click="onCreateLink"></q-btn>
+          {{ $t('subscription_generate') }}
+        </span>
+        <q-input v-else outlined v-model="link" :label="$t('subscription_url')" readonly>
+          <template v-slot:after>
+            <q-btn flat icon="content_copy" @click="onCreateLink" />
+          </template>
+        </q-input>
+      </q-card-section>
+      <q-card-actions>
+        <q-btn flat label="Close" color="primary" @click="confirmLink = false" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -39,6 +62,8 @@ import { Task, useTaskStore } from 'stores/task-store'
 import TaskList from 'components/TaskList.vue'
 import emitter from 'src/plugins/mitt'
 import TaskDetailForm from 'components/TaskDetailForm.vue'
+import api from 'src/api'
+import { BASE_URL } from 'src/boot/axios'
 
 const taskStore = useTaskStore()
 
@@ -70,6 +95,29 @@ emitter.on('on-edit-close', () => {
   confirmEdit.value = false
   task = undefined
 })
+
+// Create link dialog
+
+const link = ref('')
+
+api.ical.get().then((res) => {
+  link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+})
+
+const confirmLink = ref(false)
+emitter.on('on-link', () => {
+  confirmLink.value = true
+})
+
+const onCreateLink = () => {
+  api.ical.create().then((res) => {
+    link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+  })
+}
+
+const onLinkClose = () => {
+  confirmLink.value = false
+}
 </script>
 
 <style lang="sass">

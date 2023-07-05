@@ -20,5 +20,10 @@ export default {
 
   task_newInput: 'New task',
   task_duration: 'Duration',
-  task_wholeDay: 'Whole day'
+  task_wholeDay: 'Whole day',
+
+  subscription_url: 'Subscription URL',
+  subscription_header: 'Subscription',
+  subscription_url_description: 'Copy this URL to your calendar app to subscribe to your tasks.',
+  subscription_generate: 'Generate subscription URL'
 }

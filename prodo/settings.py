@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ical.apps.IcalConfig',
     'tasks.apps.TasksConfig',
     'users.apps.UsersConfig',
     'corsheaders',

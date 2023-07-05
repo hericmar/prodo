@@ -82,17 +82,3 @@ class TaskEvent(Creatable):
             models.Index(fields=['task']),
             models.Index(fields=['event_type']),
         ]
-
-
-class Subscription(models.Model):
-    """
-    A subscription to a task
-    """
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    secret = models.CharField(max_length=64, editable=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['secret'])
-        ]

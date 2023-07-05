@@ -59,5 +59,6 @@ urlpatterns = [
     path('ical', ical_view),
     path('api/v1', include(router.urls)),
     path('api/v1/auth', include('users.urls')),
+    path('api/v1/ical', include('ical.urls')),
     path('api/v1/tasks', include('tasks.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

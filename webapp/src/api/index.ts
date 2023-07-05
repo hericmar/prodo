@@ -35,5 +35,16 @@ export default {
     delete (uid: string) {
       return api.delete(`/api/v1/tasks/${uid}`)
     }
+  },
+  ical: {
+    get () {
+      return api.get('/api/v1/ical')
+    },
+    create () {
+      return api.post('/api/v1/ical')
+    },
+    delete () {
+      return api.delete('/api/v1/ical')
+    }
   }
 }
