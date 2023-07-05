@@ -7,7 +7,11 @@ PRODO_GROUP=prodo
 PRODO_DIR=/usr/share/webapps/prodo
 PRODO_CONFIG_DIR=/etc/prodo
 
-echo "Installing Prodo..."
+# Check if website is built
+if [ ! -d "webapp/build" ]; then
+  echo "Website not built. Please run 'make' first."
+  exit 1
+fi
 
 # Create prodo user if it doesn't exist
 if ! id -u $PRODO_USER > /dev/null 2>&1; then
@@ -26,6 +30,7 @@ fi
 if [ ! -d "$PRODO_CONFIG_DIR" ]; then
   echo "Prodo config directory not found. Creating..."
   mkdir -p $PRODO_CONFIG_DIR
+  cp etc/prodo/* $PRODO_CONFIG_DIR
   chown -R root:$PRODO_GROUP $PRODO_CONFIG_DIR
   chmod -R 750 $PRODO_CONFIG_DIR
 fi

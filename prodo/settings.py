@@ -14,12 +14,14 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
+from base.config import load_config, Config
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+config = Config()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -29,6 +31,9 @@ SECRET_KEY = 'django-insecure-i4k*1)z_l$p=2&_k-g659nf+9n(2=4@7^g3l%gon4aakn_x(07
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
+
+if not DEBUG:
+    config = load_config()
 
 ALLOWED_HOSTS = ["localhost"]
 
@@ -101,12 +106,24 @@ WSGI_APPLICATION = 'prodo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if config.postgres:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': config.postgres.database,
+            'USER': config.postgres.user,
+            'PASSWORD': config.postgres.password,
+            'HOST': config.postgres.host,
+            'PORT': config.postgres.port,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

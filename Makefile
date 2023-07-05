@@ -5,3 +5,7 @@ build:
 	@echo "Building prodo..."
 	cd webapp && pnpm install && pnpm run build
 	cp -r webapp/dist/spa/* static/
+
+install:
+	@echo "Installing prodo..."
+	script/install.sh
