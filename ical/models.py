@@ -17,7 +17,7 @@ class Subscription(Creatable):
 
     @staticmethod
     def generate_secret():
-        return secrets.token_hex(SECRET_LENGTH)
+        return secrets.token_hex(SECRET_LENGTH)[0:SECRET_LENGTH]
 
     class Meta:
         indexes = [
