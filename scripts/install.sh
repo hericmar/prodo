@@ -53,6 +53,7 @@ cp -r . $PRODO_DIR
 source $PRODO_DIR/venv/bin/activate
 
 # Install dependencies
+echo "Installing dependencies..."
 pip install -r $PRODO_DIR/requirements.txt
 
 # Build frontend
