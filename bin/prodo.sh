@@ -10,7 +10,11 @@ source venv/bin/activate
 case $1 in
   start)
     echo "Starting Prodo..."
-    gunicorn prodo.wsgi:application --bind
+    exec gunicorn prodo.wsgi:application \
+	    --bind localhost:9200 \
+	    --workers 4 \
+	    --timeout 90 \
+	    --pid /var/run/prodo.pid
     ;;
   *)
     python manage.py $@
