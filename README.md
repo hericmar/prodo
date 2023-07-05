@@ -3,6 +3,11 @@ Simple web application for managing todo lists with export to calendar using iCa
 
 Application is available at `prodo.phire.cz`.
 
+## Installation
+```bash
+make && make install
+```
+
 ## Development
 ```bash
 # Create virtual environment
