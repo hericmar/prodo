@@ -45,7 +45,7 @@
         </span>
         <q-input v-else outlined v-model="link" :label="$t('subscription_url')" readonly>
           <template v-slot:after>
-            <q-btn flat icon="content_copy" @click="onCreateLink" />
+            <q-btn flat icon="content_copy" @click="onLinkCopy" />
           </template>
         </q-input>
       </q-card-section>
@@ -60,13 +60,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Task, useTaskStore } from 'stores/task-store'
 import TaskList from 'components/TaskList.vue'
 import emitter from 'src/plugins/mitt'
 import TaskDetailForm from 'components/TaskDetailForm.vue'
 import api from 'src/api'
 import { BASE_URL } from 'src/boot/axios'
+import { copyToClipboard } from 'quasar'
 
 const taskStore = useTaskStore()
 
@@ -124,6 +125,16 @@ const onRemoveLink = () => {
   api.ical.delete().then(() => {
     link.value = ''
   })
+}
+
+const onLinkCopy = () => {
+  copyToClipboard(link.value)
+    .then(() => {
+      // success!
+    })
+    .catch(() => {
+      // fail
+    })
 }
 
 const onLinkClose = () => {
