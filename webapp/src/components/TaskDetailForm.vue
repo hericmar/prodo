@@ -49,6 +49,10 @@
 
     <!-- https://github.com/jakubroztocil/rrule -->
     <!-- TODO rrule input https://codepen.io/theeternalsw0rd/pen/JLMjGx -->
+    <RRulePicker
+      v-model="task.rrule"
+      :dtstart="task.start"
+    />
 
     <div class="q-pa-md q-gutter-sm">
       <q-btn flat label="Cancel" color="primary" @click="onClose" />
@@ -63,6 +67,7 @@ import { PropType, ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { isTimeSet } from 'src/utils/datetime'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
+import RRulePicker from 'components/toolkit/RRulePicker.vue'
 
 const props = defineProps({
   editedTask: {

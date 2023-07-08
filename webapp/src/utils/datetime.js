@@ -9,6 +9,11 @@ export function isTimeSet (date) {
     date.getMilliseconds() !== 0
 }
 
+/**
+ * Format date to YYYY-MM-DD format
+ * @param date
+ * @returns {string}
+ */
 export function formatDate (date) {
   if (!(date instanceof Date)) {
     return ''

@@ -2,11 +2,11 @@
   <q-item class="q-pl-none" clickable @dblclick="onTaskClick">
     <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
 
-    <q-item-section class="q-pl-xs" side>
+    <q-item-section class="q-pr-none" side>
       <q-checkbox v-model="completed" @click="onCompletedClick" />
     </q-item-section>
 
-    <q-item-section>
+    <q-item-section class="q-pl-md">
       <q-item-label>{{ props.task.summary }}</q-item-label>
       <q-item-label v-if="props.task.description" caption>
         {{ props.task.description }}
@@ -15,6 +15,9 @@
         <div class="flex self-center">
           <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDate(props.task.due) }}
         </div>
+      </q-item-label>
+      <q-item-label v-if="props.task.rrule" class="q-pt-sm text-grey-7">
+        {{ RRule.fromString(props.task.rrule).toText() }}
       </q-item-label>
     </q-item-section>
 
@@ -46,6 +49,7 @@ import { Task, useTaskStore } from 'stores/task-store'
 import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { formatDate } from 'src/utils/datetime'
+import { RRule } from 'rrule'
 
 interface Props {
   task: Task

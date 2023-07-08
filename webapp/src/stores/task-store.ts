@@ -9,6 +9,7 @@ export interface Task {
   end?: Date | null,
   completed?: Date | null,
   due?: Date | null,
+  rrule?: string | null,
 }
 
 export type RootState = {

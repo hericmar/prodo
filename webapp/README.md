@@ -1,24 +1,18 @@
 # Prodo WebApp (prodo-webapp)
 
-## Install the dependencies
+## Development
 ```bash
 pnpm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+## Deployment
+First of all, bump the version in `package.json` and `src-pwa/manifest.json`.
+Then, run the following command:
 ```bash
-quasar dev
+pnpm build --mode pwa
 ```
 
-### Lint the files
-```bash
-pnpm run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
+Now, you can deploy the `dist/pwa` folder to your web server.
 
 ### Customize the configuration
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).

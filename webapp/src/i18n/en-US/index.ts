@@ -5,13 +5,27 @@ export default {
   failed: 'Action failed',
   success: 'Action was successful',
   empty: 'Fill this field.',
+  value_must_be_positive: 'Value must be positive.',
 
   logout: 'Logout',
   login: 'Login',
+
   username: 'Username',
   password: 'Password',
   summary: 'Summary',
   description: 'Description',
+
+  day: 'Day',
+  week: 'Week',
+  month: 'Month',
+  year: 'Year',
+  monday: 'Monday',
+  tuesday: 'Tuesday',
+  wednesday: 'Wednesday',
+  thursday: 'Thursday',
+  friday: 'Friday',
+  saturday: 'Saturday',
+  sunday: 'Sunday',
 
   landing_description: 'New approach to productivity.',
 
@@ -21,6 +35,19 @@ export default {
   task_newInput: 'New task',
   task_duration: 'Duration',
   task_wholeDay: 'Whole day',
+  task_recurrence: 'Recurrence',
+
+  without_recurrence: 'Without recurrence',
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+  each_workday: 'Each workday',
+  custom: 'Custom',
+
+  recurrence_once: 'Once per',
+  recurrence_repeat: 'Repeat every',
+  recurrence_end: 'Ends',
 
   subscription_url: 'Subscription URL',
   subscription_header: 'Subscription',

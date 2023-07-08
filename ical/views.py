@@ -72,27 +72,31 @@ DESCRIPTION:{description}
 UID:{uid}"""
 
     events = []
+
+    # dtstart is required by ical spec
+    tasks = filter(lambda task: task.start is not None, tasks)
+
     for task in tasks:
         event_data = {**task.__dict__}
-
-        if not event_data['start']:
-            continue
 
         # event_data['uid'] = str(event_data['uid']) + '@prodo'
         event_data['created'] = event_data['created'].strftime('%Y%m%dT%H%M%SZ')
 
         event = EVENT_TEMPLATE.format(**event_data)
 
-        if 'start' in event_data and 'end' in event_data:
-            event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
+        event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
+
+        if 'end' in event_data:
+            # dtend is optional, dtstart can be used with duration or rrule
             event = event + "\nDTEND:" + event_data['end'].strftime('%Y%m%dT%H%M%SZ')
 
         if event_data['rrule']:
-            event += "RRULE:" + event_data['rrule']
-
-        event += "\nEND:VEVENT"
+            event += "\nRRULE:" + event_data['rrule']
 
         events.append(event)
+
+    if len(events) == 1:
+        events[0] += "\nEND:VEVENT"
 
     data = """BEGIN:VCALENDAR
 VERSION:2.0
