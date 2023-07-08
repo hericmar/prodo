@@ -1,7 +1,7 @@
 <template>
-  <q-card class="q-pa-sm task-list">
+  <q-card class="task-list q-ma-sm q-ma-lg-lg q-pa-sm">
     <div class="flex justify-between items-baseline">
-      <div class="flex items-baseline">
+      <div class="flex">
         <h2 class="q-pl-xs q-mb-xs text-h6">Tasks</h2>
         <q-btn icon="link" flat color="grey" dense rounded @click="onLinkClick"></q-btn>
       </div>

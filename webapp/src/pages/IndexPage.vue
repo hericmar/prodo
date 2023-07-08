@@ -2,7 +2,7 @@
   <q-page
     class="row justify-evenly"
   >
-    <TaskList class="q-ma-lg" />
+    <TaskList />
   </q-page>
 
   <q-dialog
