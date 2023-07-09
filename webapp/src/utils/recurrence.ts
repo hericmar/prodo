@@ -1,5 +1,6 @@
 import { RRule } from 'rrule'
 import { Task } from 'stores/task-store'
+import { stripSeconds } from 'src/utils/datetime'
 
 export const BYWEEKDAY_OPTIONS = [
   {
@@ -48,11 +49,11 @@ export const evaluateRRule = (task: Task) => {
     rrule.options.dtstart = task.start
   }
 
-  const now = new Date()
+  const now = stripSeconds(new Date())
 
   if (task.completed === null) {
     // task has never been completed, check if first occurrence is in the future
-    const first = rrule.after(task.created, true)
+    const first = stripSeconds(rrule.after(task.created, true))
     if (first === null) {
       return RRuleEvaluation.None
     } else if (first > now) {
@@ -61,13 +62,15 @@ export const evaluateRRule = (task: Task) => {
       return RRuleEvaluation.Missed
     }
   } else {
-    const next = rrule.after(task.completed, true)
+    const next = stripSeconds(rrule.after(task.completed, true))
     if (next === null) {
       return RRuleEvaluation.None
-    } else if (next < now) {
-      return RRuleEvaluation.Missed
-    } else {
+    } else if (now <= next) {
+      console.log('future')
       return RRuleEvaluation.Future
+    } else {
+      console.log('missed')
+      return RRuleEvaluation.Missed
     }
   }
 }

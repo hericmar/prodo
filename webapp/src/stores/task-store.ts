@@ -17,6 +17,22 @@ export type RootState = {
   tasks: Task[],
 }
 
+function toTask (task: any) {
+  task.created = new Date(task.created)
+  if (task.completed) {
+    task.completed = new Date(task.completed)
+  }
+  if (task.start) {
+    task.start = new Date(task.start)
+  }
+  if (task.end) {
+    task.end = new Date(task.end)
+  }
+  if (task.due) {
+    task.due = new Date(task.due)
+  }
+}
+
 export const useTaskStore = defineStore('task', {
   state: () => ({
     tasks: []
@@ -25,25 +41,14 @@ export const useTaskStore = defineStore('task', {
     init () {
       api.task.list().then(response => {
         response.data.forEach((task: Task) => {
-          task.created = new Date(task.created)
-          if (task.completed) {
-            task.completed = new Date(task.completed)
-          }
-          if (task.start) {
-            task.start = new Date(task.start)
-          }
-          if (task.end) {
-            task.end = new Date(task.end)
-          }
-          if (task.due) {
-            task.due = new Date(task.due)
-          }
+          toTask(task)
         })
         this.tasks = response.data
       })
     },
     addTask (summary: string) {
       api.task.create(summary).then(response => {
+        toTask(response.data)
         this.tasks.push(response.data)
       })
     },

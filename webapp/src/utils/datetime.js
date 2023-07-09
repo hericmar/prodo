@@ -26,3 +26,7 @@ export function formatDate (date, dateOnly = false) {
     return date.toISOString().replace('T', ' ').substr(0, 16)
   }
 }
+
+export function stripSeconds (date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes())
+}
