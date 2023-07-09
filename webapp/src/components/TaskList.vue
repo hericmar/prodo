@@ -24,15 +24,20 @@
       @keydown.enter="onAddTask" />
 
     <q-list class="q-pt-sm">
-      <Task v-for="task in tasks" :key="task.uid" :task="task" />
+      <SingleTask
+        v-for="task in tasks" :key="task.uid"
+        :task="task"
+        :greyed="evaluateRRule(task) === RRuleEvaluation.Future"
+      />
     </q-list>
   </q-card>
 </template>
 <script lang="ts" setup>
 import { useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
-import Task from 'components/SingleTask.vue'
+import SingleTask from 'components/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
+import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
 
 const taskStore = useTaskStore()
 
@@ -58,8 +63,9 @@ const tasks = computed(() => {
       return task.completed
     })
   } else {
+    // active
     return taskStore.tasks.filter((task) => {
-      return !task.completed
+      return !task.completed || task.rrule
     })
   }
 })

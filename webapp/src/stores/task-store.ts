@@ -5,11 +5,12 @@ export interface Task {
   uid: string
   summary: string
   description: string
+  created: Date,
   start?: Date | null,
   end?: Date | null,
-  completed?: Date | null,
+  completed: Date | null,
   due?: Date | null,
-  rrule?: string | null,
+  rrule: string | null,
 }
 
 export type RootState = {
@@ -24,6 +25,10 @@ export const useTaskStore = defineStore('task', {
     init () {
       api.task.list().then(response => {
         response.data.forEach((task: Task) => {
+          task.created = new Date(task.created)
+          if (task.completed) {
+            task.completed = new Date(task.completed)
+          }
           if (task.start) {
             task.start = new Date(task.start)
           }

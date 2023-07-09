@@ -3,10 +3,14 @@
     <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
 
     <q-item-section class="q-pr-none" side>
-      <q-checkbox v-model="completed" @click="onCompletedClick" />
+      <q-checkbox
+        v-model="completed"
+        @click="onCompletedClick"
+        :color="props.greyed ? 'grey' : 'primary'"
+      />
     </q-item-section>
 
-    <q-item-section class="q-pl-md">
+    <q-item-section class="q-pl-md" :class="{ greyed: props.greyed }">
       <q-item-label>{{ props.task.summary }}</q-item-label>
       <q-item-label v-if="props.task.description" caption>
         {{ props.task.description }}
@@ -52,7 +56,8 @@ import { formatDate } from 'src/utils/datetime'
 import { RRule } from 'rrule'
 
 interface Props {
-  task: Task
+  task: Task,
+  greyed?: boolean
 }
 
 const emit = defineEmits(['onDelete'])
@@ -89,5 +94,9 @@ const onCompletedClick = () => {
   width: 10px;
   border-radius: 4px;
   position: relative;
+}
+
+.greyed {
+  filter: brightness(150%);
 }
 </style>

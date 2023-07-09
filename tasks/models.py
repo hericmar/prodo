@@ -35,6 +35,8 @@ class Task(Creatable, Updatable):
     rrule = models.CharField(max_length=255, validators=[validate_rrule], null=True, blank=True)
     sequence = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
+
+    # Last time the task was completed
     completed = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -56,6 +58,9 @@ class Task(Creatable, Updatable):
             if not previous.active:
                 # TODO check if task is not already inactive, must be done in the database
                 raise ValidationError('Task is not active')
+
+            if previous.created != self.created:
+                raise ValidationError('Task created date cannot be modified')
 
             self.sequence += 1
         except Task.DoesNotExist:
