@@ -1,5 +1,5 @@
 <template>
-  <q-pull-to-refresh @refresh="onRefresh">
+  <q-pull-to-refresh @refresh="onRefresh" no-mouse>
     <q-page
       class="row justify-evenly"
     >
