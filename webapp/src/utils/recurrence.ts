@@ -1,6 +1,6 @@
 import { RRule } from 'rrule'
 import { Task } from 'stores/task-store'
-import { stripSeconds } from 'src/utils/datetime'
+import { stripSeconds, stripTime } from 'src/utils/datetime'
 
 export const BYWEEKDAY_OPTIONS = [
   {
@@ -36,6 +36,8 @@ export const BYWEEKDAY_OPTIONS = [
 export enum RRuleEvaluation {
   Future,
   Missed,
+  Now,
+  NoMore,
   None
 }
 
@@ -49,27 +51,37 @@ export const evaluateRRule = (task: Task) => {
     rrule.options.dtstart = task.start
   }
 
-  const now = stripSeconds(new Date())
+  const now = stripTime(new Date())
 
   if (task.completed === null) {
     // task has never been completed, check if first occurrence is in the future
-    const first = stripSeconds(rrule.after(task.created, true))
+    let first = rrule.after(task.created, true)
+    console.log('first', first)
     if (first === null) {
-      return RRuleEvaluation.None
-    } else if (first > now) {
+      return RRuleEvaluation.NoMore
+    }
+
+    first = stripTime(first)
+    if (first.getTime() > now.getTime()) {
       return RRuleEvaluation.Future
+    } else if (first.getTime() === now.getTime()) {
+      return RRuleEvaluation.Now
     } else {
       return RRuleEvaluation.Missed
     }
   } else {
-    const next = stripSeconds(rrule.after(task.completed, true))
+    let next = rrule.after(task.completed, true)
+    console.log('next', next)
     if (next === null) {
-      return RRuleEvaluation.None
-    } else if (now <= next) {
-      console.log('future')
+      return RRuleEvaluation.NoMore
+    }
+
+    next = stripTime(next)
+    if (now.getTime() < next.getTime()) {
       return RRuleEvaluation.Future
+    } else if (now.getTime() === next.getTime()) {
+      return RRuleEvaluation.Now
     } else {
-      console.log('missed')
       return RRuleEvaluation.Missed
     }
   }

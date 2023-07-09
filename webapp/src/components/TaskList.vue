@@ -27,7 +27,6 @@
       <SingleTask
         v-for="task in tasks" :key="task.uid"
         :task="task"
-        :greyed="evaluateRRule(task) === RRuleEvaluation.Future"
       />
     </q-list>
   </q-card>

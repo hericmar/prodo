@@ -136,10 +136,6 @@ const onLinkCopy = () => {
       // fail
     })
 }
-
-const onLinkClose = () => {
-  confirmLink.value = false
-}
 </script>
 
 <style lang="sass">

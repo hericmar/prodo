@@ -6,11 +6,11 @@
       <q-checkbox
         v-model="completed"
         @click="onCompletedClick"
-        :color="props.greyed ? 'grey' : 'primary'"
+        :color="props.task.greyedOut ? 'grey' : 'primary'"
       />
     </q-item-section>
 
-    <q-item-section class="q-pl-md" :class="{ greyed: props.greyed }">
+    <q-item-section class="q-pl-md" :class="{ greyed: props.task.greyedOut }">
       <q-item-label>{{ props.task.summary }}</q-item-label>
       <q-item-label v-if="props.task.description" caption>
         {{ props.task.description }}
@@ -54,13 +54,11 @@ import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { formatDate } from 'src/utils/datetime'
 import { RRule } from 'rrule'
+import { RRuleEvaluation } from 'src/utils/recurrence'
 
 interface Props {
-  task: Task,
-  greyed?: boolean
+  task: Task
 }
-
-const emit = defineEmits(['onDelete'])
 
 const props = defineProps<Props>()
 

@@ -1,8 +1,4 @@
-export function isTimeSet (date) {
-  if (!(date instanceof Date)) {
-    return false
-  }
-
+export function isTimeSet (date: Date) {
   return date.getHours() !== 0 ||
     date.getMinutes() !== 0 ||
     date.getSeconds() !== 0 ||
@@ -15,8 +11,8 @@ export function isTimeSet (date) {
  * @param date
  * @returns {string}
  */
-export function formatDate (date, dateOnly = false) {
-  if (!(date instanceof Date)) {
+export function formatDate (date: Date | null, dateOnly = false) {
+  if (date === null) {
     return ''
   }
 
@@ -27,6 +23,15 @@ export function formatDate (date, dateOnly = false) {
   }
 }
 
-export function stripSeconds (date) {
+export function stripTime (date: Date): Date {
+  date.setHours(0)
+  date.setMinutes(0)
+  date.setSeconds(0)
+  date.setMilliseconds(0)
+
+  return date
+}
+
+export function stripSeconds (date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes())
 }

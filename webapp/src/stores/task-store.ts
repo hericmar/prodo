@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import api from 'src/api'
+import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
+import { stripTime } from 'src/utils/datetime'
 
 export interface Task {
   uid: string
@@ -8,13 +10,24 @@ export interface Task {
   created: Date,
   start?: Date | null,
   end?: Date | null,
+
+  // last completed date
   completed: Date | null,
   due?: Date | null,
   rrule: string | null,
+
+  // set by store when rrule is not null
+  recurrence: RRuleEvaluation | null,
+  greyedOut: boolean
 }
 
 export type RootState = {
   tasks: Task[],
+}
+
+function updateGreyedOut (task: Task) {
+  task.greyedOut = task.recurrence === RRuleEvaluation.Future ||
+    (task.recurrence === RRuleEvaluation.Now && task.completed !== null)
 }
 
 function toTask (task: any) {
@@ -31,6 +44,18 @@ function toTask (task: any) {
   if (task.due) {
     task.due = new Date(task.due)
   }
+
+  // computed by webapp
+  task.recurrence = evaluateRRule(task)
+  if (task.recurrence === RRuleEvaluation.Missed) {
+    // if task is missed or due today, reset last completed date
+    task.completed = null
+  } else if (task.recurrence === RRuleEvaluation.Now && task.completed !== null &&
+    stripTime(task.completed).getTime() !== stripTime(new Date()).getTime()) {
+    task.completed = null
+  }
+
+  updateGreyedOut(task)
 }
 
 export const useTaskStore = defineStore('task', {
@@ -46,6 +71,10 @@ export const useTaskStore = defineStore('task', {
         this.tasks = response.data
       })
     },
+    reload () {
+      this.tasks = []
+      this.init()
+    },
     addTask (summary: string) {
       api.task.create(summary).then(response => {
         toTask(response.data)
@@ -58,10 +87,14 @@ export const useTaskStore = defineStore('task', {
       })
     },
     update (task: Task) {
-      return api.task.update(task.uid, task).then(() => {
+      updateGreyedOut(task)
+
+      return api.task.update(task.uid, task).then((response) => {
+        const updatedTask = response.data
         this.tasks = this.tasks.map(t => {
-          if (t.uid === task.uid) {
-            return task
+          if (t.uid === updatedTask.uid) {
+            toTask(updatedTask)
+            return updatedTask
           }
           return t
         })
