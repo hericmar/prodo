@@ -36,7 +36,6 @@ import { useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import SingleTask from 'components/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
-import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
 
 const taskStore = useTaskStore()
 

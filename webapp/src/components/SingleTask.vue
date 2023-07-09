@@ -54,7 +54,6 @@ import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { formatDate } from 'src/utils/datetime'
 import { RRule } from 'rrule'
-import { RRuleEvaluation } from 'src/utils/recurrence'
 
 interface Props {
   task: Task

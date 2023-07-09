@@ -4,21 +4,17 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { useTaskStore } from 'stores/task-store'
 
-const lastUpdate = new Date()
-let lastVisibleState = true
+let lastUpdate = new Date()
 
 const $q = useQuasar()
 watch(() => $q.appVisible, val => {
-  // if (val && lastUpdate.getDate() !== new Date().getDate()) {
-  if (val) {
+  if (val && lastUpdate.getDate() !== new Date().getDate()) {
     // app is visible and it's a new day
-    const taskStore = useTaskStore()
-    taskStore.reload()
+    useTaskStore().reload()
+    lastUpdate = new Date()
   }
-  // if app is visible, the value is true
-  lastVisibleState = val
 })
 </script>

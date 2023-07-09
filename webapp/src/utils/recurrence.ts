@@ -1,6 +1,6 @@
 import { RRule } from 'rrule'
 import { Task } from 'stores/task-store'
-import { stripSeconds, stripTime } from 'src/utils/datetime'
+import { stripTime } from 'src/utils/datetime'
 
 export const BYWEEKDAY_OPTIONS = [
   {
