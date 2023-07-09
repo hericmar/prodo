@@ -1,9 +1,11 @@
 <template>
-  <q-page
-    class="row justify-evenly"
-  >
-    <TaskList />
-  </q-page>
+  <q-pull-to-refresh @refresh="onRefresh">
+    <q-page
+      class="row justify-evenly"
+    >
+      <TaskList />
+    </q-page>
+  </q-pull-to-refresh>
 
   <q-dialog
     v-model="confirmDelete"
@@ -135,6 +137,11 @@ const onLinkCopy = () => {
     .catch(() => {
       // fail
     })
+}
+
+const onRefresh = (done: any) => {
+  taskStore.reload()
+  done()
 }
 </script>
 
