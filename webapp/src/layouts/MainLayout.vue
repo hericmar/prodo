@@ -53,6 +53,12 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer v-if="isAuthenticated" class="q-py-lg q-px-md bg-white text-grey-5 flex flex-center">
+      <div>
+        @ {{ new Date().getFullYear() }} Martin Herich, version {{ versionInfo.version }} (commit <a :href="`https://git.phire.cz/Phire/Prodo/commit/${getVersionInfo().revHash}`">{{ getVersionInfo().revHash }}</a>)
+      </div>
+    </q-footer>
   </q-layout>
 </template>
 
@@ -61,6 +67,7 @@ import { computed, ref } from 'vue'
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue'
 import { useAuthStore } from 'stores/auth-store'
 import { router } from 'src/router'
+import versionInfo from 'src/assets/version.json'
 
 const authStore = useAuthStore()
 
@@ -122,9 +129,15 @@ const essentialLinks: EssentialLinkProps[] = [
   }
 ]
 
+/*
 const leftDrawerOpen = ref(false)
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+ */
+
+const getVersionInfo = () => {
+  return versionInfo
 }
 </script>
