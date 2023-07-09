@@ -30,12 +30,8 @@
     </div>
     <div class="">
       Repeat on
-      <q-option-group
-        name=""
-        model-value="value"
+      <RepeatPicker
         v-model="byweekday"
-        :options="byweekdayOptions"
-        type="checkbox"
       />
     </div>
     <div>
@@ -69,6 +65,7 @@ import { computed, ref } from 'vue'
 import { RRule } from 'rrule'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import recurrence, { BYWEEKDAY_OPTIONS } from 'src/utils/recurrence'
+import RepeatPicker from 'components/toolkit/RepeatPicker.vue'
 
 const props = defineProps({
   modelValue: {
@@ -81,6 +78,7 @@ const props = defineProps({
   }
 })
 
+// Select recurrence type
 const rruleType = ref(props.modelValue ? 'custom' : 'without_recurrence')
 const rruleTypeOptions = [
   'without_recurrence',
@@ -94,27 +92,31 @@ const rruleTypeOptions = [
 
 // eslint-disable-next-line vue/no-setup-props-destructure
 const hasRRule = props.modelValue !== null && props.modelValue !== ''
-const rruleOpts = hasRRule ? RRule.fromString(props.modelValue).options : null
+const opts = hasRRule ? RRule.fromString(props.modelValue).options : null
 
+// Custom recurrence options
+
+// Frequency of recurrence
 const interval = ref<number>(
-  rruleOpts?.interval ? rruleOpts.interval : 1
+  opts?.interval ? opts.interval : 1
 )
 
 const freq = ref(
-  rruleOpts?.freq !== undefined ? rruleOpts.freq : RRule.DAILY
+  opts?.freq !== undefined ? opts.freq : RRule.DAILY
 )
 // RRule.FREQUENCIES
 const freqOptions = [RRule.DAILY, RRule.WEEKLY, RRule.MONTHLY, RRule.YEARLY]
 const freqLabels = ['daily', 'weekly', 'monthly', 'yearly'].reverse()
 
-const byweekday = ref(rruleOpts?.byweekday ? rruleOpts.byweekday : [])
-const byweekdayOptions = BYWEEKDAY_OPTIONS
+// Repeat on
+const byweekday = ref(opts?.byweekday ? opts.byweekday : [])
 
+// Ends on and after (count and until)
 let endsValue = ''
-console.log(rruleOpts)
-if (rruleOpts?.count !== undefined && rruleOpts?.count !== null) {
+console.log(opts)
+if (opts?.count !== undefined && opts?.count !== null) {
   endsValue = 'after'
-} else if (rruleOpts?.until !== undefined && rruleOpts?.until !== null) {
+} else if (opts?.until !== undefined && opts?.until !== null) {
   endsValue = 'on'
 }
 
@@ -133,11 +135,12 @@ const endsOptions = [
     value: 'on'
   }
 ]
-const count = ref(rruleOpts?.count !== undefined ? rruleOpts.count : 1)
-const until = ref(rruleOpts?.until !== undefined && rruleOpts?.until !== null ? rruleOpts.until : new Date())
+const count = ref(opts?.count !== undefined ? opts.count : 1)
+const until = ref(opts?.until !== undefined && opts?.until !== null ? opts.until : new Date())
 
 const emit = defineEmits(['update:modelValue'])
 
+// Emit updated recurrence rule
 const toText = computed(() => {
   let rule = null
   let options = null
