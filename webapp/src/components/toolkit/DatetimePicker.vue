@@ -1,44 +1,34 @@
 <template>
-  <div style="max-width: 300px">
-    <q-input outlined v-model="dateStr" @update:modelValue="onUpdate()" :label="props.label">
-      <template v-slot:prepend>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date
-              v-model="dateStr"
-              @update:modelValue="onUpdate()"
-              :mask="props.dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-            >
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-
-      <template v-if="!dateOnly" v-slot:append>
-        <q-icon name="access_time" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-time
-              v-model="dateStr"
-              @update:modelValue="onUpdate()"
-              :mask="props.dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-              format24h
-            >
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-time>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
-  </div>
+  <q-input
+    v-model="model"
+    outlined
+    dense
+    clearable
+    @update:modelValue="onUpdate"
+  >
+    <template v-slot:prepend>
+      <q-icon name="event" />
+    </template>
+    <q-popup-proxy class="flex flex-center">
+      <q-date
+        v-model="model"
+        :mask="props.dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
+        class="q-mr-sm"
+      >
+      </q-date>
+      <q-time
+        v-if="!props.dateOnly"
+        v-model="model"
+        mask="YYYY-MM-DD HH:mm"
+      >
+      </q-time>
+    </q-popup-proxy>
+  </q-input>
 </template>
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
+import { formatDate } from 'src/utils/datetime'
 
 const props = defineProps({
   modelValue: {
@@ -55,39 +45,22 @@ const props = defineProps({
   }
 })
 
+const model = ref(formatDate(props.modelValue, props.dateOnly))
+
 const emit = defineEmits(['update:modelValue'])
-
-let formattedDate = null
-if (props.modelValue) {
-  const splitted = props.modelValue.toISOString().split('T')
-  formattedDate = splitted[0] + ' ' + splitted[1].substring(0, 5)
-}
-
-const dateStr = ref(formattedDate)
-
-const onUpdate = () => {
-  console.log('onUpdate')
-  emit('update:modelValue', new Date(dateStr.value))
-}
-
-watch(() => props.modelValue, (newValue, _) => {
-  if (newValue === null) {
-    dateStr.value = null
-  } else {
-    const splitted = newValue.toISOString().split('T')
-    dateStr.value = splitted[0] + ' ' + splitted[1].substring(0, 5)
-  }
-})
 
 watch(
   () => props.dateOnly,
-  (newValue, _) => {
-    if (newValue) {
-      dateStr.value = dateStr.value.split(' ')[0]
-    } else {
-      dateStr.value = `${dateStr.value} 00:00`
-    }
-    onUpdate()
+  (dateOnly, _) => {
+    model.value = formatDate(props.modelValue, props.dateOnly)
   }
 )
+
+const onUpdate = () => {
+  if (model.value === null) {
+    emit('update:modelValue', null)
+    return
+  }
+  emit('update:modelValue', new Date(model.value))
+}
 </script>

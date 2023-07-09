@@ -6,7 +6,7 @@ pnpm install
 ```
 
 ## Deployment
-First of all, bump the version in `package.json` and `src-pwa/manifest.json`.
+First of all, create a git tag with bumped version.
 Then, run the following command:
 ```bash
 pnpm build --mode pwa

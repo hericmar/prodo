@@ -10,14 +10,19 @@ export function isTimeSet (date) {
 }
 
 /**
- * Format date to YYYY-MM-DD format
+ * Format date to YYYY-MM-DD format or YYYY-MM-DD HH:mm format
+ * if dateOnly is false
  * @param date
  * @returns {string}
  */
-export function formatDate (date) {
+export function formatDate (date, dateOnly = false) {
   if (!(date instanceof Date)) {
     return ''
   }
 
-  return date.toISOString().substr(0, 10)
+  if (dateOnly) {
+    return date.toISOString().substr(0, 10)
+  } else {
+    return date.toISOString().replace('T', ' ').substr(0, 16)
+  }
 }

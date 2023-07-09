@@ -7,18 +7,22 @@
     outlined
   />
 
-  <div v-if="rruleType === 'custom'">
+  <div
+    v-if="rruleType === 'custom'"
+    class="q-mb-md"
+  >
     <div class="flex items-baseline">
       <span class="q-pr-sm">{{ $t('recurrence_once') }}</span>
-      <q-input
-        v-model.number="interval"
-        class="q-pr-sm"
-        type="number"
-        dense
-        outlined
-        style="max-width: 100px"
-        :rules="[val => val > 0 || $t('value_must_be_positive')]"
-      />
+        <q-input
+          v-model.number="interval"
+          class="q-pr-sm"
+          type="number"
+          dense
+          outlined
+          style="max-width: 100px"
+          :rules="[val => val > 0 || $t('value_must_be_positive')]"
+        />
+
       <q-select
         v-model="freq"
         :options="freqOptions"
@@ -28,34 +32,37 @@
         style="max-width: 100px"
       />
     </div>
-    <div class="">
-      Repeat on
-      <RepeatPicker
-        v-model="byweekday"
-      />
+
+    <div class="q-mb-lg">
+      <div class="q-mb-sm">Repeat on</div>
+      <RepeatPicker v-model="byweekday" />
     </div>
-    <div>
-      Ends
-      <q-option-group
-        v-model="ends"
-        :options="endsOptions"
-        type="radio"
-      />
+
+    <div class="q-mb-sm">Ends</div>
+    <q-option-group
+      v-model="ends"
+      class="q-mb-md"
+      :options="endsOptions"
+      type="radio"
+    />
+    <div v-if="ends === 'after'" class="flex items-baseline">
       <q-input
-        v-if="ends === 'after'"
         v-model.number="count"
+        class="q-mr-sm"
         type="number"
         dense
         outlined
         style="max-width: 100px"
-        :rules="[val => val > 0 || $t('value_must_be_positive')]" />
-      <DatetimePicker
-        v-if="ends === 'on'"
-        v-model="until"
-        label="Due"
-        date-only
+        :rules="[val => val > 0 || $t('value_must_be_positive')]"
       />
+      <span>{{ $t('recurrences') }}</span>
     </div>
+    <DatetimePicker
+      v-if="ends === 'on'"
+      v-model="until"
+      label="Due"
+      date-only
+    />
   </div>
   <p class="text-grey-7"><i>{{ toText }}</i></p>
 </template>
@@ -64,7 +71,7 @@
 import { computed, ref } from 'vue'
 import { RRule } from 'rrule'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
-import recurrence, { BYWEEKDAY_OPTIONS } from 'src/utils/recurrence'
+import recurrence from 'src/utils/recurrence'
 import RepeatPicker from 'components/toolkit/RepeatPicker.vue'
 
 const props = defineProps({
@@ -113,7 +120,6 @@ const byweekday = ref(opts?.byweekday ? opts.byweekday : [])
 
 // Ends on and after (count and until)
 let endsValue = ''
-console.log(opts)
 if (opts?.count !== undefined && opts?.count !== null) {
   endsValue = 'after'
 } else if (opts?.until !== undefined && opts?.until !== null) {

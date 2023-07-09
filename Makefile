@@ -3,9 +3,9 @@ export INSTALL_DIR := /usr/share/webapps/prodo
 
 build:
 	@echo "Building prodo..."
-	cd webapp
-	echo '{ "version": "$(shell git describe --tags --abbrev=0)", "revHash": "$(shell git rev-parse --short HEAD)" }' > src/assets/version.json
-	pnpm install && pnpm run build --mode pwa
+	echo '{ "version": "$(shell git describe --tags --abbrev=0)", "revHash": "$(shell git rev-parse --short HEAD)" }' > webapp/src/assets/version.json
+	cd webapp && pnpm install && pnpm run build --mode pwa
+	jq '.version = "$(shell git describe --tags --abbrev=0)"' webapp/dist/pwa/manifest.json > webapp/dist/pwa/manifest.json
 	cp -r webapp/dist/pwa/* static/
 
 install:

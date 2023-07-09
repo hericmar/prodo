@@ -61,8 +61,6 @@ export default boot(({ app }) => {
       const isLoginRequest = request?.url?.endsWith('/token')
       const isRefreshRequest = request?.url?.endsWith('/token/refresh')
 
-      console.log('isLoginRequest', isLoginRequest)
-
       // ensure the request is not login request
       if (!isLoginRequest && err.response?.status === 401) {
         const authStore = useAuthStore()

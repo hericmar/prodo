@@ -7,48 +7,26 @@
 
     <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined></q-input>
 
-    <div class="flex">
-      <DatetimePicker v-model="task.due" label="Due date"></DatetimePicker>
-      <q-btn flat icon="close" @click="task.due = null"></q-btn>
-    </div>
+    <div>Due date</div>
+    <DatetimePicker v-model="task.due" :label="$t('dueDate')"></DatetimePicker>
 
-    <div class="block">
-      <div class="row items-center">
-        <div>
-          <q-btn
-            v-if="hasInterval"
-            class=""
-            @click="onIntervalRemove"
-            flat
-            round
-            icon="remove" />
-          <q-btn
-            v-else
-            class=""
-            @click="onIntervalAdd"
-            flat
-            round
-            icon="add" />
-        </div>
-        <h2 class="text-h6">{{ $t('task_duration') }}</h2>
-      </div>
+    <div class="text-h6">{{ $t('duration') }}</div>
+    <div>{{ $t('from') }}</div>
+    <DatetimePicker
+      v-model="task.start"
+      label="Start"
+      :date-only="wholeDay"
+    />
 
-      <div v-if="hasInterval" class="block q-col-gutter-md">
-        <q-checkbox v-model="wholeDay">{{ $t('task_wholeDay') }}</q-checkbox>
-        <div>
-          <div class="row q-pb-md">
-            <DatetimePicker v-model="task.start" label="Start" :date-only="wholeDay" />
-          </div>
+    <div>{{ $t('to') }}</div>
+    <DatetimePicker
+      v-model="task.end"
+      label="Due"
+      :date-only="wholeDay"
+    />
+    <q-checkbox v-model="wholeDay">{{ $t('task_wholeDay') }}</q-checkbox>
 
-          <div class="row">
-            <DatetimePicker v-model="task.end" label="Due" :date-only="wholeDay" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- https://github.com/jakubroztocil/rrule -->
-    <!-- TODO rrule input https://codepen.io/theeternalsw0rd/pen/JLMjGx -->
+    <h2 class="text-h6">{{ $t('recurrence') }}</h2>
     <RRulePicker
       v-model="task.rrule"
       :dtstart="task.start"
@@ -79,23 +57,6 @@ const props = defineProps({
 const taskStore = useTaskStore()
 
 const task = ref<Task>(props.editedTask)
-
-console.log('task', task.value)
-
-const hasInterval = ref(task.value.start !== null)
-console.log('hasInterval', hasInterval.value)
-
-const onIntervalAdd = () => {
-  task.value.start = new Date()
-  task.value.end = new Date()
-  hasInterval.value = true
-}
-
-const onIntervalRemove = () => {
-  task.value.start = null
-  task.value.end = null
-  hasInterval.value = false
-}
 
 const wholeDay = ref<boolean>(task.value.start ? isTimeSet(task.value.start) : false)
 

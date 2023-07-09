@@ -27,13 +27,19 @@ export default {
   saturday: 'Saturday',
   sunday: 'Sunday',
 
+  from: 'From',
+  to: 'To',
+
   landing_description: 'New approach to productivity.',
 
   login_title: 'Login to Prodo',
   login_unauthorized: 'Invalid credentials.',
 
   task_newInput: 'New task',
-  task_duration: 'Duration',
+  duration: 'Duration',
+  dueDate: 'Due date',
+  recurrence: 'Recurrence',
+  recurrences: 'recurrences',
   task_wholeDay: 'Whole day',
   task_recurrence: 'Recurrence',
 
