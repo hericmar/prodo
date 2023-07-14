@@ -13,7 +13,7 @@
     <q-item-section class="q-pl-md" :class="{ greyed: props.task.greyedOut }">
       <q-item-label>{{ props.task.summary }}</q-item-label>
       <q-item-label v-if="props.task.description" caption>
-        {{ props.task.description }}
+        <div class="task-description" v-html="marked(props.task.description)"></div>
       </q-item-label>
       <q-item-label v-if="props.task.due" class="q-pt-sm">
         <div class="flex self-center">
@@ -54,6 +54,7 @@ import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { formatDate } from 'src/utils/datetime'
 import { RRule } from 'rrule'
+import { marked } from 'marked'
 
 interface Props {
   task: Task
@@ -95,5 +96,9 @@ const onCompletedClick = () => {
 
 .greyed {
   filter: brightness(150%);
+}
+
+.task-description a {
+  word-break: break-word;
 }
 </style>
