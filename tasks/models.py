@@ -122,9 +122,7 @@ class Task(Creatable, Updatable):
 
 class TaskList(Creatable):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, unique=True)
-    ordered_tasks = models.JSONField(default=list
-
-                                     , blank=True)
+    ordered_tasks = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return "User %d task list" % self.user.id

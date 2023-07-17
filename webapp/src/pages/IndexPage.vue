@@ -1,11 +1,16 @@
 <template>
-  <q-pull-to-refresh @refresh="onRefresh" no-mouse>
-    <q-page
-      class="row justify-evenly"
-    >
-      <TaskList />
-    </q-page>
+  <!--
+  <q-pull-to-refresh :disable="dragging" @refresh="onRefresh" no-mouse style="height: 100vh" scroll-target="body">
   </q-pull-to-refresh>
+  -->
+
+  <q-page
+    class="row justify-evenly"
+    v-touch-pan.capture.down="onSwipeDown"
+    @touchend="onMouseUp"
+  >
+    <TaskList />
+  </q-page>
 
   <q-dialog
     v-model="confirmDelete"
@@ -139,10 +144,47 @@ const onLinkCopy = () => {
     })
 }
 
+const dragging = ref(false)
+emitter.on('on-drag-start', () => {
+  dragging.value = true
+})
+emitter.on('on-drag-end', () => {
+  dragging.value = false
+})
+
+const reloading = ref(false)
+const onSwipeDown = (e) => {
+  const threshold = 100
+
+  if (dragging.value) {
+    return
+  }
+
+  if (window.scrollY === 0) {
+    if (e.distance.y > threshold && !reloading.value) {
+      reloading.value = true
+    }
+  }
+  // console.log('swipe down', e)
+}
+
+const onMouseUp = () => {
+  if (!reloading.value) {
+    return
+  }
+
+  taskStore.reload().then(() => {
+    console.log('reloaded')
+    reloading.value = false
+  })
+}
+
+/*
 const onRefresh = (done: any) => {
   taskStore.reload()
   done()
 }
+ */
 </script>
 
 <style lang="sass">

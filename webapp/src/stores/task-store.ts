@@ -63,8 +63,8 @@ export const useTaskStore = defineStore('task', {
     tasks: []
   } as RootState),
   actions: {
-    init () {
-      api.task.list().then(response => {
+    async init () {
+      return await api.task.list().then(response => {
         response.data.forEach((task: Task) => {
           toTask(task)
         })
@@ -73,7 +73,7 @@ export const useTaskStore = defineStore('task', {
     },
     reload () {
       this.tasks = []
-      this.init()
+      return this.init()
     },
     addTask (summary: string) {
       api.task.create(summary).then(response => {

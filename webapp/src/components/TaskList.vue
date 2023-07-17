@@ -27,12 +27,15 @@
       class="q-pt-sm"
     >
       <draggable
-        tag="q-list"
         :list="tasks"
         item-key="uid"
         :move="checkMove"
         @start="onDragStart"
         @end="onDragEnd"
+        delay="150"
+        ghostClass="dnd-ghost"
+        chosenClass="dnd-chosen"
+        dragClass="dnd-drag"
       >
         <template #item="{ element }">
           <SingleTask
@@ -92,11 +95,14 @@ const dragging = ref<boolean>(false)
 
 const onDragStart = (e: any) => {
   dragging.value = true
+  emitter.emit('on-drag-start')
   console.log('start', e)
 }
 
 const onDragEnd = (e: any) => {
+  console.log('end', e.oldIndex, e.newIndex)
   dragging.value = false
+  emitter.emit('on-drag-end')
   taskStore.setOrder(e.oldIndex, e.newIndex)
 }
 
@@ -111,6 +117,15 @@ onMounted(() => {
 </script>
 
 <style lang="sass">
+.dnd-ghost
+  visibility: hidden
+
+.dnd-chosen
+  /* background: blue */
+
+.dnd-drag
+  /* background: green */
+
 .task-list
   @media (max-width: $breakpoint-xs)
     width: 100% !important
