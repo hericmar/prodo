@@ -7,3 +7,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ('uid', 'summary', 'description', 'created', 'completed', 'start', 'end', 'due', 'rrule')
+
+
+class PutTaskOrderSerializer(serializers.Serializer):
+    order = serializers.IntegerField()

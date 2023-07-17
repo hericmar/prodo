@@ -1,5 +1,9 @@
 <template>
-  <q-item class="q-pl-none" clickable @dblclick="onTaskClick">
+  <q-item
+    class="q-pl-none"
+    clickable
+    @dblclick="onTaskClick"
+  >
     <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
 
     <q-item-section class="q-pr-none" side>
@@ -10,7 +14,7 @@
       />
     </q-item-section>
 
-    <q-item-section class="q-pl-md" :class="{ greyed: props.task.greyedOut }">
+    <q-item-section class="q-pl-md" :class="{ greyed: props.task.greyedOut }" style="user-select: none">
       <q-item-label>{{ props.task.summary }}</q-item-label>
       <q-item-label v-if="props.task.description" caption>
         <div class="task-description" v-html="marked(props.task.description)"></div>

@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.forms import forms
 
-from tasks.models import Task, TaskEvent
+from tasks.models import Task, TaskEvent, TaskList
+
 
 # See https://books.agiliq.com/projects/django-admin-cookbook/en/latest/index.html
 
@@ -21,6 +22,7 @@ class TaskAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Task, TaskAdmin)
+admin.site.register(TaskList)
 admin.site.register(TaskEvent)
 
 """

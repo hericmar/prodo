@@ -34,6 +34,11 @@ export default {
     },
     delete (uid: string) {
       return api.delete(`/api/v1/tasks/${uid}`)
+    },
+    updateOrder (uid: string, newIndex: number) {
+      return api.put(`/api/v1/tasks/${uid}/order`, {
+        order: newIndex
+      })
     }
   },
   ical: {

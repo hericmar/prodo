@@ -23,11 +23,23 @@
       :label="$t('task_newInput')"
       @keydown.enter="onAddTask" />
 
-    <q-list class="q-pt-sm">
-      <SingleTask
-        v-for="task in tasks" :key="task.uid"
-        :task="task"
-      />
+    <q-list
+      class="q-pt-sm"
+    >
+      <draggable
+        tag="q-list"
+        :list="tasks"
+        item-key="uid"
+        :move="checkMove"
+        @start="onDragStart"
+        @end="onDragEnd"
+      >
+        <template #item="{ element }">
+          <SingleTask
+            :task="element"
+          />
+        </template>
+      </draggable>
     </q-list>
   </q-card>
 </template>
@@ -36,6 +48,7 @@ import { useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import SingleTask from 'components/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
+import draggable from 'vuedraggable'
 
 const taskStore = useTaskStore()
 
@@ -74,6 +87,24 @@ const onLinkClick = () => {
   })
 }
 
+// drag and drop
+const dragging = ref<boolean>(false)
+
+const onDragStart = (e: any) => {
+  dragging.value = true
+  console.log('start', e)
+}
+
+const onDragEnd = (e: any) => {
+  dragging.value = false
+  taskStore.setOrder(e.oldIndex, e.newIndex)
+}
+
+const checkMove = (e: any) => {
+  console.log(e)
+}
+
+// lifecycle
 onMounted(() => {
   taskStore.init()
 })

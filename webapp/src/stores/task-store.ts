@@ -78,7 +78,7 @@ export const useTaskStore = defineStore('task', {
     addTask (summary: string) {
       api.task.create(summary).then(response => {
         toTask(response.data)
-        this.tasks.push(response.data)
+        this.tasks.splice(0, 0, response.data)
       })
     },
     remove (task: Task) {
@@ -107,6 +107,12 @@ export const useTaskStore = defineStore('task', {
         task.completed = null
       }
       this.update(task)
+    },
+    setOrder (oldIndex: number, newIndex: number) {
+      const task = this.tasks[oldIndex]
+      this.tasks.splice(oldIndex, 1)
+      this.tasks.splice(newIndex, 0, task)
+      api.task.updateOrder(task.uid, newIndex)
     }
   }
 })
