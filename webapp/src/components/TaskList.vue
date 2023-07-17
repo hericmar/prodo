@@ -33,6 +33,7 @@
         @start="onDragStart"
         @end="onDragEnd"
         delay="150"
+        scrollSensitivity="200"
         ghostClass="dnd-ghost"
         chosenClass="dnd-chosen"
         dragClass="dnd-drag"

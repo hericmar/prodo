@@ -160,7 +160,7 @@ const onSwipeDown = (e) => {
     return
   }
 
-  if (window.scrollY === 0) {
+  if (window.scrollY < 0) {
     if (e.distance.y > threshold && !reloading.value) {
       reloading.value = true
     }
