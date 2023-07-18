@@ -165,7 +165,6 @@ const onSwipeDown = (e) => {
       reloading.value = true
     }
   }
-  // console.log('swipe down', e)
 }
 
 const onMouseUp = () => {

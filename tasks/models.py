@@ -88,6 +88,9 @@ class Task(Creatable, Updatable):
         self.save()
 
     def save_order(self, order: int):
+        if not self.active:
+            raise ValidationError('Task is not active')
+
         task_list = TaskList.objects.get(user=self.created_by)
 
         if order < 0 or order >= len(task_list.ordered_tasks):

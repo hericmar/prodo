@@ -1,7 +1,6 @@
 <template>
   <q-item
     class="q-pl-none"
-    clickable
     @dblclick="onTaskClick"
   >
     <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
