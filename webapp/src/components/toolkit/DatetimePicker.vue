@@ -4,7 +4,6 @@
     outlined
     dense
     clearable
-    @update:modelValue="onUpdate"
   >
     <template v-slot:prepend>
       <q-icon name="event" />
@@ -14,12 +13,14 @@
         v-model="model"
         :mask="props.dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
         class="q-mr-sm"
+        @update:modelValue="onUpdate"
       >
       </q-date>
       <q-time
         v-if="!props.dateOnly"
         v-model="model"
         mask="YYYY-MM-DD HH:mm"
+        @update:modelValue="onUpdate"
       >
       </q-time>
     </q-popup-proxy>
@@ -57,6 +58,7 @@ watch(
 )
 
 const onUpdate = () => {
+  console.log('onUpdate', model.value)
   if (model.value === null) {
     emit('update:modelValue', null)
     return

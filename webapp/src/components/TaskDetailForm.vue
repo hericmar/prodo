@@ -24,7 +24,9 @@
       label="Due"
       :date-only="wholeDay"
     />
-    <q-checkbox v-model="wholeDay">{{ $t('task_wholeDay') }}</q-checkbox>
+    <div>
+      <q-checkbox v-model="wholeDay" @click="onWholeDayClick">{{ $t('task_wholeDay') }}</q-checkbox>
+    </div>
 
     <h2 class="text-h6">{{ $t('recurrence') }}</h2>
     <RRulePicker
@@ -59,6 +61,11 @@ const taskStore = useTaskStore()
 const task = ref<Task>(props.editedTask)
 
 const wholeDay = ref<boolean>(task.value.start ? isTimeSet(task.value.start) : false)
+const onWholeDayClick = () => {
+  if (wholeDay.value && task.value.start) {
+    task.value.end = task.value.start
+  }
+}
 
 const onClose = () => {
   emitter.emit('on-edit-close', {})
