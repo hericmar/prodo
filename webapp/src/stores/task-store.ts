@@ -115,11 +115,9 @@ export const useTaskStore = defineStore('task', {
      */
     setOrder (task: Task, newIndex: number) {
       const oldIndex = this.tasks.indexOf(task)
-      console.log(task.summary, 'from', oldIndex, 'to', newIndex)
       this.tasks.splice(oldIndex, 1)
-      console.log('remove from', oldIndex)
       this.tasks.splice(newIndex, 0, task)
-      console.log('insert at', newIndex)
+
       api.task.updateOrder(task.uid, newIndex)
     }
   }

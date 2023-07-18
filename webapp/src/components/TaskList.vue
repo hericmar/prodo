@@ -29,7 +29,6 @@
       v-model="tasks"
       item-key="uid"
       @start="onDragStart"
-      @change="onDragChange"
       @end="onDragEnd"
       delay="150"
       :delayOnTouchOnly="true"
@@ -110,10 +109,6 @@ const onDragStart = (e: any) => {
   emitter.emit('on-drag-start')
 }
 
-const onDragChange = (e) => {
-  console.log('onDragChange', e)
-}
-
 const message = ref('')
 const onDragEnd = (e: any) => {
   dragging.value = false
@@ -123,44 +118,10 @@ const onDragEnd = (e: any) => {
     return
   }
 
-  console.log(e.oldIndex, e.newIndex)
-
   const droppedTask = tasks.value[e.oldIndex]
   const droppedIndex = taskStore.tasks.indexOf(tasks.value[e.newIndex])
 
-  // message.value = 'oldIndex: ' + oldIndex + ', newIndex: ' + newIndex
   taskStore.setOrder(droppedTask, droppedIndex)
-
-  /*
-  const task = tasks.value[e.newIndex]
-  // console.log(task.summary, 'to', tasks.value[e.oldIndex].summary)
-  const oldIndex = tasks.value[e.newIndex].order
-
-  // index of task before the dropped task in the filtered list,
-  // when the dropped task is the first task, it's 0.
-  const newIndex = tasks.value[e.oldIndex].order - 1 === -1 ? 0 : tasks.value[e.oldIndex].order - 1
-
-  console.log(oldIndex, 'to', newIndex)
-
-  taskStore.setOrder(oldIndex, newIndex)
-
-   */
-
-  // console.log(droppedTask.summary, 'to', otherTask.summary)
-
-  /*
-  const task = tasks.value[e.newIndex]
-  const otherTask = tasks.value[e.oldIndex]
-
-  console.log(task.summary, 'to', otherTask.summary)
-
-  const oldIndex = taskStore.tasks.indexOf(otherTask)
-  const newIndex = taskStore.tasks.indexOf(task)
-
-  console.log('oldIndex:', oldIndex, 'newIndex:', newIndex)
-  console.log(taskStore.tasks[oldIndex].summary, 'to', taskStore.tasks[newIndex].summary)
-
-   */
 }
 
 // const onScroll = (offsetX: number, offsetY: number, originalEvent: any, touchEvt: any, hoverTargetEl: any) => {
