@@ -1,15 +1,22 @@
 <template>
-  <q-card class="task-list q-ma-sm q-ma-lg-lg q-pa-sm">
-    <div class="flex justify-between items-baseline">
+  <div class="task-list q-ma-sm q-ma-lg-lg q-pt-sm">
+    <div class="flex justify-between items-end">
       <div class="flex">
-        <h2 class="q-pl-xs q-mb-xs text-h6">Tasks</h2>
-        <q-btn icon="link" flat color="grey" dense rounded @click="onLinkClick"></q-btn>
+        <h2 class="q-pl-xs q-mb-none text-h6">Tasks</h2>
+        <q-btn
+          icon="link"
+          flat
+          color="grey"
+          dense
+          rounded
+          @click="onLinkClick" />
       </div>
       <q-tabs
         v-model="tab"
-        class="q-pb-sm flex"
+        class="flex"
         align="right"
         shrink
+        dense
         style="max-width: 300px"
       >
         <q-tab name="active" label="Active" />
@@ -17,38 +24,50 @@
         <q-tab name="all" label="All" />
       </q-tabs>
     </div>
-    <q-input
-      outlined
-      v-model="summary"
-      :label="$t('task_newInput')"
-      @keydown.enter="onAddTask" />
 
-    <draggable
-      tag="div"
-      class="q-list q-pt-sm"
-      v-model="tasks"
-      item-key="uid"
-      @start="onDragStart"
-      @end="onDragEnd"
-      delay="150"
-      :delayOnTouchOnly="true"
-      touchStartThreshold: 5
-      ghostClass="dnd-ghost"
-      chosenClass="dnd-chosen"
-      direction="vertical"
-      :scrollFn="onScroll"
-      animation="200"
-      scrollSpeed=10
-      scrollSensitivity="200"
+    <q-card
+      class="q-pa-sm q-pa-sm-md bg-grey-3 rounded-borders"
+      flat
     >
-      <template #item="{ element }">
-        <SingleTask
-          :task="element"
-        />
-      </template>
-    </draggable>
-    {{ message }}
-  </q-card>
+      <q-input
+        outlined
+        bg-color="white"
+        v-model="summary"
+        :label="$t('task_newInput')"
+        counter
+        maxlength="60"
+        @keydown.enter="onAddTask"
+      />
+
+      <draggable
+        tag="div"
+        class="q-list q-pt-sm"
+        v-model="tasks"
+        item-key="uid"
+        @start="onDragStart"
+        @end="onDragEnd"
+        delay="150"
+        direction="vertical"
+        :delayOnTouchOnly="true"
+        touchStartThreshold: 5
+        ghostClass="dnd-ghost"
+        chosenClass="dnd-chosen"
+        dragClass="dnd-drag"
+        fallback-class="dnd-drag"
+        :force-fallback="true"
+        :scrollFn="onScroll"
+        animation="200"
+        scrollSpeed=10
+        scrollSensitivity="200"
+      >
+        <template #item="{ element }">
+          <SingleTask
+            :task="element"
+          />
+        </template>
+      </draggable>
+    </q-card>
+  </div>
 </template>
 <script lang="ts" setup>
 import { useTaskStore } from 'stores/task-store'
@@ -101,10 +120,14 @@ const onLinkClick = () => {
   })
 }
 
+const isFocused = ref<boolean>(false)
+
 // drag and drop
 const dragging = ref<boolean>(false)
 
 const onDragStart = (e: any) => {
+  console.log(e)
+  e.clone.classList.remove('dnd-ghost')
   dragging.value = true
   emitter.emit('on-drag-start')
 }
@@ -149,10 +172,11 @@ onMounted(() => {
   visibility: hidden
 
 .dnd-chosen
-  /* background: blue */
+  @media (max-width: $breakpoint-xs)
+    background: $yellow-1
 
 .dnd-drag
-  /* background: green */
+  /* opacity: 1 !important */
 
 .task-list
   @media (max-width: $breakpoint-xs)

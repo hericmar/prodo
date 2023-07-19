@@ -48,7 +48,7 @@ class Task(Creatable, Updatable):
     Partially derived from RFC 5545
     """
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    summary = models.CharField(max_length=40)
+    summary = models.CharField(max_length=60)
     description = models.TextField(default="", blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)

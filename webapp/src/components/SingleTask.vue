@@ -1,6 +1,6 @@
 <template>
   <q-item
-    class="q-pl-none"
+    class="q-pl-none q-card q-my-sm shadow-1"
     @dblclick="onTaskClick"
   >
     <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
