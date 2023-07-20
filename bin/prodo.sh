@@ -13,6 +13,7 @@ case $1 in
     exec gunicorn prodo.wsgi:application \
 	    --bind localhost:9200 \
 	    --workers 4 \
+	    --capture-output \
 	    --timeout 90 \
 	    --pid /var/run/prodo.pid
     ;;

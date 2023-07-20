@@ -9,3 +9,7 @@ static/index.html
 venv/
 __pycache__/
 db.sqlite3
+static/manifest.json
+static/sw.js
+static/workbox-*
+
