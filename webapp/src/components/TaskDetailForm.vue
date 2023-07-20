@@ -1,7 +1,7 @@
 <template>
   <q-form
     class="q-py-sm q-gutter-md flex column"
-    @keydown.enter="onSave"
+    @keydown.enter="onEnterDown"
   >
     <q-input
       v-model="task.summary"
@@ -80,15 +80,17 @@ const onWholeDayClick = () => {
   }
 }
 
+const onEnterDown = (event: KeyboardEvent) => {
+  if (event.ctrlKey) {
+    onSave()
+  }
+}
+
 const onClose = () => {
   emitter.emit('on-edit-close', {})
 }
 
-const onSave = (event) => {
-  if (!event.ctrlKey) {
-    return
-  }
-
+const onSave = () => {
   taskStore.update(task.value)
     .then(() => {
       onClose()
