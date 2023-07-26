@@ -37,7 +37,16 @@
         counter
         maxlength="60"
         @keydown.enter="onAddTask"
-      />
+      >
+        <template v-if="$q.screen.xs" v-slot:append>
+          <q-btn
+            flat
+            round
+            icon="add"
+            @click="onAddTask">
+          </q-btn>
+        </template>
+      </q-input>
 
       <draggable
         tag="div"
