@@ -1,11 +1,18 @@
 <template>
   <q-item
-    class="q-pl-none q-card q-my-sm shadow-1"
+    class="q-pa-none q-card q-my-sm shadow-1"
+    :class="{
+      'task-urgency-none': props.task.urgency === Urgency.None,
+      'task-urgency-low': props.task.urgency === Urgency.Low,
+      'task-urgency-medium': props.task.urgency === Urgency.Medium,
+      'task-urgency-high': props.task.urgency === Urgency.High,
+    }"
     @dblclick="onTaskClick"
   >
-    <div class="task-side" :class="{ 'missed-due': (props.task.due && props.task.due < new Date()) }"></div>
-
-    <q-item-section class="q-pr-none" side>
+    <q-item-section
+      class="task-checkbox q-pr-none"
+      side
+    >
       <q-checkbox
         v-model="completed"
         @click="onCompletedClick"
@@ -14,7 +21,7 @@
     </q-item-section>
 
     <q-item-section
-      class="q-pl-md"
+      class="q-pl-md q-py-sm"
       :class="{ greyed: props.task.greyedOut }"
       style="user-select: none"
     >
@@ -60,7 +67,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Task, useTaskStore } from 'stores/task-store'
+import { Task, Urgency, useTaskStore } from 'stores/task-store'
 import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { formatDate } from 'src/utils/datetime'
@@ -94,15 +101,9 @@ const onCompletedClick = () => {
 }
 </script>
 
-<style>
+<style lang="scss">
 .missed-due {
   background-color: #C10015;
-}
-
-.task-side {
-  width: 10px;
-  border-radius: 4px;
-  position: relative;
 }
 
 .greyed {
@@ -111,5 +112,32 @@ const onCompletedClick = () => {
 
 .task-description a {
   word-break: break-word;
+}
+
+.task-checkbox {
+  border-top-left-radius: inherit !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 4px !important;
+  border-bottom-right-radius: 0;
+}
+
+.task-urgency-none .task-checkbox {
+  background-color: inherit;
+
+  svg {
+    background-color: white;
+  }
+}
+
+.task-urgency-low .task-checkbox {
+  background-color: #FFD600;
+}
+
+.task-urgency-medium .task-checkbox {
+  background-color: #FF6D00;
+}
+
+.task-urgency-high .task-checkbox {
+  background-color: #C10015;
 }
 </style>

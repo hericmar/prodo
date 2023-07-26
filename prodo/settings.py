@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
+    'django_cron'
 ]
 
 if DEBUG:
@@ -221,7 +222,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'WARNING',
+        'level': 'INFO',
     },
     'loggers': {
         'django': {
@@ -232,3 +233,6 @@ LOGGING = {
     },
 }
 
+CRON_CLASSES = [
+    'tasks.cron.CronJob'
+]

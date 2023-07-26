@@ -3,6 +3,13 @@ import api from 'src/api'
 import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
 import { stripTime } from 'src/utils/datetime'
 
+export enum Urgency {
+  None = 0,
+  Low = 1,
+  Medium = 2,
+  High = 3
+}
+
 export interface Task {
   uid: string
   summary: string
@@ -15,6 +22,9 @@ export interface Task {
   completed: Date | null,
   due?: Date | null,
   rrule: string | null,
+
+  priority: number,
+  urgency: Urgency,
 
   // set by store when rrule is not null
   recurrence: RRuleEvaluation | null,

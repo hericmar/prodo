@@ -1,3 +1,4 @@
+import math
 import uuid
 
 from dateutil import rrule
@@ -6,6 +7,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from base.models import Creatable, Updatable
 
@@ -33,14 +35,45 @@ class TaskManager(models.Manager):
 
         return sorted(filtered_tasks, key=lambda task: uuids.index(task.uid))
 
+    def get_active(self, user: User):
+        return self.filter(created_by=user, active=True)
+
     def create(self, *args, **kwargs):
         task = super(TaskManager, self).create(*args, **kwargs)
+        task.calculate_urgency(timezone.now())
 
         task_list = TaskList.objects.filter(user=task.created_by).first()
         task_list.ordered_tasks.insert(0, str(task.uid))
         task_list.save()
 
         return task
+
+
+# iCalendar RFC 5545 values
+TASK_PRIORITY_HIGH = 1
+TASK_PRIORITY_MEDIUM = 5
+TASK_PRIORITY_LOW = 9
+
+TASK_PRIORITY_CHOICES = (
+    (TASK_PRIORITY_HIGH, "High"),
+    (TASK_PRIORITY_MEDIUM, "Medium"),
+    (TASK_PRIORITY_LOW, "Low"),
+)
+
+TASK_PRIORITY_TO_INDEX = {
+    TASK_PRIORITY_HIGH: 1,
+    TASK_PRIORITY_MEDIUM: 2,
+    TASK_PRIORITY_LOW: 3,
+}
+
+# no color - default for a task after creation
+TASK_URGENCY_NONE = 0
+# yellow - task is not urgent
+TASK_URGENCY_LOW = 1
+# orange - task should be completed soon
+TASK_URGENCY_MEDIUM = 2
+# red - missed due, task should be completed as soon as possible
+TASK_URGENCY_HIGH = 3
 
 
 class Task(Creatable, Updatable):
@@ -56,12 +89,34 @@ class Task(Creatable, Updatable):
     rrule = models.CharField(max_length=255, validators=[validate_rrule], null=True, blank=True)
     sequence = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
+    priority = models.PositiveSmallIntegerField(default=TASK_PRIORITY_LOW, choices=TASK_PRIORITY_CHOICES)
+
+    urgency = models.PositiveSmallIntegerField(default=TASK_URGENCY_NONE)
+
+    # Calculated score for the task
+    # Based on the priority and the time left to complete the task
+    score = models.FloatField(default=0.0)
 
     # Last time the task was completed
     completed = models.DateTimeField(null=True, blank=True)
 
     # This is a custom manager that will be used instead of the default one
     objects = TaskManager()
+
+    def calculate_urgency(self, now) -> None:
+        """
+        Not saved to the database
+        """
+        if self.due:
+            pass
+        elif self.rrule:
+            recurrence = rrule.rrulestr(self.rrule)
+            next = recurrence.after(now)
+        else:
+            # hours passed since the task was created
+            hours = (now - self.created).total_seconds() / 3600
+            step_size = 24 * TASK_PRIORITY_TO_INDEX[self.priority]
+            self.urgency = min(math.floor(float(hours) / float(step_size)), TASK_URGENCY_HIGH)
 
     def save(self, *args, **kwargs):
         """
@@ -82,6 +137,8 @@ class Task(Creatable, Updatable):
             pass
 
         super(Task, self).save(*args, **kwargs)
+
+        self.calculate_urgency(timezone.now())
 
     def save_inactive(self):
         self.active = False

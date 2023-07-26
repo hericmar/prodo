@@ -9,14 +9,15 @@
       stack-label
       counter
       maxlength="60"
-      outlined />
+      outlined
+    />
 
     <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined />
 
     <div>Due date</div>
     <DatetimePicker v-model="task.due" :label="$t('dueDate')"></DatetimePicker>
 
-    <div class="text-h6">{{ $t('duration') }}</div>
+    <h2 class="text-h6">{{ $t('duration') }}</h2>
     <div>{{ $t('from') }}</div>
     <DatetimePicker
       v-model="task.start"
@@ -34,6 +35,17 @@
     <div>
       <q-checkbox v-model="wholeDay" @click="onWholeDayClick">{{ $t('task_wholeDay') }}</q-checkbox>
     </div>
+
+    <h2 class="text-h6">{{ $t('priority') }}</h2>
+    <q-btn-toggle
+      v-model="task.priority"
+      spread
+      :options="[
+        { label: $t('low'), value: 9 },
+        { label: $t('medium'), value: 5 },
+        { label: $t('high'), value: 1 }
+      ]"
+    />
 
     <h2 class="text-h6">{{ $t('recurrence') }}</h2>
     <RRulePicker
@@ -55,6 +67,7 @@ import emitter from 'src/plugins/mitt'
 import { isTimeSet } from 'src/utils/datetime'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import RRulePicker from 'components/toolkit/RRulePicker.vue'
+import ButtonPicker from 'components/toolkit/ButtonPicker.vue'
 
 const props = defineProps({
   editedTask: {

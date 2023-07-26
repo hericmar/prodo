@@ -1,7 +1,13 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 
-from tasks.models import Task, TaskList
+from tasks.models import Task, TaskList, TASK_URGENCY_NONE, TASK_PRIORITY_LOW, TASK_PRIORITY_MEDIUM, TASK_PRIORITY_HIGH, \
+    TASK_URGENCY_LOW, TASK_URGENCY_MEDIUM, TASK_URGENCY_HIGH
+from tasks.services import calculate_score
+from users.models import UserData
 
 
 class TaskListTest(TestCase):
@@ -37,3 +43,71 @@ class TaskListTest(TestCase):
         self.assertEqual(task_list.ordered_tasks[1], str(tasks[3].uid))
         self.assertEqual(task_list.ordered_tasks[2], str(tasks[1].uid))
         self.assertEqual(task_list.ordered_tasks[3], str(tasks[0].uid))
+
+
+class TaskUrgencyTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create(username="TestUser", password="TestUser")
+
+    def test_calculate_urgency(self):
+        now = timezone.now()
+        calculate_score(now)
+
+        test_user_data = UserData.objects.get(user=self.user)
+        self.assertEqual(test_user_data.urgency_calculated_at, now)
+
+    def test_on_task_with_no_recurrence_and_no_due_date(self):
+        test_data = (
+            ('2023-07-15T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-15T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_NONE),
+            ('2023-07-15T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_NONE),
+
+            ('2023-07-16T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-16T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_NONE),
+            ('2023-07-16T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_LOW),
+
+            ('2023-07-17T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-17T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_LOW),
+            ('2023-07-17T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_MEDIUM),
+
+            ('2023-07-18T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-18T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_LOW),
+            ('2023-07-18T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-19T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-19T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_MEDIUM),
+            ('2023-07-19T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-20T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-20T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_MEDIUM),
+            ('2023-07-20T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-21T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-21T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-21T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-22T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-22T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-22T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-23T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-23T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-23T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-07-24T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-24T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-24T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+        )
+
+        now = datetime.datetime.strptime(test_data[0][0], '%Y-%m-%dT%H:%M')
+        now = timezone.make_aware(now, timezone.get_current_timezone())
+        task = Task.objects.create(created_by=self.user, created=now, summary="Test task")
+        task.created = now
+
+        for test in test_data:
+            now = datetime.datetime.strptime(test[0], '%Y-%m-%dT%H:%M')
+            now = timezone.make_aware(now, timezone.get_current_timezone())
+            task.priority = test[1]
+            task.calculate_urgency(now)
+            self.assertEqual(task.urgency, test[2], 'Failed on %s with priority %s' % (test[0], test[1]))
