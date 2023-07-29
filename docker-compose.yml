@@ -1,9 +1,0 @@
-services:
-  web:
-    build: .
-    ports:
-      - "80:80"
-    volumes:
-      - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - ".:/usr/share/webapps/prodo:ro"
-      - ".env:/usr/share/webapps/prodo/.env:ro"

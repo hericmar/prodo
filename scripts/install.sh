@@ -85,4 +85,4 @@ pip install -r $PRODO_DIR/requirements.txt
 
 # Create hourly cron job 'prodo runcrons' for prodo user
 echo "Creating cron job..."
-echo "0 * * * * prodo runcrons >> /var/log/prodo.log 2>&1" | crontab -u $PRODO_USER -
+echo "0 * * * * prodo runcrons" | crontab -u $PRODO_USER -
