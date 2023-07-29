@@ -4,6 +4,7 @@
     outlined
     dense
     clearable
+    @update:modelValue="onUpdate"
   >
     <template v-slot:prepend>
       <q-icon name="event" />

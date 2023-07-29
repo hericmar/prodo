@@ -111,3 +111,41 @@ class TaskUrgencyTest(TestCase):
             task.priority = test[1]
             task.calculate_urgency(now)
             self.assertEqual(task.urgency, test[2], 'Failed on %s with priority %s' % (test[0], test[1]))
+
+    def test_on_task_with_due_date(self):
+        # created, due, priority, urgency
+        test_data = (
+            # due yesterday
+            ('2023-07-15T10:00', '2023-07-14T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-14T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-14T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            # due now
+            ('2023-07-15T10:00', '2023-07-15T10:00', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-15T10:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-15T10:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            # due today
+            ('2023-07-15T10:00', '2023-07-15T23:00', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-15T23:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-15T10:00', '2023-07-15T23:00', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            # due tomorrow (more than 24 hours)
+            ('2023-07-16T11:00', '2023-07-17T12:00', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-16T11:00', '2023-07-17T12:00', TASK_PRIORITY_MEDIUM, TASK_URGENCY_MEDIUM),
+            ('2023-07-16T11:00', '2023-07-17T12:00', TASK_PRIORITY_HIGH, TASK_URGENCY_MEDIUM),
+        )
+        now = datetime.datetime.strptime('2023-07-15T10:00', '%Y-%m-%dT%H:%M')
+        now = timezone.make_aware(now, timezone.get_current_timezone())
+        task = Task.objects.create(created_by=self.user, created=now, summary="Test task")
+        task.created = now
+
+        for test in test_data:
+            now = datetime.datetime.strptime(test[0], '%Y-%m-%dT%H:%M')
+            now = timezone.make_aware(now, timezone.get_current_timezone())
+            due = datetime.datetime.strptime(test[1], '%Y-%m-%dT%H:%M')
+            due = timezone.make_aware(due, timezone.get_current_timezone())
+            task.due = due
+            task.priority = test[2]
+            task.calculate_urgency(now)
+            self.assertEqual(task.urgency, test[3], 'Failed on %s with priority %s' % (test[0], test[2]))

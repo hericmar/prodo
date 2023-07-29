@@ -13,3 +13,4 @@ static/manifest.json
 static/sw.js
 static/workbox-*
 
+target/

@@ -5,6 +5,7 @@ from dateutil import rrule
 from django.contrib.auth.models import User
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -36,7 +37,13 @@ class TaskManager(models.Manager):
         return sorted(filtered_tasks, key=lambda task: uuids.index(task.uid))
 
     def get_active(self, user: User):
-        return self.filter(created_by=user, active=True)
+        """
+        Get all active tasks (not completed) for a user
+        """
+        query = Q(created_by=user, active=True)
+        # Get tasks with rrule or without completed date
+        query &= Q(Q(completed__isnull=True) | Q(rrule__isnull=False))
+        return self.filter(query)
 
     def create(self, *args, **kwargs):
         task = super(TaskManager, self).create(*args, **kwargs)
@@ -107,16 +114,33 @@ class Task(Creatable, Updatable):
         """
         Not saved to the database
         """
+        INTERVAL_COUNT = 4
+
+        # hours passed since the task was created
+        hours_elapsed = (now - self.created).total_seconds() / 3600
+
         if self.due:
-            pass
+            hours_total = (self.due - self.created).total_seconds() / 3600
+
+            if self.due <= now or hours_total - hours_elapsed <= 24:
+                self.urgency = TASK_URGENCY_HIGH
+                return
+
+            factor = float(hours_elapsed) / float(hours_total)
+            self.urgency = min(math.floor(factor * INTERVAL_COUNT), TASK_URGENCY_HIGH)
         elif self.rrule:
             recurrence = rrule.rrulestr(self.rrule)
-            next = recurrence.after(now)
+            before = recurrence.before(now)
+
+            if before and (not self.completed or before > self.completed):
+                self.urgency = TASK_URGENCY_HIGH
+                return
         else:
-            # hours passed since the task was created
-            hours = (now - self.created).total_seconds() / 3600
-            step_size = 24 * TASK_PRIORITY_TO_INDEX[self.priority]
-            self.urgency = min(math.floor(float(hours) / float(step_size)), TASK_URGENCY_HIGH)
+            interval_size = 24
+
+            # make step size longer for lower priority tasks
+            step_size = interval_size * TASK_PRIORITY_TO_INDEX[self.priority]
+            self.urgency = min(math.floor(float(hours_elapsed) / float(step_size)), TASK_URGENCY_HIGH)
 
     def save(self, *args, **kwargs):
         """

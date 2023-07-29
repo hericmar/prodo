@@ -22,9 +22,6 @@ def calculate_score_for_user(user_data: UserData, now):
 
 
 def calculate_score(now=None):
-    """
-    Not saved to the database
-    """
     if now is None:
         now = timezone.now()
 
