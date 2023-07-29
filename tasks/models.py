@@ -130,7 +130,8 @@ class Task(Creatable, Updatable):
             self.urgency = min(math.floor(factor * INTERVAL_COUNT), TASK_URGENCY_HIGH)
         elif self.rrule:
             recurrence = rrule.rrulestr(self.rrule)
-            before = recurrence.before(now)
+            now_naive = now.replace(tzinfo=None)
+            before = recurrence.before(now_naive)
 
             if before and (not self.completed or before > self.completed):
                 self.urgency = TASK_URGENCY_HIGH
