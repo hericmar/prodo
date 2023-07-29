@@ -123,10 +123,6 @@ const onCompletedClick = () => {
 
 .task-urgency-none .task-checkbox {
   background-color: inherit;
-
-  svg {
-    background-color: white;
-  }
 }
 
 .task-urgency-low .task-checkbox {
