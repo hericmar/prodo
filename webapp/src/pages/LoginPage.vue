@@ -1,5 +1,7 @@
 <template>
-  <q-page>
+  <q-page
+    class="page q-mt-lg"
+  >
     <div class="row wrap">
       <div class="q-pa-lg col-12 col-md">
         <h1 class="text-h3">{{ $t('login_title') }}</h1>

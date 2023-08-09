@@ -3,13 +3,15 @@
     <div class="flex justify-between items-end">
       <div class="flex">
         <h2 class="q-pl-xs q-mb-none text-h6">Tasks</h2>
-        <q-btn
-          icon="link"
-          flat
-          color="grey"
+        <q-chip
+          v-if="tab !== 'completed'"
+          class="q-mt-md"
           dense
-          rounded
-          @click="onLinkClick" />
+          color="primary"
+          text-color="white"
+        >
+          {{ tasks.reduce((count, task) => task.completed ? count : count + 1, 0) }}
+        </q-chip>
       </div>
       <q-tabs
         v-model="tab"
@@ -122,12 +124,6 @@ const tasks = computed({
     console.log('drag end')
   }
 })
-
-const onLinkClick = () => {
-  emitter.emit('on-link', {
-    list: ''
-  })
-}
 
 const isFocused = ref<boolean>(false)
 

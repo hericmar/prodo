@@ -14,13 +14,46 @@
         -->
 
         <q-toolbar-title>
-          <q-btn :to="{ name: 'index' }" flat>Prodo</q-btn>
+          <q-btn
+            v-if="isAuthenticated"
+            :to="{ name: 'index' }" flat
+          >
+            Prodo
+          </q-btn>
+          <q-btn
+            v-else
+            :to="{ name: 'landing' }" flat
+          >
+            Prodo
+          </q-btn>
         </q-toolbar-title>
 
         <div>
-          <q-btn
+          <q-btn-dropdown
             v-if="isAuthenticated"
-            @click="onLogout" flat>{{ $t('logout') }}</q-btn>
+            :label="$t('profile')"
+            flat
+          >
+            <q-list>
+              <q-item clickable to="profile">
+                <q-item-section>{{ $t('settings') }}</q-item-section>
+                <q-item-section avatar>
+                  <q-icon name="settings" size="20px" />
+                </q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-ripple
+                @click="onLogout"
+              >
+                <q-item-section>{{ $t('logout') }}</q-item-section>
+                <q-item-section avatar>
+                  <q-icon name="logout" size="20px" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+
           <q-btn
             v-else
             @click="onLogin" flat>{{ $t('login') }}</q-btn>

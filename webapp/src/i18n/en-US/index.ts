@@ -9,6 +9,8 @@ export default {
 
   logout: 'Logout',
   login: 'Login',
+  settings: 'Settings',
+  profile: 'Profile',
 
   username: 'Username',
   password: 'Password',
