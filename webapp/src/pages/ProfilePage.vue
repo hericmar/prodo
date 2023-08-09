@@ -4,7 +4,7 @@
     padding
   >
     <h1 class="text-h4">{{ $t('profile') }}</h1>
-    <q-card class="task-card">
+    <q-card>
       <q-card-section>
         <h2 class="text-h6">{{ $t('subscription_header') }}</h2>
         <p>{{ $t('subscription_url_description') }}</p>
