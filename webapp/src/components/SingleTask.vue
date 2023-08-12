@@ -2,6 +2,7 @@
   <q-item
     class="q-pa-none q-card q-my-sm shadow-1"
     :class="{
+      'task-greyed': props.task.greyedOut,
       'task-urgency-none': props.task.urgency === Urgency.None,
       'task-urgency-low': props.task.urgency === Urgency.Low,
       'task-urgency-medium': props.task.urgency === Urgency.Medium,
@@ -22,7 +23,6 @@
 
     <q-item-section
       class="q-pl-md q-py-sm"
-      :class="{ greyed: props.task.greyedOut }"
       style="user-select: none"
     >
       <q-item-label
@@ -106,10 +106,6 @@ const onCompletedClick = () => {
   background-color: #C10015;
 }
 
-.greyed {
-  filter: brightness(150%);
-}
-
 .task-description a {
   word-break: break-word;
 }
@@ -135,5 +131,9 @@ const onCompletedClick = () => {
 
 .task-urgency-high .task-checkbox {
   background-color: #C10015;
+}
+
+.task-greyed .task-checkbox {
+  background-color: #E0E0E0 !important;
 }
 </style>

@@ -9,7 +9,19 @@
     v-touch-pan.capture.down="onSwipeDown"
     @touchend="onMouseUp"
   >
-    <TaskList />
+    <TaskList
+      :label="$t('dailyTasks')"
+      :startTab="dailyTasksTab"
+      :tabs="dailyTasksTabs"
+      :filter="filterDailyTasks"
+      :onCreated="onDailyTaskCreated"
+    />
+    <TaskList
+      :label="$t('tasks')"
+      :startTab="tasksTab"
+      :tabs="tasksTabs"
+      :filter="filterTasks"
+    />
   </q-page>
 
   <q-dialog
@@ -43,6 +55,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Task, useTaskStore } from 'stores/task-store'
+import api from 'src/api'
 import TaskList from 'components/TaskList.vue'
 import emitter from 'src/plugins/mitt'
 import TaskDetailForm from 'components/TaskDetailForm.vue'
@@ -100,6 +113,61 @@ const onSwipeDown = (e) => {
     }
   }
 }
+
+//
+
+const dailyTasksTab = 'all'
+const dailyTasksTabs = ['all', 'active', 'inactive']
+
+const tasksTab = 'active'
+const tasksTabs = ['active', 'completed', 'all']
+
+const filterDailyTasks = (tab: string, tasks: Task[]) => {
+  const daily = tasks.filter((task) => {
+    return task.rrule
+  })
+
+  if (tab === 'all') {
+    return daily
+  }
+  if (tab === 'active') {
+    return daily.filter((task) => {
+      return !task.greyedOut
+    })
+  } else {
+    // inactive
+    return daily.filter((task) => {
+      return task.greyedOut
+    })
+  }
+}
+
+const onDailyTaskCreated = (task: Task) => {
+  task.rrule = 'FREQ=DAILY'
+  api.task.update(task.uid, task)
+}
+
+const filterTasks = (tab: string, tasks: Task[]) => {
+  const notDaily = tasks.filter((task) => {
+    return !task.rrule
+  })
+
+  if (tab === 'all') {
+    return notDaily
+  }
+  if (tab === 'completed') {
+    return notDaily.filter((task) => {
+      return task.completed
+    })
+  } else {
+    // active
+    return notDaily.filter((task) => {
+      return !task.completed || task.rrule
+    })
+  }
+}
+
+//
 
 const onMouseUp = () => {
   if (!reloading.value) {

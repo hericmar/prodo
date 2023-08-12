@@ -6,6 +6,7 @@ export default {
   success: 'Action was successful',
   empty: 'Fill this field.',
   value_must_be_positive: 'Value must be positive.',
+  emptyList: 'Your list is empty!',
 
   logout: 'Logout',
   login: 'Login',
@@ -31,6 +32,13 @@ export default {
 
   from: 'From',
   to: 'To',
+
+  tasks: 'Tasks',
+  dailyTasks: 'Daily Tasks',
+  tasks_active: 'Active',
+  tasks_completed: 'Completed',
+  tasks_all: 'All',
+  tasks_inactive: 'Inactive',
 
   landing_description: 'New approach to productivity.',
 

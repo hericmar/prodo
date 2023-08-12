@@ -2,7 +2,7 @@
   <div class="task-list q-ma-sm q-ma-lg-lg q-pt-sm">
     <div class="flex justify-between items-end">
       <div class="flex">
-        <h2 class="q-pl-xs q-mb-none text-h6">Tasks</h2>
+        <h2 class="q-pl-xs q-mb-none text-h6">{{ props.label }}</h2>
         <q-chip
           v-if="tab !== 'completed'"
           class="q-mt-md"
@@ -21,9 +21,7 @@
         dense
         style="max-width: 300px"
       >
-        <q-tab name="active" label="Active" />
-        <q-tab name="completed" label="Completed" />
-        <q-tab name="all" label="All" />
+        <q-tab v-for="tabName in tabs" :key="tabName" :label="$t(`tasks_${tabName}`)" :name="tabName" />
       </q-tabs>
     </div>
 
@@ -50,7 +48,14 @@
         </template>
       </q-input>
 
+      <p
+        v-if="tasks.length === 0"
+        class="text-grey-7 text-center q-my-md"
+      >
+        {{ $t('emptyList') }}
+      </p>
       <draggable
+        v-else
         tag="div"
         class="q-list q-pt-sm"
         v-model="tasks"
@@ -80,6 +85,7 @@
     </q-card>
   </div>
 </template>
+
 <script lang="ts" setup>
 import { useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
@@ -88,10 +94,35 @@ import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
 // import { scroll } from 'quasar'
 
+const props = defineProps({
+  label: {
+    type: String,
+    required: true
+  },
+  filter: {
+    type: Function,
+    required: true
+  },
+  tabs: {
+    type: Array,
+    required: true
+  },
+  startTab: {
+    type: String,
+    required: true
+  },
+  onCreated: {
+    type: Function,
+    required: false,
+    default: () => {
+      // do nothing
+    }
+  }
+})
+
 const taskStore = useTaskStore()
 
-const tab = ref<string>('active')
-// const tab = ref<string>('all')
+const tab = ref<string>(props.startTab)
 
 const summary = ref<string>('')
 const onAddTask = () => {
@@ -99,26 +130,17 @@ const onAddTask = () => {
     return
   }
 
-  taskStore.addTask(summary.value)
+  taskStore.addTask(summary.value).then((task) => {
+    props.onCreated(task)
+  })
 
   summary.value = ''
 }
 
 const tasks = computed({
   get: () => {
-    if (tab.value === 'all') {
-      return taskStore.tasks
-    }
-    if (tab.value === 'completed') {
-      return taskStore.tasks.filter((task) => {
-        return task.completed
-      })
-    } else {
-      // active
-      return taskStore.tasks.filter((task) => {
-        return !task.completed || task.rrule
-      })
-    }
+    const tabName = tab.value
+    return props.filter(tabName, taskStore.tasks)
   },
   set: () => {
     console.log('drag end')

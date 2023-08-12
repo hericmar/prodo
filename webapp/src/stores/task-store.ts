@@ -35,7 +35,7 @@ export type RootState = {
   tasks: Task[],
 }
 
-function updateGreyedOut (task: Task) {
+export function updateGreyedOut (task: Task) {
   task.greyedOut = task.recurrence === RRuleEvaluation.Future ||
     (task.recurrence === RRuleEvaluation.Now && task.completed !== null)
 }
@@ -54,6 +54,7 @@ function toTask (task: any) {
   if (task.due) {
     task.due = new Date(task.due)
   }
+  task.rrule = task.rrule || null
 
   // computed by webapp
   task.recurrence = evaluateRRule(task)
@@ -86,9 +87,12 @@ export const useTaskStore = defineStore('task', {
       return this.init()
     },
     addTask (summary: string) {
-      api.task.create(summary).then(response => {
-        toTask(response.data)
-        this.tasks.splice(0, 0, response.data)
+      return api.task.create(summary).then(response => {
+        const task = response.data
+        toTask(task)
+        this.tasks.splice(0, 0, task)
+
+        return this.tasks[0]
       })
     },
     remove (task: Task) {
