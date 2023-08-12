@@ -149,3 +149,46 @@ class TaskUrgencyTest(TestCase):
             task.priority = test[2]
             task.calculate_urgency(now)
             self.assertEqual(task.urgency, test[3], 'Failed on %s with priority %s' % (test[0], test[2]))
+
+    def test_on_task_with_rrule(self):
+        # created, rrule, priority, urgency
+        test_data = (
+            ('2023-07-15T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-16T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-17T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_NONE),
+            ('2023-07-18T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-19T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-20T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_LOW),
+            ('2023-07-21T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-22T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-23T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_MEDIUM),
+            ('2023-07-24T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-25T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+            ('2023-07-26T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_LOW, TASK_URGENCY_HIGH),
+
+            ('2023-07-15T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_NONE),
+            ('2023-07-16T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_NONE),
+            ('2023-07-17T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_LOW),
+            ('2023-07-18T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_LOW),
+            ('2023-07-19T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_MEDIUM),
+            ('2023-07-20T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_MEDIUM),
+            ('2023-07-21T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+            ('2023-07-22T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_MEDIUM, TASK_URGENCY_HIGH),
+
+            ('2023-07-15T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_NONE),
+            ('2023-07-16T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_LOW),
+            ('2023-07-17T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_MEDIUM),
+            ('2023-07-18T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+        )
+        now = datetime.datetime.strptime('2023-07-15T10:00', '%Y-%m-%dT%H:%M')
+        now = timezone.make_aware(now, timezone.get_current_timezone())
+        task = Task.objects.create(created_by=self.user, created=now, summary="Test task")
+        task.created = now
+
+        for test in test_data:
+            now = datetime.datetime.strptime(test[0], '%Y-%m-%dT%H:%M')
+            now = timezone.make_aware(now, timezone.get_current_timezone())
+            task.rrule = test[1]
+            task.priority = test[2]
+            task.calculate_urgency(now)
+            self.assertEqual(task.urgency, test[3], 'Failed on %s with priority %s' % (test[0], test[2]))

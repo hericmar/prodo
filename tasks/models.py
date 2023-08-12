@@ -114,6 +114,8 @@ class Task(Creatable, Updatable):
         """
         Not saved to the database
         """
+
+        # none, low, medium, high
         INTERVAL_COUNT = 4
 
         # hours passed since the task was created
@@ -128,14 +130,25 @@ class Task(Creatable, Updatable):
 
             factor = float(hours_elapsed) / float(hours_total)
             self.urgency = min(math.floor(factor * INTERVAL_COUNT), TASK_URGENCY_HIGH)
-        elif self.rrule:
-            recurrence = rrule.rrulestr(self.rrule)
-            now_naive = now.replace(tzinfo=None)
-            before = recurrence.before(now_naive)
 
-            if before and (not self.completed or before > self.completed):
-                self.urgency = TASK_URGENCY_HIGH
-                return
+        elif self.rrule:
+            now_naive = now.replace(tzinfo=None)
+
+            completed_naive = self.completed.replace(tzinfo=None) if self.completed else self.created.replace(tzinfo=None)
+            max_occurrences = TASK_PRIORITY_TO_INDEX[self.priority] * INTERVAL_COUNT
+
+            recurrence = rrule.rrulestr(self.rrule, dtstart=completed_naive)
+            after = list(recurrence.xafter(dt=completed_naive, count=max_occurrences))
+
+            # find the closest occurrence
+            missed = 0
+            for i, occurrence in enumerate(after):
+                if occurrence > now_naive:
+                    missed = i
+                    break
+
+            self.urgency = min(math.floor(missed / TASK_PRIORITY_TO_INDEX[self.priority]), TASK_URGENCY_HIGH)
+
         else:
             interval_size = 24
 
