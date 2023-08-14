@@ -63,13 +63,14 @@ def ical_view(request, secret: str):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    tasks = Task.objects.filter(active=True)
+    tasks = Task.objects.get_active(user=subscription.user)
 
     EVENT_TEMPLATE = """BEGIN:VEVENT
+UID:{uid}
 DTSTAMP:{created}
+SEQUENCE:{sequence}
 SUMMARY:{summary}
-DESCRIPTION:{description}
-UID:{uid}"""
+DESCRIPTION:{description}"""
 
     events = []
 
