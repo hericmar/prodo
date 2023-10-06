@@ -39,6 +39,7 @@ export default {
   tasks_completed: 'Completed',
   tasks_all: 'All',
   tasks_inactive: 'Inactive',
+  tasks_similar: 'Similar tasks',
 
   landing_description: 'New approach to productivity.',
 

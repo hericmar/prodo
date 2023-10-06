@@ -48,6 +48,17 @@
         </template>
       </q-input>
 
+      <div class="q-mx-sm">
+        <p v-if="similarTasks.length !== 0">
+          {{ $t('tasks_similar') }}:
+        </p>
+        <ul>
+          <li v-for="(entry, index) in findSimilar(summary, tasks)" :key="index">
+            {{ entry.summary }}
+          </li>
+        </ul>
+      </div>
+
       <p
         v-if="tasks.length === 0"
         class="text-grey-7 text-center q-my-md"
@@ -87,7 +98,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useTaskStore } from 'stores/task-store'
+import { Task, useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import SingleTask from 'components/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
@@ -147,6 +158,10 @@ const tasks = computed({
   }
 })
 
+const similarTasks = computed(() => {
+  return findSimilar(summary.value, tasks.value)
+})
+
 const isFocused = ref<boolean>(false)
 
 // drag and drop
@@ -186,6 +201,19 @@ const onScroll = (offsetX: number, offsetY: number) => {
 
   // const { getVerticalScrollPosition, setVerticalScrollPosition } = scroll
   // setVerticalScrollPosition(window, getVerticalScrollPosition(window) + offsetY, 2)
+}
+
+// move outside
+const findSimilar = (summary: string, tasks: Array<Task>) => {
+  // console.log('find similar')
+
+  if (summary.length < 3) {
+    return []
+  }
+
+  return tasks.filter((task: Task) => {
+    return task.summary.toLowerCase().includes(summary.toLowerCase())
+  })
 }
 </script>
 
