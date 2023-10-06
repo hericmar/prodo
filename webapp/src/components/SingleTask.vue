@@ -35,7 +35,14 @@
       </q-item-label>
       <q-item-label v-if="props.task.due">
         <div class="flex self-center">
-          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDate(props.task.due) }}
+          <q-icon class="q-pr-sm" name="upcoming"></q-icon> {{ formatDate(props.task.due) }}
+          <q-tooltip :delay="500">due</q-tooltip>
+        </div>
+      </q-item-label>
+      <q-item-label v-if="props.task.start && props.task.end">
+        <div class="flex self-center">
+          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDate(props.task.start) }} - {{ formatDate(props.task.end) }}
+          <q-tooltip :delay="500">duration</q-tooltip>
         </div>
       </q-item-label>
       <q-item-label v-if="props.task.rrule" class="q-pt-sm text-grey-7">

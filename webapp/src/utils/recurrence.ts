@@ -110,6 +110,7 @@ export default {
   },
   each_workday: () => {
     return {
+      freq: RRule.DAILY,
       byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR]
     }
   }

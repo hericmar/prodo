@@ -179,6 +179,8 @@ class TaskUrgencyTest(TestCase):
             ('2023-07-16T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_LOW),
             ('2023-07-17T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_MEDIUM),
             ('2023-07-18T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
+
+            ('2023-10-18T10:00', 'FREQ=DAILY;INTERVAL=1', TASK_PRIORITY_HIGH, TASK_URGENCY_HIGH),
         )
         now = datetime.datetime.strptime('2023-07-15T10:00', '%Y-%m-%dT%H:%M')
         now = timezone.make_aware(now, timezone.get_current_timezone())

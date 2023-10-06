@@ -4,11 +4,12 @@ import uuid
 from dateutil import rrule
 from django.contrib.auth.models import User
 from django.db import models
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from base.models import Creatable, Updatable
 
@@ -20,7 +21,7 @@ def validate_rrule(value: str):
     try:
         rrule.rrulestr(value)
     except ValueError as err:
-        raise ValidationError(str(err), params={'value': value})
+        raise ValidationError(str(err))
 
 
 def make_daylong(self, date):
@@ -121,10 +122,28 @@ class Task(Creatable, Updatable):
         # hours passed since the task was created
         hours_elapsed = (now - self.created).total_seconds() / 3600
 
-        if self.due:
-            hours_total = (self.due - self.created).total_seconds() / 3600
+        due = None
 
-            if self.due <= now or hours_total - hours_elapsed <= 24:
+        if self.due:
+            due = self.due
+        elif self.start and self.end:
+            due = self.end
+
+        is_bound = self.start and self.end
+        if self.due or is_bound:
+            if self.due and not is_bound:
+                hours_total = (self.due - self.created).total_seconds() / 3600
+            elif self.due and is_bound:
+                hours_total = (self.due - self.end).total_seconds() / 3600
+            else:
+                # No due date, but task is bound, use the end date as due.
+                hours_total = (now - self.end).total_seconds() / 3600
+                if hours_total < 0:
+                    # Task is in progress
+                    self.urgency = TASK_URGENCY_NONE
+                    return
+
+            if due <= now or hours_total - hours_elapsed <= 24:
                 self.urgency = TASK_URGENCY_HIGH
                 return
 
@@ -140,12 +159,16 @@ class Task(Creatable, Updatable):
             recurrence = rrule.rrulestr(self.rrule, dtstart=completed_naive)
             after = list(recurrence.xafter(dt=completed_naive, count=max_occurrences))
 
-            # find the closest occurrence
             missed = 0
-            for i, occurrence in enumerate(after):
-                if occurrence > now_naive:
-                    missed = i
-                    break
+            if after and after[len(after) - 1] < now_naive:
+                # All occurrences have been missed
+                missed = max_occurrences
+            else:
+                # find the closest occurrence
+                for i, occurrence_naive in enumerate(after):
+                    if occurrence_naive > now_naive:
+                        missed = i
+                        break
 
             self.urgency = min(math.floor(missed / TASK_PRIORITY_TO_INDEX[self.priority]), TASK_URGENCY_HIGH)
 
@@ -169,6 +192,9 @@ class Task(Creatable, Updatable):
 
             if previous.created != self.created:
                 raise ValidationError('Task created date cannot be modified')
+
+            if self.end and self.due and self.end > self.due:
+                raise ValidationError('Task end date cannot be after due date')
 
             self.sequence += 1
         except Task.DoesNotExist:

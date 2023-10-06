@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Task, useTaskStore } from 'stores/task-store'
 import api from 'src/api'
 import TaskList from 'components/TaskList.vue'
@@ -186,6 +186,11 @@ const onRefresh = (done: any) => {
   done()
 }
  */
+
+// lifecycle
+onMounted(() => {
+  taskStore.init()
+})
 </script>
 
 <style lang="sass">

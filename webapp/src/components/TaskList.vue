@@ -187,11 +187,6 @@ const onScroll = (offsetX: number, offsetY: number) => {
   // const { getVerticalScrollPosition, setVerticalScrollPosition } = scroll
   // setVerticalScrollPosition(window, getVerticalScrollPosition(window) + offsetY, 2)
 }
-
-// lifecycle
-onMounted(() => {
-  taskStore.init()
-})
 </script>
 
 <style lang="sass">
