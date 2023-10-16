@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
@@ -10,6 +12,9 @@ from base.serializers import EmptySerializer
 from ical.models import Subscription
 from ical.serializers import SubscriptionSerializer, PostSubscriptionSerializer
 from tasks.models import Task
+
+
+DUE_DURATION_HOURS = 4
 
 
 class SubscriptionView(RetrieveAPIView, CreateAPIView, DestroyAPIView):
@@ -75,7 +80,7 @@ DESCRIPTION:{description}"""
     events = []
 
     # dtstart is required by ical spec
-    tasks = filter(lambda task: task.start is not None, tasks)
+    tasks = filter(lambda task: task.start is not None or task.due is not None, tasks)
 
     for task in tasks:
         event_data = {**task.__dict__}
@@ -85,11 +90,15 @@ DESCRIPTION:{description}"""
 
         event = EVENT_TEMPLATE.format(**event_data)
 
-        event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
-
-        if 'end' in event_data:
-            # dtend is optional, dtstart can be used with duration or rrule
+        # dtend is optional, dtstart can be used with duration or rrule
+        if event_data.get('start') and event_data.get('end'):
+            event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
             event = event + "\nDTEND:" + event_data['end'].strftime('%Y%m%dT%H%M%SZ')
+        elif event_data.get('due'):
+            end = event_data['due']
+            start = end - datetime.timedelta(hours=DUE_DURATION_HOURS)
+            event = event + "\nDTSTART:" + start.strftime('%Y%m%dT%H%M%SZ')
+            event = event + "\nDTEND:" + end.strftime('%Y%m%dT%H%M%SZ')
 
         if event_data['rrule']:
             event += "\nRRULE:" + event_data['rrule']
