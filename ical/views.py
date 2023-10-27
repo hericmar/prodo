@@ -1,4 +1,5 @@
 import datetime
+from io import StringIO
 
 from django.http import HttpResponse
 from rest_framework import status
@@ -70,6 +71,7 @@ def ical_view(request, secret: str):
 
     tasks = Task.objects.get_active(user=subscription.user)
 
+    # Template with required fields
     EVENT_TEMPLATE = """BEGIN:VEVENT
 UID:{uid}
 DTSTAMP:{created}
@@ -85,34 +87,32 @@ DESCRIPTION:{description}"""
     for task in tasks:
         event_data = {**task.__dict__}
 
-        # event_data['uid'] = str(event_data['uid']) + '@prodo'
         event_data['created'] = event_data['created'].strftime('%Y%m%dT%H%M%SZ')
 
-        event = EVENT_TEMPLATE.format(**event_data)
+        lines = [EVENT_TEMPLATE.format(**event_data)]
 
-        # dtend is optional, dtstart can be used with duration or rrule
+        # `dtend` is optional, `dtstart` can be used with duration or rrule
         if event_data.get('start') and event_data.get('end'):
-            event = event + "\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ')
-            event = event + "\nDTEND:" + event_data['end'].strftime('%Y%m%dT%H%M%SZ')
+            lines.append("\nDTSTART:" + event_data['start'].strftime('%Y%m%dT%H%M%SZ'))
+            lines.append("\nDTEND:" + event_data['end'].strftime('%Y%m%dT%H%M%SZ'))
         elif event_data.get('due'):
             end = event_data['due']
             start = end - datetime.timedelta(hours=DUE_DURATION_HOURS)
-            event = event + "\nDTSTART:" + start.strftime('%Y%m%dT%H%M%SZ')
-            event = event + "\nDTEND:" + end.strftime('%Y%m%dT%H%M%SZ')
+            lines.append("\nDTSTART:" + start.strftime('%Y%m%dT%H%M%SZ'))
+            lines.append("\nDTEND:" + end.strftime('%Y%m%dT%H%M%SZ'))
 
         if event_data['rrule']:
-            event += "\nRRULE:" + event_data['rrule']
+            lines.append('\n' + event_data['rrule'])
 
-        events.append(event)
+        lines.append("\nEND:VEVENT")
 
-    if len(events) == 1:
-        events[0] += "\nEND:VEVENT"
+        events.append(''.join(lines))
 
     data = """BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Prodo//Tasks//EN
+PRODID:-//Phire//Prodo//EN
 {events}
 END:VCALENDAR
-""".format(events='\nEND:VEVENT\n'.join(events))
+""".format(events='\n'.join(events))
 
     return HttpResponse(data.replace('\n', '\r\n'), content_type='text/calendar')

@@ -183,6 +183,12 @@ class Task(Creatable, Updatable):
         """
         update sequence number when task is updated in the database
         """
+        if self.end and self.due and self.end > self.due:
+            raise ValidationError('Task end date cannot be after due date')
+
+        if self.start and self.end and self.start > self.end:
+            raise ValidationError('Task start date cannot be after end date')
+
         try:
             previous = Task.objects.get(uid=self.uid)
 
@@ -192,9 +198,6 @@ class Task(Creatable, Updatable):
 
             if previous.created != self.created:
                 raise ValidationError('Task created date cannot be modified')
-
-            if self.end and self.due and self.end > self.due:
-                raise ValidationError('Task end date cannot be after due date')
 
             self.sequence += 1
         except Task.DoesNotExist:
