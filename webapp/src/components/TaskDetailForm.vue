@@ -32,9 +32,11 @@
       label="Due"
       :date-only="wholeDay"
     />
+    <!--
     <div>
       <q-checkbox v-model="wholeDay" @click="onWholeDayClick">{{ $t('task_wholeDay') }}</q-checkbox>
     </div>
+    -->
 
     <h2 class="text-h6">{{ $t('priority') }}</h2>
     <q-btn-toggle

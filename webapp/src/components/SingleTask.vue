@@ -35,13 +35,13 @@
       </q-item-label>
       <q-item-label v-if="props.task.due">
         <div class="flex self-center">
-          <q-icon class="q-pr-sm" name="upcoming"></q-icon> {{ formatDate(props.task.due) }}
+          <q-icon class="q-pr-sm" name="upcoming"></q-icon> {{ formatDateLocal(props.task.due) }}
           <q-tooltip :delay="500">due</q-tooltip>
         </div>
       </q-item-label>
       <q-item-label v-if="props.task.start && props.task.end">
         <div class="flex self-center">
-          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDate(props.task.start) }} - {{ formatDate(props.task.end) }}
+          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDateLocal(props.task.start, { hideYear: props.task.start.getFullYear() === props.task.end.getFullYear() }) }} - {{ formatDateLocal(props.task.end, { hideYear: props.task.start.getFullYear() === props.task.end.getFullYear() }) }}
           <q-tooltip :delay="500">duration</q-tooltip>
         </div>
       </q-item-label>
@@ -77,7 +77,7 @@
 import { Task, Urgency, useTaskStore } from 'stores/task-store'
 import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
-import { formatDate } from 'src/utils/datetime'
+import { formatDateLocal } from 'src/utils/datetime'
 import { RRule } from 'rrule'
 import { marked } from 'marked'
 

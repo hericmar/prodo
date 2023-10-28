@@ -1,40 +1,86 @@
 <template>
-  <q-input
-    v-model="model"
-    outlined
-    dense
-    clearable
-    @update:modelValue="onUpdate"
-  >
-    <template v-slot:prepend>
-      <q-icon name="event" />
-    </template>
-    <q-popup-proxy class="flex flex-center">
-      <q-date
-        v-model="model"
-        :mask="props.dateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'"
-        class="q-mr-sm"
-        @update:modelValue="onUpdate"
+  <div class="row items-center">
+    <q-input
+      ref="dateRef"
+      v-model="date"
+      :rules="[validateDate]"
+      class="q-pr-sm"
+      style="max-width: 150px"
+      hide-bottom-space
+      outlined
+      dense
+      @update:modelValue="onDateUpdate"
+      @focusin="showDatePopup = true"
+      @blur="showDatePopup = false"
+      @keydown.esc="onEscDown"
+    >
+      <template v-slot:append>
+        <q-icon name="event" />
+      </template>
+      <q-popup-proxy
+        v-model="showDatePopup"
+        persistent
+        no-parent-event
+        no-refocus
+        no-focus
       >
-      </q-date>
-      <q-time
-        v-if="!props.dateOnly"
-        v-model="model"
-        mask="YYYY-MM-DD HH:mm"
-        @update:modelValue="onUpdate"
+        <q-date
+          v-model="popupDate"
+          class="q-mr-sm"
+          minimal
+          @update:modelValue="onPopupDateUpdate"
+          @mousedown.prevent="console.log('click')"
+        >
+        </q-date>
+      </q-popup-proxy>
+    </q-input>
+
+    <q-input
+      ref="timeRef"
+      v-model="time"
+      mask="##:##"
+      style="max-width: 150px"
+      hide-bottom-space
+      :rules="[validateTime]"
+      outlined
+      dense
+      @update:modelValue="onUpdate"
+    >
+      <template v-slot:append>
+        <q-icon name="access_time" />
+      </template>
+    </q-input>
+
+    <div class="q-pl-md">
+      <q-btn
+        v-if="date"
+        dense
+        round
+        unelevated
+        size="sm"
+        color="grey"
+        icon="close"
+        @click="onClear"
       >
-      </q-time>
-    </q-popup-proxy>
-  </q-input>
+      </q-btn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { formatDate } from 'src/utils/datetime'
+import { nextTick, ref, PropType } from 'vue'
+import {
+  formatDateLocal,
+  formatTimeLocal,
+  getDateFormatPattern,
+  toDateModel
+} from 'src/utils/datetime'
+import { useQuasar } from 'quasar'
+import { parse } from 'date-fns'
 
 const props = defineProps({
   modelValue: {
-    type: Date,
+    type: [Date, null] as PropType<Date | null>,
     required: true
   },
   label: {
@@ -47,23 +93,109 @@ const props = defineProps({
   }
 })
 
-const model = ref(formatDate(props.modelValue, props.dateOnly))
+const $q = useQuasar()
+const locale = $q.lang.getLocale() || 'en-US'
+const dateFormat = getDateFormatPattern(locale)
+
+const time = ref('')
+const timeRef = ref(null)
+const date = ref('')
+const dateRef = ref(null)
+const popupDate = ref('')
+const showDatePopup = ref(false)
 
 const emit = defineEmits(['update:modelValue'])
 
+if (props.modelValue) {
+  console.log('props.modelValue', props.modelValue)
+  date.value = formatDateLocal(props.modelValue, { dateOnly: true })
+  time.value = formatTimeLocal(props.modelValue)
+  popupDate.value = toDateModel(props.modelValue)
+}
+
+/*
 watch(
   () => props.dateOnly,
   (dateOnly, _) => {
     model.value = formatDate(props.modelValue, props.dateOnly)
   }
 )
+ */
+
+const validateDate = (date: string) => {
+  if (!date) {
+    return !time.value
+  }
+
+  try {
+    const result = parse(date, dateFormat, new Date())
+    // is valid
+    return result instanceof Date && !isNaN(result.getTime())
+  } catch (error) {
+    return false
+  }
+}
+
+const validateTime = (time: string) => {
+  dateRef.value.validate()
+  if (!time) {
+    return true
+  }
+  return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)
+}
+
+const onClear = () => {
+  time.value = ''
+  date.value = ''
+  emit('update:modelValue', null)
+}
+
+const onEscDown = (event: KeyboardEvent) => {
+  if (showDatePopup.value) {
+    showDatePopup.value = false
+    event.stopPropagation()
+  }
+}
 
 const onUpdate = () => {
-  console.log('onUpdate', model.value)
-  if (model.value === null) {
-    emit('update:modelValue', null)
+  console.log('onUpdate')
+  if (!validateTime(time.value) || !validateDate(date.value)) {
+    console.log('invalid date or time')
     return
   }
-  emit('update:modelValue', new Date(model.value))
+
+  const result = parse(date.value, dateFormat, new Date())
+  if (time.value) {
+    result.setHours(parseInt(time.value.substring(0, 2)))
+    result.setMinutes(parseInt(time.value.substring(3)))
+  }
+
+  if (date.value === '' && time.value === '') {
+    console.log('emptying')
+    emit('update:modelValue', null)
+  } else {
+    console.log('emitting', result)
+    emit('update:modelValue', result)
+  }
+}
+
+const onDateUpdate = () => {
+  const result = parse(date.value, dateFormat, new Date())
+  nextTick(() => {
+    // format date using YYYY/MM/DD
+    popupDate.value = toDateModel(result)
+    onUpdate()
+  })
+}
+
+const onPopupDateUpdate = () => {
+  console.log('onPopupDateUpdate')
+  // format date using locale format
+  showDatePopup.value = false
+  nextTick(() => {
+    // Can be empty if user clicks once more on the date.
+    date.value = Intl.DateTimeFormat(locale).format(new Date(popupDate.value))
+    onUpdate()
+  })
 }
 </script>
