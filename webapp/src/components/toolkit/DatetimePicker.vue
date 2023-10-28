@@ -39,7 +39,7 @@
       ref="timeRef"
       v-model="time"
       mask="##:##"
-      style="max-width: 150px"
+      style="max-width: 100px"
       hide-bottom-space
       :rules="[validateTime]"
       outlined

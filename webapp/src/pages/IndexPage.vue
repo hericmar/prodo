@@ -43,7 +43,12 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="confirmEdit" no-backdrop-dismiss :on-escape-key="() => confirmEdit = false">
+  <q-dialog
+    v-model="confirmEdit"
+    class="dialog"
+    no-backdrop-dismiss
+    :on-escape-key="() => confirmEdit = false"
+  >
     <q-card class="task-card">
       <q-card-section>
         <TaskDetailForm :edited-task="task" />
@@ -199,4 +204,11 @@ onMounted(() => {
     width: 100%
   @media (min-width: $breakpoint-xs)
     width: 400px
+
+@media (max-width: $breakpoint-xs)
+  .dialog .q-dialog__inner
+    padding-left: 16px !important
+    padding-right: 16px !important
+  .q-tab
+    padding: 0 12px !important
 </style>
