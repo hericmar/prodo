@@ -11,7 +11,7 @@
       dense
       @update:modelValue="onDateUpdate"
       @focusin="showDatePopup = true"
-      @blur="showDatePopup = false"
+      @blur="onBlur"
       @keydown.esc="onEscDown"
     >
       <template v-slot:append>
@@ -25,11 +25,12 @@
         no-focus
       >
         <q-date
+          ref="popupDateRef"
           v-model="popupDate"
-          class="q-mr-sm"
           minimal
           @update:modelValue="onPopupDateUpdate"
-          @mousedown.prevent="console.log('click')"
+          @click.prevent
+          @mousedown.prevent
         >
         </q-date>
       </q-popup-proxy>
@@ -102,6 +103,7 @@ const timeRef = ref(null)
 const date = ref('')
 const dateRef = ref(null)
 const popupDate = ref('')
+const popupDateRef = ref(null)
 const showDatePopup = ref(false)
 
 const emit = defineEmits(['update:modelValue'])
@@ -191,5 +193,26 @@ const onPopupDateUpdate = () => {
     date.value = Intl.DateTimeFormat(locale).format(new Date(popupDate.value))
     onUpdate()
   })
+}
+
+const onBlur = (e: FocusEvent) => {
+  const calendarElementSelectorName = 'span.q-focus-helper'
+  let emittedFromCalendar = false
+
+  if (!popupDateRef.value || !dateRef.value) {
+    return
+  }
+
+  popupDateRef.value.$el.querySelectorAll(calendarElementSelectorName).forEach((el: Node) => {
+    if (el === e.relatedTarget) {
+      emittedFromCalendar = true
+    }
+  })
+
+  if (!emittedFromCalendar) {
+    showDatePopup.value = false
+  } else {
+    dateRef.value.focus()
+  }
 }
 </script>
