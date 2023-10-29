@@ -71,11 +71,10 @@
         class="q-list q-pt-sm"
         v-model="tasks"
         item-key="uid"
+        handle=".drag-handle"
         @start="onDragStart"
         @end="onDragEnd"
-        delay="150"
         direction="vertical"
-        :delayOnTouchOnly="true"
         touchStartThreshold: 5
         ghostClass="dnd-ghost"
         chosenClass="dnd-chosen"
@@ -168,7 +167,6 @@ const isFocused = ref<boolean>(false)
 const dragging = ref<boolean>(false)
 
 const onDragStart = (e: any) => {
-  console.log(e)
   e.clone.classList.remove('dnd-ghost')
   dragging.value = true
   emitter.emit('on-drag-start')

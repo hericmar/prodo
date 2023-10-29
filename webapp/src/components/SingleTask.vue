@@ -1,6 +1,6 @@
 <template>
   <q-item
-    class="q-pa-none q-card q-my-sm shadow-1"
+    class="task q-pa-none q-card q-my-sm shadow-1"
     :class="{
       'task-greyed': props.task.greyedOut,
       'task-urgency-none': props.task.urgency === Urgency.None,
@@ -8,7 +8,9 @@
       'task-urgency-medium': props.task.urgency === Urgency.Medium,
       'task-urgency-high': props.task.urgency === Urgency.High,
     }"
-    @dblclick="onTaskClick"
+    active-class="task-active"
+    clickable
+    @click="onTaskClick"
   >
     <q-item-section
       class="task-checkbox q-pr-none"
@@ -51,24 +53,11 @@
     </q-item-section>
 
     <q-item-section side>
-      <div class="text-grey-8 q-gutter-xs">
-        <q-btn size="12px" flat dense round icon="more_vert">
-          <q-menu>
-            <q-list>
-              <q-item clickable v-close-popup>
-                <q-item-section
-                  @click="onEdit"
-                >Edit</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section
-                  @click="onDelete"
-                >Delete</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </div>
+      <q-icon
+        name="more_vert"
+        class="drag-handle text-grey-8 q-gutter-xs"
+        size="sm"
+      />
     </q-item-section>
   </q-item>
 </template>
@@ -89,10 +78,6 @@ const props = defineProps<Props>()
 
 const completed = ref(props.task.completed !== null)
 
-const onDelete = () => {
-  emitter.emit('on-delete', { task: props.task })
-}
-
 const onEdit = () => {
   emitter.emit('on-edit', { task: props.task })
 }
@@ -109,6 +94,10 @@ const onCompletedClick = () => {
 </script>
 
 <style lang="scss">
+.task .q-focus-helper {
+  display: none;
+}
+
 .missed-due {
   background-color: #C10015;
 }
@@ -142,5 +131,13 @@ const onCompletedClick = () => {
 
 .task-greyed .task-checkbox {
   background-color: #E0E0E0 !important;
+}
+
+.task-active {
+  background-color: #a82323 !important;
+}
+
+.drag-handle {
+  cursor: move;
 }
 </style>

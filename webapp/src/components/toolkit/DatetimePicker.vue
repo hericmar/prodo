@@ -107,7 +107,6 @@ const showDatePopup = ref(false)
 const emit = defineEmits(['update:modelValue'])
 
 if (props.modelValue) {
-  console.log('props.modelValue', props.modelValue)
   date.value = formatDateLocal(props.modelValue, { dateOnly: true })
   time.value = formatTimeLocal(props.modelValue)
   popupDate.value = toDateModel(props.modelValue)
@@ -158,9 +157,7 @@ const onEscDown = (event: KeyboardEvent) => {
 }
 
 const onUpdate = () => {
-  console.log('onUpdate')
   if (!validateTime(time.value) || !validateDate(date.value)) {
-    console.log('invalid date or time')
     return
   }
 
@@ -171,10 +168,8 @@ const onUpdate = () => {
   }
 
   if (date.value === '' && time.value === '') {
-    console.log('emptying')
     emit('update:modelValue', null)
   } else {
-    console.log('emitting', result)
     emit('update:modelValue', result)
   }
 }
@@ -189,7 +184,6 @@ const onDateUpdate = () => {
 }
 
 const onPopupDateUpdate = () => {
-  console.log('onPopupDateUpdate')
   // format date using locale format
   showDatePopup.value = false
   nextTick(() => {

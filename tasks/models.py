@@ -35,7 +35,7 @@ class TaskManager(models.Manager):
         uuids = [uuid.UUID(uid) for uid in task_list.ordered_tasks]
         filtered_tasks = self.filter(created_by=user, active=True)
 
-        return sorted(filtered_tasks, key=lambda task: uuids.index(task.uid))
+        return sorted(filtered_tasks, key=lambda task: uuids.index(task.uid) if task.uid in uuids else math.inf)
 
     def get_active(self, user: User):
         """

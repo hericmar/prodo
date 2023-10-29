@@ -55,6 +55,8 @@
       :dtstart="task.start"
     />
 
+    <q-btn flat color="red" @click="emitter.emit('on-delete', { task: props.editedTask })">Delete</q-btn>
+
     <div class="q-pa-md q-gutter-sm">
       <q-btn flat label="Cancel" color="primary" @click="onClose" />
       <q-btn flat label="Save" color="primary" @click="onSave" />
@@ -69,7 +71,6 @@ import emitter from 'src/plugins/mitt'
 import { isTimeSet } from 'src/utils/datetime'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import RRulePicker from 'components/toolkit/RRulePicker.vue'
-import ButtonPicker from 'components/toolkit/ButtonPicker.vue'
 
 const props = defineProps({
   editedTask: {
@@ -86,14 +87,16 @@ const task = ref<Task>(props.editedTask)
 const wholeDay = ref<boolean>(task.value.start ? isTimeSet(task.value.start) : false)
 
 const onStartChange = (value: Date) => {
-  onWholeDayClick()
+  // onWholeDayClick()
 }
 
+/*
 const onWholeDayClick = () => {
   if (wholeDay.value && task.value.start) {
     task.value.end = task.value.start
   }
 }
+ */
 
 const onEnterDown = (event: KeyboardEvent) => {
   if (event.ctrlKey) {

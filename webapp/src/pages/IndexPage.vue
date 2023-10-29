@@ -28,8 +28,8 @@
     v-model="confirmDelete"
     no-backdrop-dismiss
     :on-escape-key="() => confirmDelete = false"
-    @keydown.enter="onDelete"
   >
+    <!-- @keydown.enter="onDelete" -->
     <q-card>
       <q-card-section class="row items-center">
         <q-avatar icon="remove" color="primary" text-color="white" />
@@ -81,6 +81,7 @@ const onDelete = () => {
   taskStore.remove(task)
   confirmDelete.value = false
   task = undefined
+  emitter.emit('on-edit-close', {})
 }
 
 // Edit task dialog
@@ -203,7 +204,7 @@ onMounted(() => {
   @media (max-width: $breakpoint-xs)
     width: 100%
   @media (min-width: $breakpoint-xs)
-    width: 400px
+    width: 500px
 
 @media (max-width: $breakpoint-xs)
   .dialog .q-dialog__inner

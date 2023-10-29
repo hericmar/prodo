@@ -56,7 +56,6 @@ export const evaluateRRule = (task: Task) => {
   if (task.completed === null) {
     // task has never been completed, check if first occurrence is in the future
     let first = rrule.after(task.created, true)
-    console.log('first', first)
     if (first === null) {
       return RRuleEvaluation.NoMore
     }
@@ -71,7 +70,6 @@ export const evaluateRRule = (task: Task) => {
     }
   } else {
     let next = rrule.after(task.completed, true)
-    console.log('next', next)
     if (next === null) {
       return RRuleEvaluation.NoMore
     }
