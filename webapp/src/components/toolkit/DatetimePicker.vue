@@ -28,6 +28,7 @@
           ref="popupDateRef"
           v-model="popupDate"
           minimal
+          no-unset
           @update:modelValue="onPopupDateUpdate"
           @click.prevent
           @mousedown.prevent
