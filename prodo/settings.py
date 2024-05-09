@@ -15,29 +15,29 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
-from base.config import load_config, Config
-
-load_dotenv()
+WELL_KNOWN_ENVS = [
+    '/etc/prodo/config.env',
+    '.env'
+]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-config = Config()
+for env in WELL_KNOWN_ENVS:
+    if os.path.isfile(env):
+        load_dotenv(dotenv_path=env, override=False)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i4k*1)z_l$p=2&_k-g659nf+9n(2=4@7^g3l%gon4aakn_x(07'
+SECRET_KEY = os.getenv('PRODO_SECRET_KEY', 'django-insecure-i4k*1)z_l$p=2&_k-g659nf+9n(2=4@7^g3l%gon4aakn_x(07')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False)
 
-if not DEBUG:
-    config = load_config('/etc/prodo/config.toml')
-
-ALLOWED_HOSTS = config.allowed_hosts
-CSRF_TRUSTED_ORIGINS = config.csrf_trusted_origins
+ALLOWED_HOSTS = os.getenv('PRODO_ALLOWED_HOSTS', 'localhost').strip().split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('PRODO_TRUSTED_ORIGINS', 'http://localhost, http://localhost:8000').strip().split(',')
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
@@ -89,7 +89,9 @@ ROOT_URLCONF = 'prodo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR.joinpath('static')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -108,22 +110,23 @@ WSGI_APPLICATION = 'prodo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if config.postgres:
+if os.getenv('PRODO_DB_TYPE') == 'postgres':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': config.postgres.database,
-            'USER': config.postgres.user,
-            'PASSWORD': config.postgres.password,
-            'HOST': config.postgres.host,
-            'PORT': config.postgres.port,
+            'NAME': os.getenv('PRODO_DB_NAME'),
+            'USER': os.getenv('PRODO_DB_USER'),
+            'PASSWORD': os.getenv('PRODO_DB_PASSWORD'),
+            'HOST': os.getenv('PRODO_DB_HOST'),
+            'PORT': os.getenv('PRODO_DB_PORT')
         }
     }
 else:
+    print('Using sqlite', os.getenv('PRODO_DB_PATH', BASE_DIR / 'db.sqlite3'))
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': os.getenv('PRODO_DB_PATH', BASE_DIR / 'db.sqlite3'),
         }
     }
 
@@ -162,8 +165,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+# Url at which static files are served
+# It's the url the browser will fetch to get the static files
+# It's prepend to static name by the {% static %} templatetag
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR.joinpath('static/static/')
+
+# Directory to export staticfiles for production
+# All files from all STATICFILES_DIRS will be copied by
+# manage.py collectstatic to this directory.
+# /!\ It will not be served by django, you have to setup
+# your webserver (or use a third party module)
+# to serve assets from there.
+STATIC_ROOT = BASE_DIR.joinpath('static')
+
+"""
+if DEBUG:
+    # Directory where static files can be found
+    # When DEBUG = True, static files will be directly served from there by
+    # the manage.py runserver command
+    STATICFILES_DIRS = [
+        BASE_DIR.joinpath('static')
+    ]
+"""
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR.joinpath('media/')

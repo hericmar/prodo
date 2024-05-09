@@ -8,7 +8,7 @@ PRODO_DIR=/usr/share/webapps/prodo
 PRODO_CONFIG_DIR=/etc/prodo
 
 # Check if website is built
-if [ ! -d "static/assets" ]; then
+if [ ! -d "webapp/dist/pwa" ]; then
   echo "Website not built. Please run 'make' first."
   exit 1
 fi
@@ -23,6 +23,7 @@ fi
 if [ ! -d "$PRODO_DIR" ]; then
   echo "Prodo directory not found. Creating..."
   mkdir -p $PRODO_DIR
+  mkdir -p $PRODO_DIR/static
   chown -R $PRODO_USER:$PRODO_GROUP $PRODO_DIR
 fi
 
@@ -71,7 +72,6 @@ cp -r ical $PRODO_DIR
 cp -r prodo $PRODO_DIR
 cp -r tasks $PRODO_DIR
 cp -r users $PRODO_DIR
-cp -r static $PRODO_DIR
 
 cp manage.py $PRODO_DIR
 cp requirements.txt $PRODO_DIR
@@ -86,3 +86,6 @@ pip install -r $PRODO_DIR/requirements.txt
 # Create hourly cron job 'prodo runcrons' for prodo user
 echo "Creating cron job..."
 echo "0 * * * * prodo runcrons" | crontab -u $PRODO_USER -
+
+python $PRODO_DIR/manage.py collectstatic
+cp -r webapp/dist/pwa/* $PRODO_DIR/static

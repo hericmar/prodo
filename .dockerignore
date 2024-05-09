@@ -1,0 +1,10 @@
+.idea/
+.pytest_cache/
+docker/postgres/
+venv/
+webapp/.idea/
+webapp/dist/
+webapp/node_modules/
+
+Dockerfile
+docker-compose.yml

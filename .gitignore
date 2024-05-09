@@ -1,3 +1,6 @@
+docker/*
+!docker/entrypoint.sh
+
 static/assets/
 static/icons/
 static/favicon.ico

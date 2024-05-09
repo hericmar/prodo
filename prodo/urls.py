@@ -15,8 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.http import HttpResponse
-from django.template import engines
+from django.shortcuts import render
 from django.conf.urls.static import static
 from django.urls import path, include
 from rest_framework import routers
@@ -26,6 +25,7 @@ from prodo import settings
 router = routers.DefaultRouter()
 
 urlpatterns = [
+    path('', lambda request: render(request, 'index.html')),
     path('admin/', admin.site.urls),
     path('api/v1', include(router.urls)),
     path('api/v1/auth', include('users.urls')),

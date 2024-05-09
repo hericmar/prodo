@@ -1,0 +1,34 @@
+services:
+  web:
+    build: .
+    command: prodo start
+    environment:
+      PRODO_VERSION: "$(git describe --tags --abbrev=0)"
+      PRODO_DB_TYPE: postgres
+      PRODO_DB_HOST: database
+      PRODO_DB_PORT: 5432
+      PRODO_DB_USER: prodo
+      PRODO_DB_PASSWORD: prodo
+      PRODO_DB_NAME: prodo
+    entrypoint: /app/entrypoint.sh
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "9200:9200"
+      - "8080:8080"
+  database:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: prodo
+      POSTGRES_PASSWORD: prodo
+      POSTGRES_DB: prodo
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h localhost -U prodo" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres:/var/lib/postgresql/data

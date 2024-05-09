@@ -11,7 +11,7 @@ case $1 in
   start)
     echo "Starting Prodo..."
     exec gunicorn prodo.wsgi:application \
-	    --bind localhost:9200 \
+	    --bind 0.0.0.0:9200 \
 	    --workers 4 \
 	    --access-logfile '-' \
 	    --capture-output \

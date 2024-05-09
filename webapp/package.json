@@ -1,6 +1,6 @@
 {
   "name": "prodo-webapp",
-  "version": "1.0-alpha.1",
+  "version": "${PRODO_VERSION}",
   "description": " ",
   "productName": "Prodo WebApp",
   "author": "Martin Herich <martin.herich@phire.cz>",

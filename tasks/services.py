@@ -11,7 +11,6 @@ def calculate_score_for_user(user_data: UserData, now):
     """
     :param user_data: User object, which score needs to be calculated
     """
-    print("Calculating score for user %s" % user_data.user.username)
     user_data.urgency_calculated_at = now
     user_data.save()
 
@@ -24,8 +23,6 @@ def calculate_score_for_user(user_data: UserData, now):
 def calculate_score(now=None):
     if now is None:
         now = timezone.now()
-
-    print("It's now %s" % now)
 
     users = User.objects.all()
     for user in users:
