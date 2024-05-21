@@ -1,0 +1,8 @@
+CREATE TABLE persons (
+    id SERIAL PRIMARY KEY NOT NULL,
+    first_name VARCHAR(32) NOT NULL,
+    surname VARCHAR(32) NOT NULL,
+    username VARCHAR(32) UNIQUE NOT NULL,
+    email VARCHAR(320) UNIQUE NOT NULL,
+    password TEXT NOT NULL
+)

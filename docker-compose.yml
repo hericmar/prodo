@@ -1,22 +1,4 @@
 services:
-  web:
-    build: .
-    command: prodo start
-    environment:
-      PRODO_VERSION: "$(git describe --tags --abbrev=0)"
-      PRODO_DB_TYPE: postgres
-      PRODO_DB_HOST: database
-      PRODO_DB_PORT: 5432
-      PRODO_DB_USER: prodo
-      PRODO_DB_PASSWORD: prodo
-      PRODO_DB_NAME: prodo
-    entrypoint: /app/entrypoint.sh
-    depends_on:
-      database:
-        condition: service_healthy
-    ports:
-      - "9200:9200"
-      - "8080:8080"
   database:
     image: postgres:12-alpine
     environment:

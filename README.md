@@ -1,5 +1,6 @@
 # Prodo
-Simple web application for managing todo lists with export to calendar using iCalendar format.
+Simple web application for managing todo lists with export to calendar using
+iCalendar format.
 
 Application is available at `prodo.phire.cz`.
 
@@ -23,15 +24,11 @@ prodo collectstatic
 
 ## Development
 ```bash
-# Create virtual environment
-python -m venv venv
-# Activate virtual environment
-source venv/bin/activate
-# Install dependencies
-pip install -r requirements.txt
+cp .env.example .env
+```
 
-# Run development server
-DEBUG=True python manage.py runserver
+```bash
+docker compose up
 ```
 
 ## References
