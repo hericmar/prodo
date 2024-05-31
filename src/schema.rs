@@ -142,8 +142,8 @@ diesel::table! {
 }
 
 diesel::table! {
-    persons (id) {
-        id -> Int4,
+    persons (uid) {
+        uid -> Uuid,
         #[max_length = 32]
         first_name -> Varchar,
         #[max_length = 32]

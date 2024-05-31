@@ -66,7 +66,7 @@ module.exports = configure(function (/* ctx */) {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      publicPath: 'static/',
+      // publicPath: 'static/',
       // analyze: true,
       // env: {},
       // rawDefine: {}
@@ -99,11 +99,11 @@ module.exports = configure(function (/* ctx */) {
       open: true, // opens browser window automatically
       proxy: {
         '/api': {
-          target: 'http://127.0.0.1:8000',
+          target: 'http://127.0.0.1:8080',
           changeOrigin: true
         },
         '/ical': {
-          target: 'http://127.0.0.1:8000',
+          target: 'http://127.0.0.1:8080',
           changeOrigin: true
         }
       }

@@ -4,9 +4,10 @@ pub struct Task {
     uid: Uuid,
     summary: String,
     description: String,
-    author: Uuid,
+    author: u32,
 }
 
 pub struct CreateTask {
-    summary: String
+    summary: String,
+    author: u32
 }

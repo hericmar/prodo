@@ -1,12 +1,19 @@
-use std::io;
 use std::io::Write;
 use std::sync::Arc;
+use actix_identity::IdentityMiddleware;
+use actix_session::config::PersistentSession;
+use actix_session::SessionMiddleware;
+use actix_session::storage::CookieSessionStore;
 use actix_web::{App, HttpServer, web};
+use actix_web::cookie::Key;
+use actix_web::cookie::time::Duration;
+use actix_web::middleware::Logger;
 use clap::Parser;
 use log::error;
 use rpassword::read_password;
+use crate::api::controllers::auth;
 use crate::prelude::*;
-use crate::api::controllers::task::read_tasks_handler;
+use crate::api::controllers::task::{create_task_handler, delete_task_handler, read_tasks_handler, update_task_handler};
 use crate::core::models::person::{CreatePerson, Person};
 use crate::core::repositories::person::PersonRepository;
 use crate::core::repositories::task::TaskRepository;
@@ -17,12 +24,22 @@ use crate::infrastructure::databases::postgres;
 use crate::infrastructure::repositories::person::PersonRepositoryImpl;
 use crate::services::person::PersonServiceImpl;
 use crate::services::task::TaskServiceImpl;
+
 fn setup(app: &mut web::ServiceConfig) {
     app.service(
         web::scope("/api/v1")
             .service(
+                web::scope("/auth")
+                    .route("/login", web::post().to(auth::login))
+                    .route("/user", web::get().to(auth::user))
+                    .route("/logout", web::post().to(auth::logout))
+            )
+            .service(
                 web::scope("/tasks")
+                    .route("", web::post().to(create_task_handler))
                     .route("", web::get().to(read_tasks_handler))
+                    .route("/{task_id}", web::patch().to(update_task_handler))
+                    .route("/{task_id}", web::delete().to(delete_task_handler))
             )
     );
 }
@@ -32,7 +49,7 @@ pub async fn start() -> Result<()> {
         postgres::create_pool("postgres://prodo:prodo@localhost:5432/prodo"));
 
     let person_repository: Arc<dyn PersonRepository> = Arc::new(PersonRepositoryImpl::new(db_pool.clone()));
-    let person_service = Arc::new(PersonServiceImpl::new(person_repository));
+    let person_service: Arc<dyn PersonService> = Arc::new(PersonServiceImpl::new(person_repository));
 
     match Cli::parse().command {
         Commands::User(parent) => match &parent.command {
@@ -53,7 +70,7 @@ pub async fn start() -> Result<()> {
                     surname: "".to_string(),
                     username: command.username.clone(),
                     email: "".to_string(),
-                    password: "".to_string(),
+                    password,
                 };
                 person_service.create(person).await?;
                 println!("User created.");
@@ -66,11 +83,13 @@ pub async fn start() -> Result<()> {
             }
             UserCommands::Delete(command) => {
                 let person = person_service.get_by_username(&command.username).await?;
-                person_service.delete(person.id).await?;
+                person_service.delete(person.uid).await?;
                 println!("User deleted.");
             }
         },
         Commands::Start => {
+            let secret_key = Key::generate();
+
             HttpServer::new(move || {
                 /*
                 let task_repository: Arc<dyn TaskRepository> = Arc::new(TaskRepositoryImpl::new());
@@ -79,6 +98,16 @@ pub async fn start() -> Result<()> {
 
                 App::new()
                     .app_data(web::Data::from(person_service.clone()))
+                    .wrap(Logger::default())
+                    .wrap(IdentityMiddleware::default())
+                    .wrap(
+                        SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+                            .cookie_name("session".to_owned())
+                            .session_lifecycle(
+                                PersistentSession::default().session_ttl(Duration::hours(24 * 7))
+                            )
+                            .build()
+                    )
                     .configure(setup)
             })
                 .bind("0.0.0.0:8080")

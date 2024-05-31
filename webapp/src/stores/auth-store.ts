@@ -40,13 +40,6 @@ export const useAuthStore = defineStore('auth', {
 
       return Promise.resolve()
     },
-    refresh () {
-      return api.auth.refresh(this.refreshToken)
-        .then((response) => {
-          const { access } = response.data
-          this.setToken(access)
-        })
-    },
     setToken (access: string) {
       this.token = access
       localStorage.setItem(AUTH_TOKEN_NAME, access)

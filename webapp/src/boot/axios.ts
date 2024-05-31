@@ -16,15 +16,7 @@ declare module '@vue/runtime-core' {
 // "export default () => {}" function below (which runs individually
 // for each client)
 
-export interface ExtendedWindow extends Window {
-  PRODO_BASE_URL: string
-}
-
-export const BASE_URL = import.meta.env.DEV
-  ? 'http://localhost:8000'
-  : (window as unknown as ExtendedWindow).PRODO_BASE_URL
-
-const api = axios.create({ baseURL: BASE_URL })
+const api = axios.create()
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
@@ -58,27 +50,11 @@ export default boot(({ app }) => {
 
       const request = err.config
 
-      const isLoginRequest = request?.url?.endsWith('/token')
-      const isRefreshRequest = request?.url?.endsWith('/token/refresh')
+      const isLoginRequest = request?.url?.endsWith('/api/v1/auth/login')
 
       // ensure the request is not login request
       if (!isLoginRequest && err.response?.status === 401) {
-        const authStore = useAuthStore()
-
-        if (!isRefreshRequest) {
-          if (!authStore.refreshToken) {
-            return onLogout()
-          }
-
-          try {
-            await authStore.refresh()
-            return api(request)
-          } catch (e) {
-            onLogout()
-          }
-        } else {
-          onLogout()
-        }
+        onLogout()
       }
 
       return Promise.reject(err)

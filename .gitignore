@@ -18,6 +18,7 @@ static/workbox-*
 
 # Development
 .env
+*.jar
 
 # Added by cargo
 

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use async_trait::async_trait;
+use uuid::Uuid;
 use crate::prelude::*;
 use crate::core::models::task::{CreateTask, Task};
 use crate::core::repositories::task::TaskRepository;
@@ -27,11 +28,11 @@ impl TaskService for TaskServiceImpl {
         todo!()
     }
 
-    async fn get(&self, todo_id: i32) -> Result<Task> {
+    async fn get(&self, todo_id: Uuid) -> Result<Task> {
         todo!()
     }
 
-    async fn delete(&self, todo_id: i32) -> Result<()> {
+    async fn delete(&self, todo_id: Uuid) -> Result<()> {
         todo!()
     }
 }

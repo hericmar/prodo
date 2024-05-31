@@ -1,5 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE persons (
-    id SERIAL PRIMARY KEY NOT NULL,
+    uid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     first_name VARCHAR(32) NOT NULL,
     surname VARCHAR(32) NOT NULL,
     username VARCHAR(32) UNIQUE NOT NULL,

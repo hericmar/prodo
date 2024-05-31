@@ -2,6 +2,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::result::DatabaseErrorKind;
+use uuid::Uuid;
 use crate::prelude::*;
 use crate::core::models::person::{CreatePerson, Person};
 use crate::core::repositories::person::PersonRepository;
@@ -37,7 +38,7 @@ impl PersonRepository for PersonRepositoryImpl {
             .map_err(|e| e.into())
     }
 
-    async fn get(&self, person_id: i32) -> Result<Person> {
+    async fn get(&self, person_uid: Uuid) -> Result<Person> {
         todo!()
     }
 
@@ -49,10 +50,10 @@ impl PersonRepository for PersonRepositoryImpl {
             .map_err(|e| e.into())
     }
 
-    async fn delete(&self, person_id: i32) -> Result<usize> {
+    async fn delete(&self, person_uid: Uuid) -> Result<usize> {
         let mut conn = self.pool.get()?;
         diesel::delete(crate::schema::persons::table)
-            .filter(crate::schema::persons::id.eq(person_id))
+            .filter(crate::schema::persons::uid.eq(person_uid))
             .execute(&mut conn)
             .map_err(|e| e.into())
     }
