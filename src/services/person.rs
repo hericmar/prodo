@@ -1,23 +1,30 @@
-use std::sync::Arc;
-use argon2::{Argon2, PasswordHasher};
-use argon2::password_hash::rand_core::OsRng;
-use argon2::password_hash::SaltString;
-use async_trait::async_trait;
-use uuid::Uuid;
-use crate::prelude::*;
 use crate::core::models::person::{CreatePerson, Person};
+use crate::core::models::task::CreateTaskList;
 use crate::core::repositories::person::PersonRepository;
+use crate::core::repositories::task::TaskListRepository;
 use crate::core::services::person::PersonService;
 use crate::error::{Error, ErrorType};
+use crate::prelude::*;
+use argon2::password_hash::rand_core::OsRng;
+use argon2::password_hash::SaltString;
+use argon2::{Argon2, PasswordHasher};
+use async_trait::async_trait;
+use std::sync::Arc;
+use uuid::Uuid;
 
 pub struct PersonServiceImpl {
-    pub repository: Arc<dyn PersonRepository>
+    pub repository: Arc<dyn PersonRepository>,
+    pub task_list_repository: Arc<dyn TaskListRepository>,
 }
 
 impl PersonServiceImpl {
-    pub fn new(repository: Arc<dyn PersonRepository>) -> Self {
+    pub fn new(
+        repository: Arc<dyn PersonRepository>,
+        task_list_repository: Arc<dyn TaskListRepository>,
+    ) -> Self {
         PersonServiceImpl {
-            repository
+            repository,
+            task_list_repository,
         }
     }
 }
@@ -32,14 +39,30 @@ impl From<argon2::password_hash::Error> for Error {
 impl PersonService for PersonServiceImpl {
     async fn create(&self, mut person: CreatePerson) -> Result<Person> {
         if person.password.is_empty() {
-            return Err(Error::new("Password cannot be empty", ErrorType::BadRequest));
+            return Err(Error::new(
+                "Password cannot be empty",
+                ErrorType::BadRequest,
+            ));
         }
 
         let salt = SaltString::generate(&mut OsRng);
         let hasher = Argon2::default();
-        person.password = hasher.hash_password(person.password.as_ref(), &salt)?.to_string();
+        person.password = hasher
+            .hash_password(person.password.as_ref(), &salt)?
+            .to_string();
+        person.uid = Some(Uuid::new_v4());
 
-        self.repository.create(&person).await
+        let result = self.repository.create(&person).await;
+
+        self.task_list_repository
+            .create(&CreateTaskList {
+                uid: Some(Uuid::new_v4()),
+                name: "Tasks".to_string(),
+                author_uid: person.uid.unwrap(),
+            })
+            .await?;
+
+        return result;
     }
 
     async fn list(&self) -> Result<Vec<Person>> {

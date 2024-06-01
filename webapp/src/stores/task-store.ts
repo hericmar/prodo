@@ -33,6 +33,10 @@ export interface Task {
 
 export type RootState = {
   tasks: Task[],
+  list: {
+    uid: string,
+    name: string
+  }
 }
 
 export function updateGreyedOut (task: Task) {
@@ -71,10 +75,16 @@ function toTask (task: any) {
 
 export const useTaskStore = defineStore('task', {
   state: () => ({
-    tasks: []
+    tasks: [],
+    list: {
+      uid: '',
+      name: ''
+    }
   } as RootState),
   actions: {
     async init () {
+      const { data } = await api.list.list()
+      this.list = data[0]
       return await api.task.list().then(response => {
         response.data.forEach((task: Task) => {
           toTask(task)
@@ -86,8 +96,8 @@ export const useTaskStore = defineStore('task', {
       this.tasks = []
       return this.init()
     },
-    addTask (summary: string) {
-      return api.task.create(summary).then(response => {
+    async addTask (summary: string) {
+      return api.task.create(this.list.uid, { summary }).then(response => {
         const task = response.data
         toTask(task)
         this.tasks.splice(0, 0, task)
@@ -132,7 +142,7 @@ export const useTaskStore = defineStore('task', {
       this.tasks.splice(oldIndex, 1)
       this.tasks.splice(newIndex, 0, task)
 
-      api.task.updateOrder(task.uid, newIndex)
+      return api.task.updatePosition(this.list.uid, task.uid, { position: newIndex })
     }
   }
 })

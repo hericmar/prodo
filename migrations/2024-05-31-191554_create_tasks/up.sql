@@ -4,5 +4,5 @@ CREATE TABLE tasks (
     description TEXT DEFAULT '' NOT NULL,
     completed TIMESTAMPTZ DEFAULT NULL,
     created TIMESTAMPTZ DEFAULT now() NOT NULL,
-    author_uid UUID REFERENCES persons (uid) ON DELETE CASCADE NOT NULL
+    author_uid UUID REFERENCES persons (uid) ON DELETE CASCADE NOT NULL,
 )

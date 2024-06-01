@@ -17,6 +17,7 @@ pub struct Person {
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::persons)]
 pub struct CreatePerson {
+    pub uid: Option<Uuid>,
     pub first_name: String,
     pub surname: String,
     pub username: String,

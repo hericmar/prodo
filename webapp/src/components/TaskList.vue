@@ -79,12 +79,12 @@
         ghostClass="dnd-ghost"
         chosenClass="dnd-chosen"
         dragClass="dnd-drag"
-        fallback-class="dnd-drag"
-        :force-fallback="true"
-        :scrollFn="onScroll"
+        fallbackClass="dnd-drag"
         animation="200"
-        scrollSpeed=10
+        scrollSpeed=15
         scrollSensitivity="200"
+        :bubbleScroll="false"
+        :dragoverBubble="false"
       >
         <template #item="{ element }">
           <SingleTask
@@ -187,6 +187,7 @@ const onDragEnd = (e: any) => {
   taskStore.setOrder(droppedTask, droppedIndex)
 }
 
+/*
 // const onScroll = (offsetX: number, offsetY: number, originalEvent: any, touchEvt: any, hoverTargetEl: any) => {
 const onScroll = (offsetX: number, offsetY: number) => {
   // Smooth scrolling is not working properly, so we disable it for now.
@@ -200,6 +201,7 @@ const onScroll = (offsetX: number, offsetY: number) => {
   // const { getVerticalScrollPosition, setVerticalScrollPosition } = scroll
   // setVerticalScrollPosition(window, getVerticalScrollPosition(window) + offsetY, 2)
 }
+ */
 
 // move outside
 const findSimilar = (summary: string, tasks: Array<Task>) => {
@@ -227,6 +229,7 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
   /* opacity: 1 !important */
 
 .task-list
+  overflow: hidden
   @media (max-width: $breakpoint-xs)
     width: 100% !important
   @media (min-width: $breakpoint-xs)

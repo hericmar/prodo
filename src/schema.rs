@@ -142,6 +142,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    lists (uid) {
+        uid -> Uuid,
+        name -> Text,
+        author_uid -> Uuid,
+        tasks -> Array<Nullable<Uuid>>,
+    }
+}
+
+diesel::table! {
     persons (uid) {
         uid -> Uuid,
         #[max_length = 32]
@@ -249,6 +258,7 @@ diesel::joinable!(auth_user_user_permissions -> auth_permission (permission_id))
 diesel::joinable!(auth_user_user_permissions -> auth_user (user_id));
 diesel::joinable!(django_admin_log -> auth_user (user_id));
 diesel::joinable!(django_admin_log -> django_content_type (content_type_id));
+diesel::joinable!(lists -> persons (author_uid));
 diesel::joinable!(tasks -> persons (author_uid));
 diesel::joinable!(tasks_taskevent -> auth_user (created_by_id));
 diesel::joinable!(tasks_taskevent -> tasks_task (task_id));
@@ -270,6 +280,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     django_migrations,
     django_session,
     ical_subscription,
+    lists,
     persons,
     tasks,
     tasks_task,

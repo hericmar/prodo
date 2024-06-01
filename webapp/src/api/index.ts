@@ -15,14 +15,17 @@ export default {
       })
     }
   },
+  list: {
+    list () {
+      return api.get('/api/v1/lists')
+    }
+  },
   task: {
     list () {
       return api.get('/api/v1/tasks')
     },
-    create (summary: string) {
-      return api.post('/api/v1/tasks', {
-        summary
-      })
+    create (listUid: string, payload: { summary: string }) {
+      return api.post(`/api/v1/lists/${listUid}/tasks`, payload)
     },
     update (uid: string, task: Task) {
       return api.patch(`/api/v1/tasks/${uid}`, task)
@@ -30,10 +33,8 @@ export default {
     delete (uid: string) {
       return api.delete(`/api/v1/tasks/${uid}`)
     },
-    updateOrder (uid: string, newIndex: number) {
-      return api.put(`/api/v1/tasks/${uid}/order`, {
-        order: newIndex
-      })
+    updatePosition (listUid: string, taskUid: string, payload: { position: number }) {
+      return api.put(`/api/v1/lists/${listUid}/tasks/${taskUid}/position`, payload)
     }
   },
   ical: {

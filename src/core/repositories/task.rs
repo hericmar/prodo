@@ -1,7 +1,9 @@
+use crate::core::models::task::{
+    CreateTask, CreateTaskList, Task, TaskList, UpdateTask, UpdateTaskList,
+};
+use crate::prelude::*;
 use async_trait::async_trait;
 use uuid::Uuid;
-use crate::prelude::*;
-use crate::core::models::task::{CreateTask, Task, UpdateTask};
 
 #[async_trait]
 pub trait TaskRepository: Send + Sync {
@@ -10,4 +12,13 @@ pub trait TaskRepository: Send + Sync {
     async fn get(&self, task_uid: Uuid) -> Result<Task>;
     async fn update(&self, task_uid: Uuid, task: &UpdateTask) -> Result<Task>;
     async fn delete(&self, task_uid: Uuid) -> Result<()>;
+}
+
+#[async_trait]
+pub trait TaskListRepository: Send + Sync {
+    async fn create(&self, new_list: &CreateTaskList) -> Result<TaskList>;
+    async fn list(&self, author_uid: Uuid) -> Result<Vec<TaskList>>;
+    async fn get(&self, list_uid: Uuid) -> Result<TaskList>;
+    async fn update(&self, list_uid: Uuid, list: &UpdateTaskList) -> Result<TaskList>;
+    async fn delete(&self, list_uid: Uuid) -> Result<()>;
 }
