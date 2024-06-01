@@ -25,7 +25,7 @@ export default {
       })
     },
     update (uid: string, task: Task) {
-      return api.put(`/api/v1/tasks/${uid}`, task)
+      return api.patch(`/api/v1/tasks/${uid}`, task)
     },
     delete (uid: string) {
       return api.delete(`/api/v1/tasks/${uid}`)

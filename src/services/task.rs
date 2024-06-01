@@ -2,7 +2,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use uuid::Uuid;
 use crate::prelude::*;
-use crate::core::models::task::{CreateTask, Task};
+use crate::core::models::task::{CreateTask, Task, UpdateTask};
 use crate::core::repositories::task::TaskRepository;
 use crate::core::services::task::TaskService;
 
@@ -20,19 +20,23 @@ impl TaskServiceImpl {
 
 #[async_trait]
 impl TaskService for TaskServiceImpl {
-    async fn create(&self, todo: CreateTask) -> Result<Task> {
-        todo!()
+    async fn create(&self, task: CreateTask) -> Result<Task> {
+        self.repository.create(&task).await
     }
 
-    async fn list(&self) -> Result<Vec<Task>> {
-        todo!()
+    async fn list(&self, author_uid: Uuid) -> Result<Vec<Task>> {
+        self.repository.list(author_uid).await
     }
 
-    async fn get(&self, todo_id: Uuid) -> Result<Task> {
-        todo!()
+    async fn get(&self, task_id: Uuid) -> Result<Task> {
+        self.repository.get(task_id).await
     }
 
-    async fn delete(&self, todo_id: Uuid) -> Result<()> {
-        todo!()
+    async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task> {
+        self.repository.update(task_id, &task).await
+    }
+
+    async fn delete(&self, task_id: Uuid) -> Result<()> {
+        self.repository.delete(task_id).await
     }
 }

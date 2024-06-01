@@ -10,10 +10,11 @@ actix-web = "4.6.0"
 argon2 = "0.5.3"
 async-trait = "0.1.80"
 clap = { version = "4.5.0", features = ["derive"] }
-diesel = { version = "2.1.6", features = ["mysql", "postgres", "sqlite", "r2d2", "uuid"] }
+diesel = { version = "2.1.6", features = ["chrono", "postgres", "r2d2", "uuid"] }
 log = "0.4.21"
 r2d2 = "0.8.10"
 rpassword = "7.3.1"
 serde = "1.0.202"
 serde_json = "1.0.117"
 uuid = { version = "1.8.0", features = ["serde"] }
+chrono = { version = "0.4.38", features = ["serde"] }

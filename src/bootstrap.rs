@@ -18,10 +18,12 @@ use crate::core::models::person::{CreatePerson, Person};
 use crate::core::repositories::person::PersonRepository;
 use crate::core::repositories::task::TaskRepository;
 use crate::core::services::person::PersonService;
+use crate::core::services::task::TaskService;
 use crate::error::{Error, ErrorType};
 use crate::infrastructure::cli::{Cli, Commands, UserCommands};
 use crate::infrastructure::databases::postgres;
 use crate::infrastructure::repositories::person::PersonRepositoryImpl;
+use crate::infrastructure::repositories::task::TaskRepositoryImpl;
 use crate::services::person::PersonServiceImpl;
 use crate::services::task::TaskServiceImpl;
 
@@ -50,6 +52,9 @@ pub async fn start() -> Result<()> {
 
     let person_repository: Arc<dyn PersonRepository> = Arc::new(PersonRepositoryImpl::new(db_pool.clone()));
     let person_service: Arc<dyn PersonService> = Arc::new(PersonServiceImpl::new(person_repository));
+
+    let task_repository: Arc<dyn TaskRepository> = Arc::new(TaskRepositoryImpl::new(db_pool.clone()));
+    let task_service: Arc<dyn TaskService> = Arc::new(TaskServiceImpl::new(task_repository));
 
     match Cli::parse().command {
         Commands::User(parent) => match &parent.command {
@@ -98,6 +103,7 @@ pub async fn start() -> Result<()> {
 
                 App::new()
                     .app_data(web::Data::from(person_service.clone()))
+                    .app_data(web::Data::from(task_service.clone()))
                     .wrap(Logger::default())
                     .wrap(IdentityMiddleware::default())
                     .wrap(

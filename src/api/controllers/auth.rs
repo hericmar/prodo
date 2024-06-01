@@ -1,4 +1,4 @@
-use actix_identity::error::LoginError;
+use actix_identity::error::{GetIdentityError, LoginError};
 use actix_identity::Identity;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, ResponseError, web};
 use actix_web::http::StatusCode;
@@ -18,6 +18,12 @@ pub struct LoginRequest {
 impl From<LoginError> for Error {
     fn from(value: LoginError) -> Self {
         Error::new("invalid cookie", ErrorType::Unauthorized)
+    }
+}
+
+impl From<GetIdentityError> for Error {
+    fn from(value: GetIdentityError) -> Self {
+        Error::new("unauthorized", ErrorType::Unauthorized)
     }
 }
 
@@ -46,7 +52,7 @@ pub async fn login(
     }
 
     if result.is_ok() {
-        Identity::login(&req.extensions(), person.username)?;
+        Identity::login(&req.extensions(), person.uid.to_string())?;
         Ok(HttpResponse::Ok().finish())
     } else {
         Err(Error::new("unauthorized", ErrorType::Unauthorized))
