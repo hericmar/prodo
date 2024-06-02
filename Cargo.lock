@@ -1290,6 +1290,7 @@ dependencies = [
  "diesel",
  "log",
  "r2d2",
+ "rand",
  "rpassword",
  "serde",
  "serde_json",

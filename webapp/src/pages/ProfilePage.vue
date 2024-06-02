@@ -27,17 +27,16 @@
   </q-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { copyToClipboard } from 'quasar'
 import api from 'src/api'
-import { BASE_URL } from 'src/boot/axios'
 
 const link = ref('')
 
-api.ical.get().then((res) => {
-  link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+api.ical.get().then(response => {
+  link.value = getLink(response.data.secret)
 }).catch(() => {
   link.value = ''
 })
@@ -48,9 +47,9 @@ emitter.on('on-link', () => {
 })
 
 const onCreateLink = () => {
-  api.ical.create().then((res) => {
-    api.ical.get().then((res) => {
-      link.value = BASE_URL + '/api/v1/ical/' + res.data.secret
+  api.ical.create().then(() => {
+    api.ical.get().then(response => {
+      link.value = getLink(response.data.secret)
     })
   })
 }
@@ -59,6 +58,10 @@ const onRemoveLink = () => {
   api.ical.delete().then(() => {
     link.value = ''
   })
+}
+
+const getLink = (secret: string) => {
+  return `${window.location.protocol}//${window.location.host}/api/v1/calendar/subscription/${secret}`
 }
 
 const onLinkCopy = () => {

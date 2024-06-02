@@ -1,6 +1,6 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosError, AxiosInstance } from 'axios'
-import { AUTH_TOKEN_NAME, useAuthStore } from 'stores/auth-store'
+import { useAuthStore } from 'stores/auth-store'
 import { router } from 'src/router'
 
 declare module '@vue/runtime-core' {
@@ -29,6 +29,7 @@ export default boot(({ app }) => {
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
 
+  /*
   api.interceptors.request.use(
     config => {
       config.headers.Authorization = `Bearer ${localStorage.getItem(AUTH_TOKEN_NAME)}`
@@ -38,6 +39,7 @@ export default boot(({ app }) => {
       return Promise.reject(error)
     }
   )
+   */
 
   api.interceptors.response.use(
     (res) => res,
@@ -51,9 +53,10 @@ export default boot(({ app }) => {
       const request = err.config
 
       const isLoginRequest = request?.url?.endsWith('/api/v1/auth/login')
+      const isLogoutRequest = request?.url?.endsWith('/api/v1/auth/logout')
 
       // ensure the request is not login request
-      if (!isLoginRequest && err.response?.status === 401) {
+      if (!isLoginRequest && !isLogoutRequest && err.response?.status === 401) {
         onLogout()
       }
 

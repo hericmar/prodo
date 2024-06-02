@@ -9,10 +9,11 @@ export default {
         password
       })
     },
-    logout (refreshToken: string) {
-      return api.post('/api/v1/auth/logout', {
-        refresh_token: refreshToken
-      })
+    logout () {
+      return api.post('/api/v1/auth/logout')
+    },
+    user () {
+      return api.get('/api/v1/auth/user')
     }
   },
   list: {
@@ -39,13 +40,13 @@ export default {
   },
   ical: {
     get () {
-      return api.get('/api/v1/ical')
+      return api.get('/api/v1/calendar/subscription')
     },
     create () {
-      return api.post('/api/v1/ical')
+      return api.post('/api/v1/calendar/subscription')
     },
     delete () {
-      return api.delete('/api/v1/ical')
+      return api.delete('/api/v1/calendar/subscription')
     }
   }
 }

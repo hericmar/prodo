@@ -65,6 +65,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    calendar_subscriptions (secret) {
+        #[max_length = 255]
+        secret -> Varchar,
+        person_uid -> Uuid,
+    }
+}
+
+diesel::table! {
     django_admin_log (id) {
         id -> Int4,
         action_time -> Timestamptz,
@@ -256,6 +264,7 @@ diesel::joinable!(auth_user_groups -> auth_group (group_id));
 diesel::joinable!(auth_user_groups -> auth_user (user_id));
 diesel::joinable!(auth_user_user_permissions -> auth_permission (permission_id));
 diesel::joinable!(auth_user_user_permissions -> auth_user (user_id));
+diesel::joinable!(calendar_subscriptions -> persons (person_uid));
 diesel::joinable!(django_admin_log -> auth_user (user_id));
 diesel::joinable!(django_admin_log -> django_content_type (content_type_id));
 diesel::joinable!(lists -> persons (author_uid));
@@ -273,6 +282,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     auth_user,
     auth_user_groups,
     auth_user_user_permissions,
+    calendar_subscriptions,
     django_admin_log,
     django_content_type,
     django_cron_cronjoblock,

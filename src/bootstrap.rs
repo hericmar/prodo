@@ -1,19 +1,27 @@
 use crate::api::controllers::auth;
+use crate::api::controllers::calendar::{
+    create_calendar_subscription_handler, delete_my_calendar_subscription_handler,
+    get_calendar_subscription_handler, get_my_calendar_subscription_handler,
+};
 use crate::api::controllers::task::{
     create_task_handler, delete_task_handler, read_task_lists_handler, read_tasks_handler,
     update_task_handler, update_task_position_handler,
 };
 use crate::core::models::person::{CreatePerson, Person};
+use crate::core::repositories::calendar::CalendarSubscriptionRepository;
 use crate::core::repositories::person::PersonRepository;
 use crate::core::repositories::task::{TaskListRepository, TaskRepository};
+use crate::core::services::calendar::CalendarService;
 use crate::core::services::person::PersonService;
 use crate::core::services::task::{TaskListService, TaskService};
 use crate::error::{Error, ErrorType};
 use crate::infrastructure::cli::{Cli, Commands, UserCommands};
 use crate::infrastructure::databases::postgres;
+use crate::infrastructure::repositories::calendar::CalendarSubscriptionRepositoryImpl;
 use crate::infrastructure::repositories::person::PersonRepositoryImpl;
 use crate::infrastructure::repositories::task::{TaskListRepositoryImpl, TaskRepositoryImpl};
 use crate::prelude::*;
+use crate::services::calendar::CalendarServiceImpl;
 use crate::services::person::PersonServiceImpl;
 use crate::services::task::{TaskListServiceImpl, TaskServiceImpl};
 use actix_identity::IdentityMiddleware;
@@ -54,6 +62,25 @@ fn setup(app: &mut web::ServiceConfig) {
                         "/{list_uid}/tasks/{task_uid}/position",
                         web::put().to(update_task_position_handler),
                     ),
+            )
+            .service(
+                web::scope("/calendar")
+                    .route(
+                        "/subscription/{secret}",
+                        web::get().to(get_calendar_subscription_handler),
+                    )
+                    .route(
+                        "/subscription",
+                        web::post().to(create_calendar_subscription_handler),
+                    )
+                    .route(
+                        "/subscription",
+                        web::get().to(get_my_calendar_subscription_handler),
+                    )
+                    .route(
+                        "/subscription",
+                        web::delete().to(delete_my_calendar_subscription_handler),
+                    ),
             ),
     );
 }
@@ -79,6 +106,11 @@ pub async fn start() -> Result<()> {
         Arc::new(TaskRepositoryImpl::new(db_pool.clone()));
     let task_service: Arc<dyn TaskService> =
         Arc::new(TaskServiceImpl::new(task_repository, task_list_repository));
+
+    let calendar_subscription_repository: Arc<dyn CalendarSubscriptionRepository> =
+        Arc::new(CalendarSubscriptionRepositoryImpl::new(db_pool.clone()));
+    let calendar_service: Arc<dyn CalendarService> =
+        Arc::new(CalendarServiceImpl::new(calendar_subscription_repository));
 
     match Cli::parse().command {
         Commands::User(parent) => match &parent.command {
@@ -130,6 +162,7 @@ pub async fn start() -> Result<()> {
                     .app_data(web::Data::from(person_service.clone()))
                     .app_data(web::Data::from(task_service.clone()))
                     .app_data(web::Data::from(task_list_service.clone()))
+                    .app_data(web::Data::from(calendar_service.clone()))
                     .wrap(Logger::default())
                     .wrap(IdentityMiddleware::default())
                     .wrap(
