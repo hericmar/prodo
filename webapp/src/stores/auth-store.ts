@@ -1,11 +1,20 @@
 import { defineStore } from 'pinia'
 import api from 'src/api'
 
+type User = {
+  uid: string
+}
+
+type RootState = {
+  user: User | null
+  message: string
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
+    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
     message: ''
-  }),
+  } as RootState),
   getters: {
     isAuthenticated: (state) => !!state.user
   },
@@ -14,6 +23,7 @@ export const useAuthStore = defineStore('auth', {
       return api.auth.login(username, password)
         .then(() => {
           this.message = ''
+          this.getUser()
         })
         .catch(error => {
           if (error.response.status === 401) {
@@ -26,10 +36,15 @@ export const useAuthStore = defineStore('auth', {
         })
     },
     logout () {
+      this.user = null
+      localStorage.removeItem('user')
       return api.auth.logout()
     },
-    user () {
-      return api.auth.user()
+    getUser () {
+      return api.auth.user().then(response => {
+        this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+      })
     }
   }
 })
