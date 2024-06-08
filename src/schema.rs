@@ -182,6 +182,10 @@ diesel::table! {
         completed -> Nullable<Timestamptz>,
         created -> Timestamptz,
         author_uid -> Uuid,
+        rrule -> Nullable<Text>,
+        dtstart -> Nullable<Timestamptz>,
+        priority -> Int4,
+        percent_complete -> Int4,
     }
 }
 

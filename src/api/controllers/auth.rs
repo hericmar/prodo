@@ -1,13 +1,13 @@
+use crate::core::services::person::PersonService;
+use crate::error::{Error, ErrorType};
+use crate::prelude::*;
 use actix_identity::error::{GetIdentityError, LoginError};
 use actix_identity::Identity;
-use actix_web::{HttpMessage, HttpRequest, HttpResponse, ResponseError, web};
 use actix_web::http::StatusCode;
+use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, ResponseError};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::core::services::person::PersonService;
-use crate::prelude::*;
-use crate::error::{Error, ErrorType};
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -30,9 +30,10 @@ impl From<GetIdentityError> for Error {
 pub async fn login(
     person_service: web::Data<dyn PersonService>,
     req: HttpRequest,
-    payload: web::Json<LoginRequest>
+    payload: web::Json<LoginRequest>,
 ) -> Result<HttpResponse> {
-    let person = person_service.get_by_username(&payload.username)
+    let person = person_service
+        .get_by_username(&payload.username)
         .await
         .map_err(|err| {
             if err.status_code() == StatusCode::NOT_FOUND {
@@ -67,20 +68,18 @@ pub struct UserResponse {
 
 pub async fn user(
     person_service: web::Data<dyn PersonService>,
-    user: Identity
+    user: Identity,
 ) -> Result<HttpResponse> {
-    let username = user.id().unwrap();
-    let person = person_service.get_by_username(&username).await?;
+    let uid: Uuid = user.id()?.parse().unwrap();
+    let person = person_service.get(uid).await?;
 
     Ok(HttpResponse::Ok().json(UserResponse {
         uid: person.uid,
-        username: person.username
+        username: person.username,
     }))
 }
 
-pub async fn logout(
-    user: Identity
-) -> Result<HttpResponse> {
+pub async fn logout(user: Identity) -> Result<HttpResponse> {
     user.logout();
     Ok(HttpResponse::Ok().finish())
 }

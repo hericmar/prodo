@@ -6,8 +6,11 @@ use crate::core::services::task::{TaskListService, TaskService};
 use crate::error::{Error, ErrorType};
 use crate::prelude::*;
 use async_trait::async_trait;
+use chrono::{Datelike, TimeZone, Timelike, Utc};
+use rrule::{RRule, RRuleError, RRuleSet, Tz, Unvalidated};
 use std::sync::Arc;
 use uuid::Uuid;
+use validator::Validate;
 
 pub struct TaskServiceImpl {
     pub repository: Arc<dyn TaskRepository>,
@@ -72,6 +75,29 @@ impl TaskService for TaskServiceImpl {
     }
 
     async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task> {
+        task.validate()?;
+
+        let old_task = self.repository.get(task_id).await?;
+
+        if let Some(rrule) = &task.rrule {
+            let rrule_unvalidated: RRule<Unvalidated> = rrule.parse()?;
+
+            let dtstart = task.dtstart.or(old_task.dtstart);
+            if let Some(dtstart) = dtstart {
+                let rrule_dtstart = Tz::UTC
+                    .with_ymd_and_hms(
+                        dtstart.year(),
+                        dtstart.month(),
+                        dtstart.day(),
+                        dtstart.hour(),
+                        dtstart.minute(),
+                        dtstart.second(),
+                    )
+                    .unwrap();
+                let rrule = rrule_unvalidated.validate(rrule_dtstart)?;
+            }
+        }
+
         self.repository.update(task_id, &task).await
     }
 
@@ -143,5 +169,25 @@ impl TaskListService for TaskListServiceImpl {
 
     async fn delete(&self, task_id: Uuid) -> Result<()> {
         self.repository.delete(task_id).await
+    }
+}
+
+impl From<RRuleError> for Error {
+    fn from(value: RRuleError) -> Self {
+        Error::new(&value.to_string(), ErrorType::BadRequest)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rrule::{Frequency, RRule, RRuleSet, Tz, Unvalidated};
+
+    #[test]
+    fn test_rrule() {
+        let rrule: RRule<Unvalidated> = "FREQ=DAILY;COUNT=40;INTERVAL=3".parse().unwrap();
+        assert_eq!(rrule.get_freq(), Frequency::Daily);
+        assert_eq!(rrule.get_count(), Some(40));
+        assert_eq!(rrule.get_interval(), 3);
     }
 }
