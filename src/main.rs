@@ -1,14 +1,15 @@
-use crate::infrastructure::cli;
+#[macro_use]
+extern crate diesel_migrations;
 
+mod api;
 mod bootstrap;
 mod core;
-mod api;
-mod prelude;
 mod error;
-mod services;
-mod schema;
-mod tests;
 mod infrastructure;
+mod prelude;
+mod schema;
+mod services;
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

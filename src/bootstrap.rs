@@ -24,6 +24,7 @@ use crate::prelude::*;
 use crate::services::calendar::CalendarServiceImpl;
 use crate::services::person::PersonServiceImpl;
 use crate::services::task::{TaskListServiceImpl, TaskServiceImpl};
+use actix_files::Files;
 use actix_identity::IdentityMiddleware;
 use actix_session::config::PersistentSession;
 use actix_session::storage::CookieSessionStore;
@@ -33,6 +34,7 @@ use actix_web::cookie::Key;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
+use dotenv::from_path;
 use log::error;
 use rpassword::read_password;
 use std::io::Write;
@@ -86,8 +88,15 @@ fn setup(app: &mut web::ServiceConfig) {
 }
 
 pub async fn start() -> Result<()> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+
+    if let Some(config) = Cli::parse().config {
+        dotenv::from_path(config).expect("Failed to load .env file");
+    }
+
     let db_pool = Arc::new(postgres::create_pool(
-        "postgres://prodo:prodo@localhost:5432/prodo",
+        &std::env::var("PRODO_DATABASE_URL")
+            .unwrap_or("postgres://prodo:prodo@localhost:5432/prodo".to_string()),
     ));
 
     let task_list_repository: Arc<dyn TaskListRepository> =
@@ -153,10 +162,8 @@ pub async fn start() -> Result<()> {
             let secret_key = Key::generate();
 
             HttpServer::new(move || {
-                /*
-                let task_repository: Arc<dyn TaskRepository> = Arc::new(TaskRepositoryImpl::new());
-                let task_service = TaskServiceImpl::new();
-                 */
+                let static_root = std::env::var("PRODO_STATIC_ROOT")
+                    .unwrap_or("/usr/share/webapps/prodo/static".to_string());
 
                 App::new()
                     .app_data(web::Data::from(person_service.clone()))
@@ -177,8 +184,9 @@ pub async fn start() -> Result<()> {
                         .build(),
                     )
                     .configure(setup)
+                    .service(Files::new("/", static_root.clone()).index_file("index.html"))
             })
-            .bind("0.0.0.0:8080")
+            .bind(std::env::var("PRODO_LISTEN_ADDRESS").unwrap_or("127.0.0.1:8080".to_string()))
             .unwrap_or_else(|err| panic!("Could not bind server: {}", err))
             .run()
             .await

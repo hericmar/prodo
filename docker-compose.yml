@@ -1,4 +1,13 @@
 services:
+  prodo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PRODO_DATABASE_URL: postgres://prodo:prodo@database:5432/prodo
+      PRODO_LISTEN_ADDRESS: "0.0.0.0:8081"
+    ports:
+      - "8081:8081"
   database:
     image: postgres:12-alpine
     environment:

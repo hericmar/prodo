@@ -1,6 +1,6 @@
-use r2d2;
-use diesel::result::DatabaseErrorKind;
 use crate::error::{Error, ErrorType};
+use diesel::result::DatabaseErrorKind;
+use r2d2;
 
 pub mod postgres;
 
@@ -15,25 +15,22 @@ impl From<diesel::result::Error> for Error {
         return match e {
             diesel::result::Error::DatabaseError(kind, info) => {
                 let error_type = match kind {
-                    DatabaseErrorKind::UniqueViolation |
-                    DatabaseErrorKind::ForeignKeyViolation |
-                    DatabaseErrorKind::NotNullViolation |
-                    DatabaseErrorKind::CheckViolation => {
-
-                        ErrorType::BadRequest
-                    }
-                    _ => {
-                        ErrorType::DatabaseError
-                    }
+                    DatabaseErrorKind::UniqueViolation
+                    | DatabaseErrorKind::ForeignKeyViolation
+                    | DatabaseErrorKind::NotNullViolation
+                    | DatabaseErrorKind::CheckViolation => ErrorType::BadRequest,
+                    _ => ErrorType::DatabaseError,
                 };
-                Error::new(&format!("Database query error: {}", info.message()), error_type)
+                Error::new(
+                    &format!("Database query error: {}", info.message()),
+                    error_type,
+                )
             }
-            diesel::result::Error::NotFound => {
-                Error::new("Record not found", ErrorType::NotFound)
-            }
-            _ => {
-                Error::new(&format!("Database query error: {}", e), ErrorType::DatabaseError)
-            }
-        }
+            diesel::result::Error::NotFound => Error::new("Record not found", ErrorType::NotFound),
+            _ => Error::new(
+                &format!("Database query error: {}", e),
+                ErrorType::DatabaseError,
+            ),
+        };
     }
 }

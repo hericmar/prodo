@@ -2,8 +2,6 @@
 Simple web application for managing todo lists with export to calendar using
 iCalendar format.
 
-Application is available at `prodo.phire.cz`.
-
 ## Installation
 Setup user and group for application, default is `prodo`.
 Install database driver, for example `postgresql`:
@@ -28,7 +26,8 @@ cp .env.example .env
 ```
 
 ```bash
-docker compose up
+# Run development database
+docker-compose up -d database
 ```
 
 ## References

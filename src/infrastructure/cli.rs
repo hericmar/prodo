@@ -1,43 +1,41 @@
-use clap::{Arg, ArgMatches, Command, Parser, Subcommand};
-
-/*
-struct Cli {
-    #[clap(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    #[clap(subcommand)]
-    User: UserCommands,
-}
-
-pub struct UserCommands {
-    #[clap(subcommand)]
-    command: UserCommandsEnum,
-}
-
-enum UserCommandsEnum {
-    Create,
-    Read,
-    Update,
-    Delete,
-}
- */
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "myapp", version = "1.0", author = "Author Name <author@example.com>", about = "An example CLI with nested subcommands")]
+#[command(
+    name = "myapp",
+    version = "1.0",
+    author = "Author Name <author@example.com>",
+    about = "An example CLI with nested subcommands"
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub(crate) command: Commands,
+
+    #[arg(short, long, value_name = "VALUE")]
+    pub config: Option<String>,
 }
 
 #[derive(Subcommand)]
 pub enum Commands {
     Start,
-
+    /*
+    Start {
+        #[arg(short, long, value_name = "VALUE")]
+        config: Option<String>,
+    },
+     */
     User(UserCommandsParser),
 }
+
+// Start commands
+
+#[derive(Parser)]
+pub struct StartCommand {
+    #[arg(short, long, value_name = "VALUE")]
+    pub(crate) username: String,
+}
+
+// User commands
 
 #[derive(Parser)]
 pub struct UserCommandsParser {
