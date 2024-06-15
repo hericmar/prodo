@@ -3,12 +3,6 @@ Simple web application for managing todo lists with export to calendar using
 iCalendar format.
 
 ## Installation
-Setup user and group for application, default is `prodo`.
-Install database driver, for example `postgresql`:
-```bash
-apk add py3-psycopg2
-```
-
 Build and install application using `make`:
 ```bash
 make && make install
