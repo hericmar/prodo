@@ -44,13 +44,19 @@ DTSTART:{}
 DTEND:{}
 SUMMARY:{}
 DESCRIPTION:{}
+STATUS:{}
 END:VEVENT\n",
             task.uid,
             task.created.format("%Y%m%dT%H%M%SZ"),
             task.created.format("%Y%m%dT%H%M%SZ"),
             end.format("%Y%m%dT%H%M%SZ"),
             task.summary,
-            task.description
+            task.description,
+            if task.completed.is_some() && task.rrule.is_none() {
+                "CONFIRMED"
+            } else {
+                "CANCELLED"
+            }
         ));
     }
     body.push_str("END:VCALENDAR\n");

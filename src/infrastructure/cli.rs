@@ -18,21 +18,22 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     Start,
-    /*
-    Start {
-        #[arg(short, long, value_name = "VALUE")]
-        config: Option<String>,
-    },
-     */
+    Cron(CronCommandParser),
     User(UserCommandsParser),
 }
 
-// Start commands
+// Cron commands
 
 #[derive(Parser)]
-pub struct StartCommand {
-    #[arg(short, long, value_name = "VALUE")]
-    pub(crate) username: String,
+pub struct CronCommandParser {
+    #[command(subcommand)]
+    pub(crate) command: CronCommands,
+}
+
+#[derive(Subcommand)]
+pub(crate) enum CronCommands {
+    Run,
+    List,
 }
 
 // User commands

@@ -2,8 +2,10 @@ use crate::core::models::task::{
     CreateTask, CreateTaskList, Task, TaskList, UpdateTask, UpdateTaskList,
 };
 use crate::core::repositories::task::{TaskListRepository, TaskRepository};
-use crate::core::services::task::{TaskListService, TaskService};
+use crate::core::services::person::PersonService;
+use crate::core::services::task::{calculate_urgency, TaskListService, TaskService};
 use crate::error::{Error, ErrorType};
+use crate::infrastructure::cron::CronJob;
 use crate::prelude::*;
 use async_trait::async_trait;
 use chrono::{Datelike, TimeZone, Timelike, Utc};
@@ -74,29 +76,42 @@ impl TaskService for TaskServiceImpl {
         self.repository.get(task_id).await
     }
 
-    async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task> {
+    async fn update(&self, task_id: Uuid, mut task: UpdateTask) -> Result<Task> {
         task.validate()?;
 
-        let old_task = self.repository.get(task_id).await?;
+        // validate priority
+        if task.priority < 0 || task.priority > 9 {
+            return Err(Error::new("Invalid priority", ErrorType::BadRequest));
+        }
 
-        if let Some(rrule) = &task.rrule {
-            let rrule_unvalidated: RRule<Unvalidated> = rrule.parse()?;
+        let mut old_task = self.repository.get(task_id).await?;
 
-            let dtstart = task.dtstart.or(old_task.dtstart);
-            if let Some(dtstart) = dtstart {
-                let rrule_dtstart = Tz::UTC
-                    .with_ymd_and_hms(
-                        dtstart.year(),
-                        dtstart.month(),
-                        dtstart.day(),
-                        dtstart.hour(),
-                        dtstart.minute(),
-                        dtstart.second(),
-                    )
-                    .unwrap();
-                let rrule = rrule_unvalidated.validate(rrule_dtstart)?;
+        // validate dtstart and dtend
+        if let (Some(dtstart), Some(dtend)) = (task.dtstart, task.dtend) {
+            if dtstart > dtend {
+                return Err(Error::new(
+                    "Invalid time range for `dtstart` and `dtend`",
+                    ErrorType::BadRequest,
+                ));
             }
         }
+
+        if let (Some(dtstart), Some(due)) = (task.dtstart, task.due) {
+            if dtstart > due {
+                return Err(Error::new(
+                    "Invalid time range for `dtstart` and `due`",
+                    ErrorType::BadRequest,
+                ));
+            }
+        }
+
+        // calculate urgency
+        let params = task.time_params(old_task.created);
+        if let Some(urgency) = calculate_urgency(params, Utc::now()) {
+            task.urgency = urgency;
+        }
+
+        task.sequence = old_task.sequence + 1;
 
         self.repository.update(task_id, &task).await
     }
@@ -105,7 +120,6 @@ impl TaskService for TaskServiceImpl {
         self.repository.delete(task_id).await
     }
 }
-
 //
 
 pub struct TaskListServiceImpl {
@@ -177,6 +191,50 @@ impl From<RRuleError> for Error {
         Error::new(&value.to_string(), ErrorType::BadRequest)
     }
 }
+
+//
+
+pub struct UpdateTaskUrgencyJob {
+    pub person_service: Arc<dyn PersonService>,
+    pub task_service: Arc<dyn TaskService>,
+}
+
+impl UpdateTaskUrgencyJob {
+    pub fn new(person_service: Arc<dyn PersonService>, task_service: Arc<dyn TaskService>) -> Self {
+        UpdateTaskUrgencyJob {
+            person_service,
+            task_service,
+        }
+    }
+}
+
+#[async_trait]
+impl CronJob for UpdateTaskUrgencyJob {
+    async fn run(&self) -> Result<()> {
+        let people = self.person_service.list().await?;
+        for person in people {
+            let tasks = self.task_service.list(person.uid).await?;
+            for task in &tasks {
+                let params = task.time_params(task.created);
+                if let Some(urgency) = calculate_urgency(params, Utc::now()) {
+                    self.task_service
+                        .update(
+                            task.uid,
+                            UpdateTask {
+                                urgency,
+                                ..Default::default()
+                            },
+                        )
+                        .await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+//
 
 #[cfg(test)]
 mod tests {

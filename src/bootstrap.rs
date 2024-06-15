@@ -15,7 +15,8 @@ use crate::core::services::calendar::CalendarService;
 use crate::core::services::person::PersonService;
 use crate::core::services::task::{TaskListService, TaskService};
 use crate::error::{Error, ErrorType};
-use crate::infrastructure::cli::{Cli, Commands, UserCommands};
+use crate::infrastructure::cli::{Cli, Commands, CronCommands, UserCommands};
+use crate::infrastructure::cron::CronJob;
 use crate::infrastructure::databases::postgres;
 use crate::infrastructure::repositories::calendar::CalendarSubscriptionRepositoryImpl;
 use crate::infrastructure::repositories::person::PersonRepositoryImpl;
@@ -23,7 +24,7 @@ use crate::infrastructure::repositories::task::{TaskListRepositoryImpl, TaskRepo
 use crate::prelude::*;
 use crate::services::calendar::CalendarServiceImpl;
 use crate::services::person::PersonServiceImpl;
-use crate::services::task::{TaskListServiceImpl, TaskServiceImpl};
+use crate::services::task::{TaskListServiceImpl, TaskServiceImpl, UpdateTaskUrgencyJob};
 use actix_files::Files;
 use actix_identity::IdentityMiddleware;
 use actix_session::config::PersistentSession;
@@ -34,11 +35,11 @@ use actix_web::cookie::Key;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
-use dotenv::from_path;
 use log::error;
 use rpassword::read_password;
 use std::io::Write;
 use std::sync::Arc;
+use std::time::Instant;
 
 fn setup(app: &mut web::ServiceConfig) {
     app.service(
@@ -121,6 +122,11 @@ pub async fn start() -> Result<()> {
     let calendar_service: Arc<dyn CalendarService> =
         Arc::new(CalendarServiceImpl::new(calendar_subscription_repository));
 
+    let cron_jobs: Vec<Arc<dyn CronJob>> = vec![Arc::new(UpdateTaskUrgencyJob::new(
+        person_service.clone(),
+        task_service.clone(),
+    ))];
+
     match Cli::parse().command {
         Commands::User(parent) => match &parent.command {
             UserCommands::Create(command) => {
@@ -158,8 +164,39 @@ pub async fn start() -> Result<()> {
                 println!("User deleted.");
             }
         },
+        Commands::Cron(parent) => match &parent.command {
+            CronCommands::Run => {
+                for job in cron_jobs {
+                    let start = Instant::now();
+                    let result = job.run().await;
+                    let duration = start.elapsed();
+
+                    if let Err(err) = result {
+                        error!("Cron job failed: {}", err);
+                    } else {
+                        println!(
+                            "Cron job completed in {}.{} seconds.",
+                            duration.as_secs(),
+                            duration.subsec_millis()
+                        );
+                    }
+                }
+            }
+            CronCommands::List => {
+                todo!("List cron jobs")
+            }
+        },
         Commands::Start => {
-            let secret_key = Key::generate();
+            let secret_key = match std::env::var("PRODO_SECRET_KEY") {
+                Ok(key) => {
+                    let key_bytes = key.as_bytes();
+                    if key_bytes.len() < 64 {
+                        panic!("PRODO_SECRET_KEY must be at least 64 bytes long");
+                    }
+                    Key::from(key_bytes)
+                }
+                Err(_) => Key::generate(),
+            };
 
             HttpServer::new(move || {
                 let static_root = std::env::var("PRODO_STATIC_ROOT")

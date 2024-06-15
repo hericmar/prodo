@@ -1,4 +1,8 @@
 ALTER TABLE tasks DROP COLUMN rrule;
 ALTER TABLE tasks DROP COLUMN dtstart;
+ALTER TABLE tasks DROP COLUMN dtend;
 ALTER TABLE tasks DROP COLUMN priority;
-ALTER TABLE tasks DROP COLUMN percent_complete;
+-- ALTER TABLE tasks DROP COLUMN percent_complete;
+ALTER TABLE tasks DROP COLUMN due;
+ALTER TABLE tasks DROP COLUMN sequence;
+ALTER TABLE tasks DROP COLUMN urgency;
