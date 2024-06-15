@@ -8,12 +8,6 @@ Build and install application using `make`:
 make && make install
 ```
 
-Create database and collect static files into `static` directory:
-```bash
-prodo migrate
-prodo collectstatic
-```
-
 ## Development
 ```bash
 cp .env.example .env
