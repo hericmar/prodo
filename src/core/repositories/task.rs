@@ -11,6 +11,7 @@ pub trait TaskRepository: Send + Sync {
     async fn list(&self, author_uid: Uuid /*params: TodoQueryParams*/) -> Result<Vec<Task>>;
     async fn get(&self, task_uid: Uuid) -> Result<Task>;
     async fn update(&self, task_uid: Uuid, task: &UpdateTask) -> Result<Task>;
+    async fn update_urgency(&self, task_uid: Uuid, urgency: i32) -> Result<()>;
     async fn delete(&self, task_uid: Uuid) -> Result<()>;
 }
 

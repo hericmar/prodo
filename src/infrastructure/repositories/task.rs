@@ -54,6 +54,16 @@ impl TaskRepository for TaskRepositoryImpl {
             .map_err(|e| e.into())
     }
 
+    async fn update_urgency(&self, task_uid: Uuid, urgency: i32) -> Result<()> {
+        let mut conn = self.pool.get()?;
+        diesel::update(crate::schema::tasks::table)
+            .filter(crate::schema::tasks::uid.eq(task_uid))
+            .set(crate::schema::tasks::urgency.eq(urgency))
+            .execute(&mut conn)
+            .map(|_| ())
+            .map_err(|e| e.into())
+    }
+
     async fn delete(&self, task_uid: Uuid) -> Result<()> {
         let mut conn = self.pool.get()?;
         diesel::delete(crate::schema::tasks::table)

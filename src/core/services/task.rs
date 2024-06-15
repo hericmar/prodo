@@ -13,6 +13,7 @@ pub trait TaskService: Sync + Send {
     async fn list(&self, author_uid: Uuid /*params: TodoQueryParams*/) -> Result<Vec<Task>>;
     async fn get(&self, task_id: Uuid) -> Result<Task>;
     async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task>;
+    async fn update_urgency(&self, task_id: Uuid, urgency: i32) -> Result<()>;
     async fn delete(&self, task_id: Uuid) -> Result<()>;
 }
 

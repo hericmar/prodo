@@ -116,6 +116,10 @@ impl TaskService for TaskServiceImpl {
         self.repository.update(task_id, &task).await
     }
 
+    async fn update_urgency(&self, task_id: Uuid, urgency: i32) -> Result<()> {
+        self.repository.update_urgency(task_id, urgency).await
+    }
+
     async fn delete(&self, task_id: Uuid) -> Result<()> {
         self.repository.delete(task_id).await
     }
@@ -217,15 +221,7 @@ impl CronJob for UpdateTaskUrgencyJob {
             for task in &tasks {
                 let params = task.time_params(task.created);
                 if let Some(urgency) = calculate_urgency(params, Utc::now()) {
-                    self.task_service
-                        .update(
-                            task.uid,
-                            UpdateTask {
-                                urgency,
-                                ..Default::default()
-                            },
-                        )
-                        .await?;
+                    self.task_service.update_urgency(task.uid, urgency).await?;
                 }
             }
         }
