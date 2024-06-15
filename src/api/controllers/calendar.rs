@@ -2,10 +2,8 @@ use crate::core::services::calendar::CalendarService;
 use crate::core::services::task::TaskService;
 use crate::prelude::*;
 use actix_identity::Identity;
-use actix_web::http::header::HeaderName;
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, HttpResponse};
 use chrono::Duration;
-use std::fmt::Write;
 
 pub async fn create_calendar_subscription_handler(
     user: Identity,

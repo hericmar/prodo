@@ -7,7 +7,7 @@ use crate::api::controllers::task::{
     create_task_handler, delete_task_handler, read_task_lists_handler, read_tasks_handler,
     update_task_handler, update_task_position_handler,
 };
-use crate::core::models::person::{CreatePerson, Person};
+use crate::core::models::person::CreatePerson;
 use crate::core::repositories::calendar::CalendarSubscriptionRepository;
 use crate::core::repositories::person::PersonRepository;
 use crate::core::repositories::task::{TaskListRepository, TaskRepository};

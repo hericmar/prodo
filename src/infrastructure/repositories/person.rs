@@ -1,10 +1,8 @@
 use crate::core::models::person::{CreatePerson, Person};
 use crate::core::repositories::person::PersonRepository;
-use crate::error::{Error, ErrorType};
 use crate::infrastructure::databases::postgres::DBPool;
 use crate::prelude::*;
 use async_trait::async_trait;
-use diesel::result::DatabaseErrorKind;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use std::sync::Arc;
 use uuid::Uuid;

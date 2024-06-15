@@ -2,7 +2,6 @@ use crate::core::models::task::{
     CreateTask, CreateTaskList, Task, TaskList, UpdateTask, UpdateTaskList, URGENCY_HIGH,
 };
 use crate::prelude::*;
-use crate::schema::tasks::completed;
 use async_trait::async_trait;
 use chrono::{DateTime, Datelike, TimeZone, Timelike, Utc};
 use rrule::{RRule, RRuleSet, Unvalidated};
@@ -40,16 +39,10 @@ pub fn calculate_urgency(params: TaskTimeParams, now: DateTime<Utc>) -> Option<i
     const BASE_STEP: i32 = 24; // 1 day
     const NUM_SEGMENTS: f32 = 3.0;
 
-    if let Some(rrule) = &params.rrule {
-    } else {
-        // no recurrence rule
-    }
-
     if params.completed.is_some() && params.rrule.is_none() {
         return None;
     }
 
-    let mut urgency = None;
     let mut percent_elapsed = 0.0;
 
     if params.rrule.is_some() && params.dtstart.is_some() {
@@ -62,7 +55,7 @@ pub fn calculate_urgency(params: TaskTimeParams, now: DateTime<Utc>) -> Option<i
         let missed_occurrences = recurrences.iter().filter(|&r| r < &now).count();
         percent_elapsed = missed_occurrences as f32 / recurrences.len() as f32;
     } else if let Some(due) = params.due {
-        let mut since_due = due.signed_duration_since(now).num_hours();
+        let since_due = due.signed_duration_since(now).num_hours();
 
         if since_due < 0 {
             percent_elapsed = 1.0;
@@ -75,7 +68,7 @@ pub fn calculate_urgency(params: TaskTimeParams, now: DateTime<Utc>) -> Option<i
         let interval_max_size = BASE_STEP * params.priority;
         percent_elapsed = since_created.num_hours() as f32 / interval_max_size as f32;
     }
-    urgency = Some((percent_elapsed * NUM_SEGMENTS).floor() as i32);
+    let urgency = Some((percent_elapsed * NUM_SEGMENTS).floor() as i32);
 
     return urgency;
 }

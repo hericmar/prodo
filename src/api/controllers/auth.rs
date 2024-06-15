@@ -16,13 +16,13 @@ pub struct LoginRequest {
 }
 
 impl From<LoginError> for Error {
-    fn from(value: LoginError) -> Self {
+    fn from(_value: LoginError) -> Self {
         Error::new("invalid cookie", ErrorType::Unauthorized)
     }
 }
 
 impl From<GetIdentityError> for Error {
-    fn from(value: GetIdentityError) -> Self {
+    fn from(_value: GetIdentityError) -> Self {
         Error::new("unauthorized", ErrorType::Unauthorized)
     }
 }

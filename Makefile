@@ -4,6 +4,7 @@ export INSTALL_DIR := /usr/share/webapps/prodo
 build:
 	@echo "Building prodo..."
 	scripts/bump_version.sh
+	cargo build --release
 	cd webapp && pnpm install && pnpm run build --mode pwa && cd ..
 
 install:

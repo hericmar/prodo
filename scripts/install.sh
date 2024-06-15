@@ -38,7 +38,7 @@ fi
 
 # Copy prodo.sh to /usr/bin
 echo "Prodo executable not found. Creating..."
-cp bin/prodo.sh /usr/bin/prodo
+cp target/release/prodo /usr/bin/prodo
 chown root:$PRODO_GROUP /usr/bin/prodo
 chmod 750 /usr/bin/prodo
 
@@ -54,38 +54,12 @@ fi
 if [ ! -f "/var/log/prodo.log" ]; then
   echo "Creating /var/log/prodo.log file..."
   touch /var/log/prodo.log
-  chown prodo:prodo /var/log/prodo.log
+  chown ${PRODO_GROUP}:${PRODO_USER} /var/log/prodo.log
   chmod 700 /var/log/prodo.log
 fi
 
-# Create python virtual environment if it doesn't exist
-if [ ! -d "$PRODO_DIR/venv" ]; then
-  echo "Prodo virtual environment not found. Creating..."
-  python -m venv $PRODO_DIR/venv
-  chown -R $PRODO_USER:$PRODO_GROUP $PRODO_DIR/venv
-fi
-
-# Copy files to prodo directory
-echo "Copying files to Prodo directory..."
-cp -r base $PRODO_DIR
-cp -r ical $PRODO_DIR
-cp -r prodo $PRODO_DIR
-cp -r tasks $PRODO_DIR
-cp -r users $PRODO_DIR
-
-cp manage.py $PRODO_DIR
-cp requirements.txt $PRODO_DIR
-
-# Activate virtual environment
-source $PRODO_DIR/venv/bin/activate
-
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r $PRODO_DIR/requirements.txt
-
 # Create hourly cron job 'prodo runcrons' for prodo user
 echo "Creating cron job..."
-echo "0 * * * * prodo runcrons" | crontab -u $PRODO_USER -
+echo "0 * * * * prodo cron run" | crontab -u $PRODO_USER -
 
-python $PRODO_DIR/manage.py collectstatic
 cp -r webapp/dist/pwa/* $PRODO_DIR/static

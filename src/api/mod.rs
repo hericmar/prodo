@@ -1,9 +1,8 @@
-use std::fmt::{Display, Formatter};
-use actix_web::{HttpResponse, ResponseError};
+use crate::error::{Error, ErrorType};
 use actix_web::body::BoxBody;
 use actix_web::http::StatusCode;
+use actix_web::{HttpResponse, ResponseError};
 use serde_json::json;
-use crate::error::{Error, ErrorType};
 
 pub mod controllers;
 
@@ -14,7 +13,7 @@ impl ResponseError for Error {
             ErrorType::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
             ErrorType::BadRequest => StatusCode::BAD_REQUEST,
             ErrorType::NotFound => StatusCode::NOT_FOUND,
-            ErrorType::Unauthorized => StatusCode::UNAUTHORIZED
+            ErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
         }
     }
     fn error_response(&self) -> HttpResponse<BoxBody> {
@@ -24,11 +23,10 @@ impl ResponseError for Error {
                 log::error!("{}: {}", status, self.what);
 
                 "Internal Server Error".to_string()
-            },
-            _ => self.what.clone()
+            }
+            _ => self.what.clone(),
         };
 
-        HttpResponse::build(self.status_code())
-            .json(json!({ "error": message }))
+        HttpResponse::build(self.status_code()).json(json!({ "error": message }))
     }
 }

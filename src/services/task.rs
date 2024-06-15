@@ -8,8 +8,8 @@ use crate::error::{Error, ErrorType};
 use crate::infrastructure::cron::CronJob;
 use crate::prelude::*;
 use async_trait::async_trait;
-use chrono::{Datelike, TimeZone, Timelike, Utc};
-use rrule::{RRule, RRuleError, RRuleSet, Tz, Unvalidated};
+use chrono::Utc;
+use rrule::RRuleError;
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
@@ -33,14 +33,14 @@ impl TaskServiceImpl {
 
 #[async_trait]
 impl TaskService for TaskServiceImpl {
-    async fn create(&self, new_task: CreateTask, task_list_uid: Option<Uuid>) -> Result<Task> {
+    async fn create(&self, new_task: CreateTask, _task_list_uid: Option<Uuid>) -> Result<Task> {
         let task = self.repository.create(&new_task).await?;
         let mut lists = self.task_list_repository.list(new_task.author_uid).await?;
         // TODO: Only one list for now
         if lists.is_empty() {
             return Err(Error::new("List not found", ErrorType::NotFound));
         }
-        let mut list = &mut lists[0];
+        let list = &mut lists[0];
         list.tasks.insert(0, Some(task.uid));
         self.task_list_repository
             .update(
@@ -84,7 +84,7 @@ impl TaskService for TaskServiceImpl {
             return Err(Error::new("Invalid priority", ErrorType::BadRequest));
         }
 
-        let mut old_task = self.repository.get(task_id).await?;
+        let old_task = self.repository.get(task_id).await?;
 
         // validate dtstart and dtend
         if let (Some(dtstart), Some(dtend)) = (task.dtstart, task.dtend) {

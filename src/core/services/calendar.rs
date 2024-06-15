@@ -1,4 +1,4 @@
-use crate::core::models::calendar::{CalendarSubscription, CreateCalendarSubscription};
+use crate::core::models::calendar::CalendarSubscription;
 use crate::prelude::*;
 use async_trait::async_trait;
 use uuid::Uuid;

@@ -50,7 +50,7 @@ pub async fn read_tasks_handler(
 
 pub async fn update_task_handler(
     task_uid: web::Path<Uuid>,
-    user: Identity,
+    _user: Identity,
     task_service: web::Data<dyn TaskService>,
     payload: web::Json<UpdateTask>,
 ) -> Result<HttpResponse> {
@@ -63,7 +63,7 @@ pub async fn update_task_handler(
 
 pub async fn delete_task_handler(
     task_uid: web::Path<Uuid>,
-    user: Identity,
+    _user: Identity,
     task_service: web::Data<dyn TaskService>,
 ) -> Result<HttpResponse> {
     task_service.delete(task_uid.into_inner()).await?;
