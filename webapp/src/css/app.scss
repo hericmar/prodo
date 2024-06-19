@@ -1,1 +1,25 @@
 // app global css in SCSS form
+
+.q-card {
+  border-radius: $card-border-radius;
+}
+
+//
+
+.body--light {
+  background: $light-page;
+
+  footer {
+    background: $light-page !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
+.body--dark {
+  background: $dark-page;
+
+  footer {
+    background: $dark-page !important;
+  }
+}

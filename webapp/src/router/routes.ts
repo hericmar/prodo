@@ -4,6 +4,32 @@ import { useAuthStore } from 'stores/auth-store'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    name: 'landing',
+    component: () => import('layouts/LandingLayout.vue'),
+    beforeEnter: (to, from, next) => {
+      if (useAuthStore().isAuthenticated) {
+        next({ name: 'index' })
+      }
+      next()
+    },
+    children: [
+      {
+        path: '',
+        name: 'landing',
+        component: () => import('pages/LandingPage.vue'),
+        meta: {
+          requiresAuth: false
+        }
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: () => import('pages/LoginPage.vue')
+      }
+    ]
+  },
+  {
+    path: '/',
     component: () => import('layouts/MainLayout.vue'),
     beforeEnter: (to, from, next) => {
       const authStore = useAuthStore()
@@ -21,6 +47,7 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true
         }
       },
+      /*
       {
         path: '',
         name: 'landing',
@@ -37,6 +64,7 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: false
         }
       },
+       */
       {
         path: 'profile',
         name: 'profile',

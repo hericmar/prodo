@@ -5,7 +5,7 @@
   -->
 
   <q-page
-    class="row justify-evenly"
+    class="list-container flex no-wrap q-gutter-lg q-pt-lg"
     v-touch-pan.capture.down="onSwipeDown"
     @touchend="onMouseUp"
   >
@@ -22,6 +22,13 @@
       :tabs="tasksTabs"
       :filter="filterTasks"
     />
+    <div v-if="!$q.platform.is.mobile">
+      <q-btn
+        icon="add"
+        flat
+        round
+      />
+    </div>
   </q-page>
 
   <q-dialog
@@ -45,15 +52,11 @@
 
   <q-dialog
     v-model="confirmEdit"
-    class="dialog"
     no-backdrop-dismiss
+    :maximized="$q.platform.is.mobile"
     :on-escape-key="() => confirmEdit = false"
   >
-    <q-card class="task-card">
-      <q-card-section>
-        <TaskDetailForm :edited-task="task" />
-      </q-card-section>
-    </q-card>
+    <TaskDetailForm :edited-task="task" />
   </q-dialog>
 </template>
 
@@ -61,9 +64,9 @@
 import { onMounted, ref } from 'vue'
 import { Task, useTaskStore } from 'stores/task-store'
 import api from 'src/api'
-import TaskList from 'components/TaskList.vue'
+import TaskList from 'components/tasks/TaskList.vue'
 import emitter from 'src/plugins/mitt'
-import TaskDetailForm from 'components/TaskDetailForm.vue'
+import TaskDetailForm from 'components/tasks/TaskDetail.vue'
 
 const taskStore = useTaskStore()
 
@@ -199,17 +202,18 @@ onMounted(() => {
 })
 </script>
 
-<style lang="sass">
-.task-card
-  @media (max-width: $breakpoint-xs)
-    width: 100%
-  @media (min-width: $breakpoint-xs)
-    width: 500px
+<style lang="scss">
+@media (max-width: $breakpoint-xs) {
+  .list-container {
+    flex-direction: column;
+  }
+}
 
-@media (max-width: $breakpoint-xs)
-  .dialog .q-dialog__inner
-    padding-left: 16px !important
-    padding-right: 16px !important
-  .q-tab
-    padding: 0 12px !important
+.list-container > * {
+  min-height: calc(100vh - $toolbar-min-height - 48px);
+
+  @media (min-width: $breakpoint-xs) {
+    margin-left: 48px;
+  }
+}
 </style>

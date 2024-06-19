@@ -1,14 +1,14 @@
 <template>
   <q-page
-    class="page q-mt-lg"
+    class="page q-mt-xl"
   >
     <div class="row wrap">
       <div class="q-pa-lg col-12 col-md">
-        <h1 class="text-h3">{{ $t('login_title') }}</h1>
+        <h1 class="text-h4">{{ $t('login_title') }}</h1>
       </div>
       <div class="q-pa-lg col-12 col-md">
         <q-card
-          class="login-card q-pa-lg flex-center"
+          class="q-pa-lg flex-center"
           flat
           bordered
         >

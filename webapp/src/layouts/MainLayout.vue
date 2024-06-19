@@ -16,22 +16,30 @@
         <q-toolbar-title>
           <q-btn
             v-if="isAuthenticated"
-            :to="{ name: 'index' }" flat
+            :to="{ name: 'index' }"
+            flat
+            rounded
           >
             Prodo
           </q-btn>
           <q-btn
             v-else
-            :to="{ name: 'landing' }" flat
+            :to="{ name: 'landing' }"
+            flat
+            rounded
           >
             Prodo
           </q-btn>
         </q-toolbar-title>
 
         <div>
+          <ThemeButton />
+
           <q-btn-dropdown
             v-if="isAuthenticated"
             :label="$t('profile')"
+            no-caps
+            rounded
             flat
           >
             <q-list>
@@ -53,10 +61,6 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
-
-          <q-btn
-            v-else
-            @click="onLogin" flat>{{ $t('login') }}</q-btn>
         </div>
       </q-toolbar>
     </q-header>
@@ -83,11 +87,13 @@
     </q-drawer>
     -->
 
-    <q-page-container>
+    <q-page-container
+      class="q-pa-md"
+    >
       <router-view />
     </q-page-container>
 
-    <q-footer v-if="isAuthenticated" class="q-py-lg q-px-md bg-white text-grey-5 flex flex-center">
+    <q-footer v-if="!$q.platform.is.mobile" class="q-pt-xl q-pb-lg q-px-md bg-white text-grey-5 flex flex-center">
       <div>
         @ {{ new Date().getFullYear() }} Martin Herich, version {{ version }}
       </div>
@@ -96,11 +102,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue'
 import { useAuthStore } from 'stores/auth-store'
 import { router } from 'src/router'
 import packageJson from '../../package.json'
+import ThemeButton from 'components/toolkit/ThemeButton.vue'
 
 const authStore = useAuthStore()
 
@@ -117,58 +124,5 @@ const onLogin = async () => {
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-const essentialLinks: EssentialLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
-
 const version = packageJson.version
-
-/*
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
- */
 </script>

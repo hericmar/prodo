@@ -1,105 +1,73 @@
 <template>
-  <div class="task-list q-ma-sm q-ma-lg-lg q-pt-sm">
-    <div class="flex justify-between items-end">
-      <div class="flex">
-        <h2 class="q-pl-xs q-mb-none text-h6">{{ props.label }}</h2>
-        <q-chip
-          v-if="tab !== 'completed'"
-          class="q-mt-md"
-          dense
-          color="primary"
-          text-color="white"
-        >
-          {{ tasks.reduce((count, task) => task.completed ? count : count + 1, 0) }}
-        </q-chip>
-      </div>
-      <q-tabs
-        v-model="tab"
-        class="flex"
-        align="right"
-        shrink
+  <q-card flat>
+    <q-card-section class="flex justify-between q-pb-none">
+      <h2 class="text-h6 q-my-sm">{{ props.label }}</h2>
+      <!--
+      <q-chip
+        v-if="tab !== 'completed'"
+        class="q-mt-sm self-start"
         dense
-        style="max-width: 300px"
+        color="primary"
+        text-color="white"
       >
-        <q-tab v-for="tabName in tabs" :key="tabName" :label="$t(`tasks_${tabName}`)" :name="tabName" />
-      </q-tabs>
-    </div>
-
-    <q-card
-      class="q-pa-sm q-pa-sm-md bg-grey-3 rounded-borders"
-      flat
+        {{ tasks.reduce((count, task) => task.completed ? count : count + 1, 0) }}
+      </q-chip>
+      -->
+    </q-card-section>
+    <q-input
+      class="q-ml-md q-mr-sm q-pl-sm"
+      v-model="summary"
+      :label="$t('task_newInput')"
+      borderless
+      @keydown.enter="onAddTask"
     >
-      <q-input
-        outlined
-        bg-color="white"
-        v-model="summary"
-        :label="$t('task_newInput')"
-        counter
-        maxlength="60"
-        @keydown.enter="onAddTask"
-      >
-        <template v-if="$q.screen.xs" v-slot:append>
-          <q-btn
-            flat
-            round
-            icon="add"
-            @click="onAddTask">
-          </q-btn>
-        </template>
-      </q-input>
-
-      <div class="q-mx-sm">
-        <p v-if="similarTasks.length !== 0">
-          {{ $t('tasks_similar') }}:
-        </p>
-        <ul>
-          <li v-for="(entry, index) in findSimilar(summary, tasks)" :key="index">
-            {{ entry.summary }}
-          </li>
-        </ul>
-      </div>
-
-      <p
-        v-if="tasks.length === 0"
-        class="text-grey-7 text-center q-my-md"
-      >
-        {{ $t('emptyList') }}
-      </p>
-      <draggable
-        v-else
-        tag="div"
-        class="q-list q-pt-sm"
-        v-model="tasks"
-        item-key="uid"
-        handle=".drag-handle"
-        @start="onDragStart"
-        @end="onDragEnd"
-        direction="vertical"
-        touchStartThreshold: 5
-        ghostClass="dnd-ghost"
-        chosenClass="dnd-chosen"
-        dragClass="dnd-drag"
-        fallbackClass="dnd-drag"
-        animation="200"
-        scrollSpeed=15
-        scrollSensitivity="200"
-        :bubbleScroll="false"
-        :dragoverBubble="false"
-      >
-        <template #item="{ element }">
-          <SingleTask
-            :task="element"
-          />
-        </template>
-      </draggable>
-    </q-card>
-  </div>
+      <template v-if="$q.screen.xs" v-slot:append>
+        <q-btn
+          flat
+          round
+          icon="add"
+          @click="onAddTask">
+        </q-btn>
+      </template>
+    </q-input>
+    <!--
+    <SingleTask
+      v-for="task in tasks"
+      :key="task.uid"
+      :task="task"
+    />
+    -->
+    <draggable
+      v-model="tasks"
+      item-key="uid"
+      handle=".drag-handle"
+      @start="onDragStart"
+      @end="onDragEnd"
+      direction="vertical"
+      touchStartThreshold: 5
+      ghostClass="dnd-ghost"
+      chosenClass="dnd-chosen"
+      dragClass="dnd-drag"
+      fallbackClass="dnd-drag"
+      animation="200"
+      scrollSpeed=15
+      scrollSensitivity="200"
+      :bubbleScroll="false"
+      :dragoverBubble="false"
+    >
+      <template #item="{ element }">
+        <SingleTask
+          :task="element"
+        />
+      </template>
+    </draggable>
+  </q-card>
 </template>
 
 <script lang="ts" setup>
 import { Task, useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
-import SingleTask from 'components/SingleTask.vue'
+import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
 // import { scroll } from 'quasar'

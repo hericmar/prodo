@@ -21,11 +21,6 @@
     <p>
       If you like this app, please consider supporting it by buying me a coffee.
     </p>
-    <p>
-      <a href="https://www.buymeacoffee.com/robertborkowski" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60" width="217">
-      </a>
-    </p>
 
     <h2 class="text-h3">Feedback</h2>
     <p>

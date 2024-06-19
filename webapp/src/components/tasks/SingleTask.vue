@@ -1,6 +1,6 @@
 <template>
   <q-item
-    class="task q-pa-none q-card q-my-sm shadow-1"
+    class="task q-pa-none q-my-sm"
     :class="{
       'task-greyed': props.task.greyedOut,
       'task-urgency-none': props.task.urgency === Urgency.None,
@@ -94,6 +94,14 @@ const onCompletedClick = () => {
 </script>
 
 <style lang="scss">
+.task {
+  min-width: 400px;
+  @media (max-width: $breakpoint-xs) {
+    min-width: 300px;
+  }
+  max-width: 100%;
+}
+
 .task .q-focus-helper {
   display: none;
 }
@@ -107,10 +115,7 @@ const onCompletedClick = () => {
 }
 
 .task-checkbox {
-  border-top-left-radius: inherit !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-left-radius: 4px !important;
-  border-bottom-right-radius: 0;
+  border-radius: 12px !important;
 }
 
 .task-urgency-none .task-checkbox {
@@ -140,4 +145,22 @@ const onCompletedClick = () => {
 .drag-handle {
   cursor: move;
 }
+
+.body--dark .task {
+  background: $dark;
+}
+
+.task {
+  margin-left: 16px;
+  margin-right: 16px;
+  padding-top: 8px;
+  border-top: 1px solid $separator-color;
+}
+
+.body--dark {
+  * > .task {
+    border-color: $separator-dark-color;
+  }
+}
+
 </style>

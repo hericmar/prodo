@@ -4,7 +4,10 @@
     padding
   >
     <h1 class="text-h4">{{ $t('profile') }}</h1>
-    <q-card>
+    <q-card
+      class="q-mb-lg"
+      flat
+    >
       <q-card-section>
         <h2 class="text-h6">{{ $t('subscription_header') }}</h2>
         <p>{{ $t('subscription_url_description') }}</p>
@@ -24,6 +27,17 @@
         <q-btn flat label="Remove" color="red" @click="onRemoveLink" v-if="link !== ''" />
       </q-card-actions>
     </q-card>
+
+    <q-card
+      flat
+    >
+      <q-card-section>
+        <h2 class="text-h6">Preferences</h2>
+        <div>
+          Language: <LangSelect display-label size="md" />
+        </div>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
@@ -32,6 +46,7 @@ import { ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { copyToClipboard } from 'quasar'
 import api from 'src/api'
+import LangSelect from 'components/toolkit/LangSelect.vue'
 
 const link = ref('')
 

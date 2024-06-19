@@ -12,6 +12,7 @@ export default {
   login: 'Login',
   settings: 'Settings',
   profile: 'Profile',
+  toApp: 'To App',
 
   username: 'Username',
   password: 'Password',
@@ -41,6 +42,7 @@ export default {
   tasks_inactive: 'Inactive',
   tasks_similar: 'Similar tasks',
 
+  landingTitle: 'Prodo',
   landing_description: 'New approach to productivity.',
 
   login_title: 'Login to Prodo',

@@ -20,10 +20,9 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async login (username: string, password: string) {
-      return api.auth.login(username, password)
+      await api.auth.login(username, password)
         .then(() => {
           this.message = ''
-          this.getUser()
         })
         .catch(error => {
           if (error.response.status === 401) {
@@ -34,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
             throw new Error('error')
           }
         })
+      await this.getUser()
     },
     logout () {
       this.user = null

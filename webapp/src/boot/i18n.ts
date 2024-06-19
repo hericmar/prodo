@@ -2,6 +2,8 @@ import { boot } from 'quasar/wrappers'
 import { createI18n } from 'vue-i18n'
 
 import messages from 'src/i18n'
+import { Lang } from 'quasar'
+import { useSettingsStore } from 'stores/settings-store'
 
 export type MessageLanguages = keyof typeof messages;
 // Type-define 'en-US' as the master schema for the resource
@@ -22,8 +24,18 @@ declare module 'vue-i18n' {
 /* eslint-enable @typescript-eslint/no-empty-interface */
 
 export default boot(({ app }) => {
+  const settingsStore = useSettingsStore()
+  settingsStore.init()
+
+  const defaultLocale = settingsStore.preferredLocale || Lang.getLocale() || 'en-US'
+  console.log('defaultLocale', defaultLocale)
+
+  useSettingsStore().updateSettings({
+    preferredLocale: defaultLocale
+  })
+
   const i18n = createI18n({
-    locale: 'en-US',
+    locale: defaultLocale,
     legacy: false,
     messages
   })
