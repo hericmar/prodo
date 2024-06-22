@@ -11,15 +11,11 @@
   >
     <TaskList
       :label="$t('dailyTasks')"
-      :startTab="dailyTasksTab"
-      :tabs="dailyTasksTabs"
       :filter="filterDailyTasks"
       :onCreated="onDailyTaskCreated"
     />
     <TaskList
       :label="$t('tasks')"
-      :startTab="tasksTab"
-      :tabs="tasksTabs"
       :filter="filterTasks"
     />
     <div v-if="!$q.platform.is.mobile">
@@ -125,30 +121,12 @@ const onSwipeDown = (e) => {
 
 //
 
-const dailyTasksTab = 'all'
-const dailyTasksTabs = ['all', 'active', 'inactive']
-
-const tasksTab = 'active'
-const tasksTabs = ['active', 'completed', 'all']
-
-const filterDailyTasks = (tab: string, tasks: Task[]) => {
-  const daily = tasks.filter((task) => {
+const filterDailyTasks = (tasks: Task[]) => {
+  // inactive
+  // task.greyedOut
+  return tasks.filter((task) => {
     return task.rrule
   })
-
-  if (tab === 'all') {
-    return daily
-  }
-  if (tab === 'active') {
-    return daily.filter((task) => {
-      return !task.greyedOut
-    })
-  } else {
-    // inactive
-    return daily.filter((task) => {
-      return task.greyedOut
-    })
-  }
 }
 
 const onDailyTaskCreated = (task: Task) => {
@@ -156,24 +134,10 @@ const onDailyTaskCreated = (task: Task) => {
   api.task.update(task.uid, task)
 }
 
-const filterTasks = (tab: string, tasks: Task[]) => {
-  const notDaily = tasks.filter((task) => {
+const filterTasks = (tasks: Task[]) => {
+  return tasks.filter((task) => {
     return !task.rrule
   })
-
-  if (tab === 'all') {
-    return notDaily
-  }
-  if (tab === 'completed') {
-    return notDaily.filter((task) => {
-      return task.completed
-    })
-  } else {
-    // active
-    return notDaily.filter((task) => {
-      return !task.completed || task.rrule
-    })
-  }
 }
 
 //
@@ -203,8 +167,11 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-@media (max-width: $breakpoint-xs) {
-  .list-container {
+.list-container {
+  align-items: flex-start;
+
+  @media (max-width: $breakpoint-xs) {
+    align-items: normal;
     flex-direction: column;
   }
 }
@@ -214,6 +181,7 @@ onMounted(() => {
 
   @media (min-width: $breakpoint-xs) {
     margin-left: 48px;
+    min-height: 500px !important;
   }
 }
 </style>

@@ -40,6 +40,7 @@
             :label="$t('profile')"
             no-caps
             rounded
+            unelevated
             flat
           >
             <q-list>

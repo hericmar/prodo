@@ -32,8 +32,12 @@
       >
         {{ props.task.summary }}
       </q-item-label>
-      <q-item-label v-if="props.task.description" caption>
-        <div class="task-description" v-html="marked(props.task.description)"></div>
+      <q-item-label
+        v-if="props.task.description"
+        caption
+        class="q-mb-none"
+      >
+        <div class="marked-text" v-html="marked(props.task.description)"></div>
       </q-item-label>
       <q-item-label v-if="props.task.due">
         <div class="flex self-center">
@@ -94,14 +98,6 @@ const onCompletedClick = () => {
 </script>
 
 <style lang="scss">
-.task {
-  min-width: 400px;
-  @media (max-width: $breakpoint-xs) {
-    min-width: 300px;
-  }
-  max-width: 100%;
-}
-
 .task .q-focus-helper {
   display: none;
 }
@@ -151,10 +147,16 @@ const onCompletedClick = () => {
 }
 
 .task {
-  margin-left: 16px;
-  margin-right: 16px;
+  margin: 0 16px -1px 16px;
+  // padding-top: 8px;
+  /* border-top: 1px solid $separator-color; */
+}
+
+* > .task {
+  border-top: 1px solid $prodo-grey;
+  border-bottom: 1px solid $prodo-grey;
   padding-top: 8px;
-  border-top: 1px solid $separator-color;
+  padding-bottom: 8px;
 }
 
 .body--dark {
@@ -163,4 +165,9 @@ const onCompletedClick = () => {
   }
 }
 
+.marked-text {
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
 </style>

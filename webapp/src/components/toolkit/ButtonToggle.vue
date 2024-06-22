@@ -7,7 +7,6 @@
     spread
     rounded
     unelevated
-    text-color="primary"
     :options="props.options"
   />
 </template>
@@ -36,7 +35,29 @@ const onClick = () => {
 
 <style lang="scss">
 .prodo-toggle {
-  border: 1px solid $primary
+  border: 1px solid $border;
+
+  button {
+    border-radius: 17px !important;
+    margin: 2px;
+  }
+
+  button.bg-primary {
+    color: black !important;
+    border: 2px solid $border;
+    background: transparent !important;
+  }
+}
+
+.body--dark {
+  .prodo-toggle {
+    border: 1px solid $border-dark;
+
+    button.bg-primary {
+      color: white !important;
+      border: 2px solid $border-dark;
+    }
+  }
 }
 
 .q-btn-group--rounded {
@@ -45,12 +66,5 @@ const onClick = () => {
   .q-btn-item {
     padding: 4px;
   }
-
-  /*
-  .q-btn__content {
-    background: #9C27B0;
-    border-radius: 16px;
-  }
-   */
 }
 </style>

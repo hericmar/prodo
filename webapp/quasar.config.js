@@ -114,7 +114,8 @@ module.exports = configure(function (/* ctx */) {
       config: {
         brand: {
           // indigo
-          primary: '#3f51b5'
+          // primary: '#3f51b5'
+          primary: '#0071E3FF'
         }
       },
 

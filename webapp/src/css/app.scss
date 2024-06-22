@@ -4,13 +4,28 @@
   border-radius: $card-border-radius;
 }
 
+.q-menu {
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
 //
 
 .body--light {
   background: $light-page;
 
+  .q-page {
+    a {
+      color: $link-light !important;
+    }
+  }
+
   footer {
     background: $light-page !important;
+  }
+
+  // custom
+  .q-menu {
+    border: 1px solid $separator-color;
   }
 }
 
@@ -19,7 +34,18 @@
 .body--dark {
   background: $dark-page;
 
+  .q-page {
+    a {
+      color: $link-dark !important;
+    }
+  }
+
   footer {
     background: $dark-page !important;
+  }
+
+  // custom
+  .q-menu {
+    border: 1px solid $separator-dark-color;
   }
 }

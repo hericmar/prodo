@@ -1,23 +1,33 @@
 <template>
   <q-card
-    class="prodo-task-card"
+    class="task-card"
     style="overflow-y: hidden"
     flat
   >
     <q-scroll-area style="height: 100%; max-width: 100%;">
       <q-card-section>
         <q-form
-          class="q-py-sm q-gutter-md flex column"
+          class="flex column q-pt-sm q-pr-md q-gutter-md"
           @keydown.enter="onEnterDown"
         >
-          <q-input
-            v-model="task.summary"
-            :label="$t('summary')"
-            stack-label
-            counter
-            maxlength="60"
-            outlined
-          />
+          <div class="flex content-center no-wrap">
+            <q-input
+              class="full-width"
+              v-model="task.summary"
+              :label="$t('summary')"
+              stack-label
+              counter
+              maxlength="60"
+              outlined
+            />
+            <q-btn
+              class="q-mb-md"
+              flat
+              color="red"
+              icon="delete"
+              @click="emitter.emit('on-delete', { task: props.editedTask })"
+            />
+          </div>
 
           <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined />
 
@@ -49,9 +59,10 @@
           <ButtonToggle
             v-model="task.priority"
             :options="[
-            { label: $t('low'), value: 9 },
-            { label: $t('medium'), value: 5 },
-            { label: $t('high'), value: 1 }
+              { label: $t('none'), value: 0 },
+              { label: $t('low'), value: 9 },
+              { label: $t('medium'), value: 5 },
+              { label: $t('high'), value: 1 }
           ]"
           />
 
@@ -60,16 +71,52 @@
             v-model="task.rrule"
             :dtstart="task.start"
           />
-
-          <q-btn flat color="red" @click="emitter.emit('on-delete', { task: props.editedTask })">Delete</q-btn>
-
-          <div class="q-pa-md q-gutter-sm">
-            <q-btn flat label="Cancel" color="primary" @click="onClose" />
-            <q-btn flat label="Save" color="primary" @click="onSave" />
-          </div>
+          <q-toolbar v-if="!$q.platform.is.mobile">
+            <div class="flex justify-between full-width q-px-xl q-py-md">
+              <q-btn
+                flat
+                rounded
+                no-caps
+                label="Cancel"
+                color="blue-7"
+                @click="onClose"
+              />
+              <q-btn
+                flat
+                rounded
+                no-caps
+                label="Save"
+                color="blue-7"
+                @click="onSave"
+              />
+            </div>
+          </q-toolbar>
         </q-form>
       </q-card-section>
     </q-scroll-area>
+    <q-toolbar
+      v-if="$q.platform.is.mobile"
+      class="task-toolbar"
+    >
+      <div class="flex justify-between full-width q-px-xl q-py-md">
+        <q-btn
+          flat
+          rounded
+          no-caps
+          label="Cancel"
+          color="blue-7"
+          @click="onClose"
+        />
+        <q-btn
+          flat
+          rounded
+          no-caps
+          label="Save"
+          color="blue-7"
+          @click="onSave"
+        />
+      </div>
+    </q-toolbar>
   </q-card>
 </template>
 
@@ -127,7 +174,7 @@ const onSave = () => {
 </script>
 
 <style lang="scss">
-.prodo-task-card {
+.task-card {
   width: 500px;
   height: 100%;
 
@@ -135,4 +182,34 @@ const onSave = () => {
     width: 100%;
   }
 }
+
+.task-toolbar {
+  position: sticky;
+  bottom: 0;
+  margin: 0;
+  padding-bottom: 0;
+  margin-bottom: -16px;
+  width: 100vw;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.body--dark {
+  .task-toolbar {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+@media (max-width: $breakpoint-xs) {
+  .task-toolbar {
+    border-top: 1px solid $separator-color;
+  }
+
+  .body--dark {
+    .task-toolbar {
+      border-top: 1px solid $separator-dark-color;
+    }
+  }
+}
+
 </style>

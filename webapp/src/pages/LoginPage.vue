@@ -18,7 +18,6 @@
             class="q-py-sm q-gutter-md flex column"
           >
             <q-input
-              filled
               v-model="username"
               :label="$t('username')"
               lazy-rules
@@ -27,7 +26,6 @@
 
             <q-input
               type="password"
-              filled
               v-model="password"
               :label="$t('password')"
               lazy-rules
@@ -36,7 +34,12 @@
 
             <p>{{ message }}</p>
 
-            <q-btn :label="$t('login')" type="submit" color="primary"/>
+            <q-btn
+              :label="$t('login')"
+              type="submit"
+              no-caps
+              color="primary"
+            />
           </q-form>
         </q-card>
       </div>
@@ -62,8 +65,10 @@ const onSubmit = () => {
   const authStore = useAuthStore()
   authStore.login(username.value, password.value)
     .then(() => {
-      router.push({ name: 'index' })
-      message.value = ''
+      setTimeout(() => {
+        message.value = ''
+        router.push({ name: 'index' })
+      }, 1000)
     })
     .catch(() => {
       message.value = i18n.t(authStore.message)

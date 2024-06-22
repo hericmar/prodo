@@ -23,8 +23,15 @@
           </template>
         </q-input>
       </q-card-section>
-      <q-card-actions>
-        <q-btn flat label="Remove" color="red" @click="onRemoveLink" v-if="link !== ''" />
+      <q-card-actions align="center">
+        <q-btn
+          v-if="link !== ''"
+          flat
+          no-caps
+          label="Remove"
+          color="red"
+          @click="onRemoveLink"
+        />
       </q-card-actions>
     </q-card>
 

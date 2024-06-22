@@ -1,7 +1,34 @@
 <template>
-  <q-card flat>
+  <q-card
+    class="task-list q-pb-md"
+    flat
+  >
     <q-card-section class="flex justify-between q-pb-none">
-      <h2 class="text-h6 q-my-sm">{{ props.label }}</h2>
+      <div class="flex justify-between full-width">
+        <h2 class="text-h6 q-my-sm">
+          {{ props.label }}
+        </h2>
+        <q-btn-dropdown
+          class="q-pa-none"
+          style="height: 16px; width: 32px;"
+          size="md"
+          flat
+          rounded
+        >
+          <q-list>
+            <q-item clickable v-close-popup @click="showCompleted = !showCompleted">
+              <q-item-section avatar>
+                <q-avatar :icon="showCompleted ? 'remove_done' : 'done_all'" color="primary" text-color="white" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  {{ showCompleted ? 'Hide completed' : 'Show completed' }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+      </div>
       <!--
       <q-chip
         v-if="tab !== 'completed'"
@@ -15,7 +42,8 @@
       -->
     </q-card-section>
     <q-input
-      class="q-ml-md q-mr-sm q-pl-sm"
+      class="task-input q-ml-md q-mr-sm q-pl-sm"
+      color="blue-6"
       v-model="summary"
       :label="$t('task_newInput')"
       borderless
@@ -72,35 +100,19 @@ import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
 // import { scroll } from 'quasar'
 
-const props = defineProps({
-  label: {
-    type: String,
-    required: true
-  },
-  filter: {
-    type: Function,
-    required: true
-  },
-  tabs: {
-    type: Array,
-    required: true
-  },
-  startTab: {
-    type: String,
-    required: true
-  },
-  onCreated: {
-    type: Function,
-    required: false,
-    default: () => {
-      // do nothing
-    }
+interface Props {
+  label: string
+  filter: (tasks: Task[]) => Task[]
+  onCreated?: (task: Task) => void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  onCreated: () => {
+    // do nothing
   }
 })
 
 const taskStore = useTaskStore()
-
-const tab = ref<string>(props.startTab)
 
 const summary = ref<string>('')
 const onAddTask = () => {
@@ -115,10 +127,15 @@ const onAddTask = () => {
   summary.value = ''
 }
 
+const showCompleted = ref<boolean>(false)
+
 const tasks = computed({
   get: () => {
+    return props.filter(taskStore.tasks).filter(task => showCompleted.value || !task.completed)
+    /*
     const tabName = tab.value
     return props.filter(tabName, taskStore.tasks)
+     */
   },
   set: () => {
     console.log('drag end')
@@ -185,21 +202,37 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
 }
 </script>
 
-<style lang="sass">
-.dnd-ghost
-  visibility: hidden
+<style lang="scss">
+.task-list {
+  overflow: hidden;
+  @media (min-width: $breakpoint-xs) {
+    width: 400px !important;
+  }
+}
 
-.dnd-chosen
-  @media (max-width: $breakpoint-xs)
-    background: $yellow-1
+// .task-input label {
+.task-input {
+  border-bottom: 1px solid $prodo-grey !important;
+  padding-left: 0 !important;
+  margin-right: 16px;
+  margin-bottom: -1px;
+}
 
-.dnd-drag
-  /* opacity: 1 !important */
+.body--dark .task-input {
+  border-bottom: 1px solid $separator-dark-color !important;
+}
 
-.task-list
-  overflow: hidden
-  @media (max-width: $breakpoint-xs)
-    width: 100% !important
-  @media (min-width: $breakpoint-xs)
-    width: 500px !important
+.dnd-ghost {
+  visibility: hidden;
+}
+
+.dnd-chosen {
+  @media (max-width: $breakpoint-xs) {
+    background: $yellow-1;
+  }
+}
+
+.dnd-drag {
+  /* opacity: 1 !important; */
+}
 </style>

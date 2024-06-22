@@ -1,6 +1,7 @@
 <template>
   <div class="row items-center">
     <q-input
+      color="blue-6"
       ref="dateRef"
       v-model="date"
       :rules="[validateDate]"
@@ -38,6 +39,7 @@
     </q-input>
 
     <q-input
+      color="blue-6"
       ref="timeRef"
       v-model="time"
       mask="##:##"
