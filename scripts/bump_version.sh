@@ -9,6 +9,6 @@ PRODO_VERSION=${PRODO_VERSION:1}
 for file in $FILES; do
   if [ -f $file ]; then
     echo "Bumping version in $file"
-    sed -i 's/"version": "[^"]*"/"version": "'${PRODO_VERSION}'"/' $file
+    sed -i 's/"version":\s*"[^"]*"/"version": "'${PRODO_VERSION}'"/' $file
   fi
 done
