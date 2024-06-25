@@ -19,6 +19,9 @@ export default {
   list: {
     list () {
       return api.get('/api/v1/lists')
+    },
+    update (uid: string, payload: { name: string }) {
+      return api.patch(`/api/v1/lists/${uid}`, payload)
     }
   },
   task: {

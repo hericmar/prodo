@@ -10,6 +10,14 @@
     @touchend="onMouseUp"
   >
     <TaskList
+      v-for="list in taskStore.lists" :key="list.uid"
+      :uid="list.uid"
+      :label="list.name"
+      :virtual="list.isVirtual"
+      :filter="list.onFilter"
+    />
+    <!--
+    <TaskList
       :label="$t('dailyTasks')"
       :filter="filterDailyTasks"
       :onCreated="onDailyTaskCreated"
@@ -18,6 +26,7 @@
       :label="$t('tasks')"
       :filter="filterTasks"
     />
+    -->
     <div v-if="!$q.platform.is.mobile">
       <q-btn
         icon="add"
@@ -169,6 +178,7 @@ onMounted(() => {
 <style lang="scss">
 .list-container {
   align-items: flex-start;
+  min-width: max-content;
 
   @media (max-width: $breakpoint-xs) {
     align-items: normal;

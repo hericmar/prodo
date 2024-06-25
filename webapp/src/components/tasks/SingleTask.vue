@@ -56,7 +56,10 @@
       </q-item-label>
     </q-item-section>
 
-    <q-item-section side>
+    <q-item-section
+      v-if="!props.noDrag"
+      side
+    >
       <q-icon
         name="more_vert"
         class="drag-handle text-grey-8 q-gutter-xs"
@@ -76,6 +79,7 @@ import { marked } from 'marked'
 
 interface Props {
   task: Task
+  noDrag?: boolean
 }
 
 const props = defineProps<Props>()

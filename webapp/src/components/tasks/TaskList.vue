@@ -5,9 +5,11 @@
   >
     <q-card-section class="flex justify-between q-pb-none">
       <div class="flex justify-between full-width">
-        <h2 class="text-h6 q-my-sm">
-          {{ props.label }}
-        </h2>
+        <EditableText
+          :readonly="props.virtual"
+          :label="props.label"
+          @update:modelValue="(newValue: string) => taskStore.updateList(props.uid, { name: newValue })"
+        />
         <q-btn-dropdown
           class="q-pa-none"
           style="height: 16px; width: 32px;"
@@ -42,6 +44,7 @@
       -->
     </q-card-section>
     <q-input
+      v-if="!props.virtual"
       class="task-input q-ml-md q-mr-sm q-pl-sm"
       color="blue-6"
       v-model="summary"
@@ -58,55 +61,66 @@
         </q-btn>
       </template>
     </q-input>
-    <!--
-    <SingleTask
-      v-for="task in tasks"
-      :key="task.uid"
-      :task="task"
-    />
-    -->
-    <draggable
-      v-model="tasks"
-      item-key="uid"
-      handle=".drag-handle"
-      @start="onDragStart"
-      @end="onDragEnd"
-      direction="vertical"
-      touchStartThreshold: 5
-      ghostClass="dnd-ghost"
-      chosenClass="dnd-chosen"
-      dragClass="dnd-drag"
-      fallbackClass="dnd-drag"
-      animation="200"
-      scrollSpeed=15
-      scrollSensitivity="200"
-      :bubbleScroll="false"
-      :dragoverBubble="false"
+
+    <div
+      v-if="props.virtual"
+      class="q-pt-md"
     >
-      <template #item="{ element }">
-        <SingleTask
-          :task="element"
-        />
-      </template>
-    </draggable>
+      <SingleTask
+        v-for="task in tasks"
+        :key="task.uid"
+        :task="task"
+        no-drag
+      />
+    </div>
+    <div v-else>
+      <draggable
+        v-model="tasks"
+        item-key="uid"
+        handle=".drag-handle"
+        @start="onDragStart"
+        @end="onDragEnd"
+        direction="vertical"
+        touchStartThreshold: 5
+        ghostClass="dnd-ghost"
+        chosenClass="dnd-chosen"
+        dragClass="dnd-drag"
+        fallbackClass="dnd-drag"
+        animation="200"
+        scrollSpeed=15
+        scrollSensitivity="200"
+        :bubbleScroll="false"
+        :dragoverBubble="false"
+      >
+        <template #item="{ element }">
+          <SingleTask
+            :task="element"
+          />
+        </template>
+      </draggable>
+    </div>
   </q-card>
 </template>
 
 <script lang="ts" setup>
-import { Task, useTaskStore } from 'stores/task-store'
+import { FilterTaskFn, Task, useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
+import EditableText from 'components/toolkit/EditableText.vue'
 // import { scroll } from 'quasar'
 
 interface Props {
+  uid: string,
   label: string
-  filter: (tasks: Task[]) => Task[]
+  virtual?: boolean
+  filter?: FilterTaskFn
   onCreated?: (task: Task) => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  filter: (uid: string, tasks: Task[]) => tasks,
   onCreated: () => {
     // do nothing
   }
@@ -131,7 +145,7 @@ const showCompleted = ref<boolean>(false)
 
 const tasks = computed({
   get: () => {
-    return props.filter(taskStore.tasks).filter(task => showCompleted.value || !task.completed)
+    return props.filter(props.uid, taskStore.tasks).filter(task => showCompleted.value || !task.completed)
     /*
     const tabName = tab.value
     return props.filter(tabName, taskStore.tasks)

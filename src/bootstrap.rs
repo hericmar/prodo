@@ -5,7 +5,7 @@ use crate::api::controllers::calendar::{
 };
 use crate::api::controllers::task::{
     create_task_handler, delete_task_handler, read_task_lists_handler, read_tasks_handler,
-    update_task_handler, update_task_position_handler,
+    update_task_handler, update_task_list_handler, update_task_position_handler,
 };
 use crate::core::models::person::CreatePerson;
 use crate::core::repositories::calendar::CalendarSubscriptionRepository;
@@ -59,7 +59,7 @@ fn setup(app: &mut web::ServiceConfig) {
             .service(
                 web::scope("/lists")
                     .route("", web::get().to(read_task_lists_handler))
-                    .route("/{list_uid}", web::patch().to(read_task_lists_handler))
+                    .route("/{list_uid}", web::patch().to(update_task_list_handler))
                     .route("/{list_uid}/tasks", web::post().to(create_task_handler))
                     .route(
                         "/{list_uid}/tasks/{task_uid}/position",

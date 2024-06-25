@@ -29,10 +29,23 @@ export interface Task {
   // set by store when rrule is not null
   recurrence: RRuleEvaluation | null,
   greyedOut: boolean
+
+  lists: Set<string>
+}
+
+export type FilterTaskFn = (uid: string, tasks: Task[]) => Task[]
+
+export interface TaskList {
+  uid: string
+  name: string
+  isVirtual: boolean
+  onFilter: FilterTaskFn
+  onTaskCreate: () => void
 }
 
 export type RootState = {
   tasks: Task[],
+  lists: TaskList[],
   list: {
     uid: string,
     name: string
@@ -71,11 +84,14 @@ function toTask (task: any) {
   }
 
   updateGreyedOut(task)
+
+  task.lists = new Set()
 }
 
 export const useTaskStore = defineStore('task', {
   state: () => ({
     tasks: [],
+    lists: [],
     list: {
       uid: '',
       name: ''
@@ -83,21 +99,67 @@ export const useTaskStore = defineStore('task', {
   } as RootState),
   actions: {
     async init () {
+      const defaultOnFilter = (uid: string, tasks: Task[]) => {
+        return tasks.filter(t => t.lists.has(uid))
+      }
+      /*
+      const defaultOnTaskCreate = (uid: string, task: Task) => {
+        this.addTask(uid, { summary: '' })
+      }
+       */
+
       const { data } = await api.list.list()
-      this.list = data[0]
-      return await api.task.list().then(response => {
+      const fetchedLists: { uid: string, tasks: string[] }[] = data
+      this.lists = data.map((list: Partial<TaskList>) => {
+        return {
+          uid: list.uid,
+          name: list.name,
+          isVirtual: false,
+          onFilter: defaultOnFilter,
+          onTaskCreate: () => {
+            this.addTask(list.uid || '', { summary: '' })
+          }
+        }
+      })
+
+      const dailyTasksListUid = crypto.randomUUID()
+      const dailyTasksList = {
+        uid: dailyTasksListUid,
+        name: 'Daily Tasks',
+        isVirtual: true,
+        onFilter: (uid: string, tasks: Task[]) => {
+          return tasks.filter(t => t.rrule)
+        },
+        onTaskCreate: () => {
+          // TODO: add task with rrule daily
+          // this.addTask(dailyTasksListUid, { summary: '' })
+        }
+      }
+      this.lists = [dailyTasksList, ...this.lists]
+
+      await api.task.list().then(response => {
         response.data.forEach((task: Task) => {
           toTask(task)
         })
         this.tasks = response.data
       })
+
+      for (const task of this.tasks) {
+        for (const list of fetchedLists) {
+          for (const taskWithinListUid of list.tasks) {
+            if (taskWithinListUid === task.uid) {
+              task.lists.add(list.uid)
+            }
+          }
+        }
+      }
     },
     reload () {
       this.tasks = []
       return this.init()
     },
-    async addTask (summary: string) {
-      return api.task.create(this.list.uid, { summary }).then(response => {
+    async addTask (uid: string, payload: { summary: string }) {
+      return api.task.create(uid, payload).then(response => {
         const task = response.data
         toTask(task)
         this.tasks.splice(0, 0, task)
@@ -115,14 +177,26 @@ export const useTaskStore = defineStore('task', {
 
       return api.task.update(task.uid, task).then((response) => {
         const updatedTask = response.data
+        const taskLists = task.lists
         this.tasks = this.tasks.map(t => {
           if (t.uid === updatedTask.uid) {
             toTask(updatedTask)
+            updatedTask.lists = taskLists
+
             return updatedTask
           }
           return t
         })
       })
+    },
+    async updateList (uid: string, payload: { name: string }) {
+      this.lists = this.lists.map(list => {
+        if (list.uid === uid) {
+          list.name = payload.name
+        }
+        return list
+      })
+      return api.list.update(uid, payload)
     },
     toggle (task: Task) {
       if (task.completed === null) {
