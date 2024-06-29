@@ -4,6 +4,13 @@
   border-radius: $card-border-radius;
 }
 
+@media screen and (min-width: 600px) {
+  .responsive-card {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
 .q-menu {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }

@@ -50,8 +50,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from 'stores/auth-store'
-import { router } from 'src/router'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const i18n = useI18n()
 
@@ -60,6 +60,8 @@ const username = ref()
 const password = ref()
 
 const message = ref()
+
+const router = useRouter()
 
 const onSubmit = () => {
   const authStore = useAuthStore()

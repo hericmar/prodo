@@ -33,7 +33,7 @@
         </q-toolbar-title>
 
         <div>
-          <ThemeButton />
+          <ThemeButton class="q-mr-sm" />
 
           <q-btn-dropdown
             v-if="isAuthenticated"

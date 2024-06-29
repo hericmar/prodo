@@ -1,11 +1,10 @@
 <template>
   <q-page
-    class="page"
-    padding
+    class="page q-pt-sm"
   >
     <h1 class="text-h4">{{ $t('profile') }}</h1>
     <q-card
-      class="q-mb-lg"
+      class="responsive-card q-mb-lg"
       flat
     >
       <q-card-section>
@@ -36,12 +35,13 @@
     </q-card>
 
     <q-card
+      class="responsive-card"
       flat
     >
       <q-card-section>
         <h2 class="text-h6">Preferences</h2>
         <div>
-          Language: <LangSelect display-label size="md" />
+          Language: <LangSelect class="q-ml-md" display-label size="md" />
         </div>
       </q-card-section>
     </q-card>
