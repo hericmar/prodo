@@ -4,11 +4,22 @@
     flat
   >
     <q-card-section class="flex justify-between q-pb-none">
-      <div class="flex justify-between full-width">
+      <div class="input-wrapper flex justify-between full-width">
+        <!--
         <EditableText
           :readonly="props.virtual"
           :label="props.label"
           @update:modelValue="(newValue: string) => taskStore.updateList(props.uid, { name: newValue })"
+        />
+        -->
+        <q-input
+          class="text-h6 text-weight-bold q-mr-sm"
+          color="blue-6"
+          v-model="name"
+          :readonly="props.virtual"
+          borderless
+          debounce="5000"
+          @update:modelValue="onNameUpdate"
         />
         <q-btn-dropdown
           class="q-pa-none"
@@ -28,6 +39,15 @@
                 </q-item-label>
               </q-item-section>
             </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup @click="confirmDelete = true">
+              <q-item-section avatar>
+                <q-avatar icon="delete" color="red" text-color="white" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Delete list</q-item-label>
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </div>
@@ -43,6 +63,7 @@
       </q-chip>
       -->
     </q-card-section>
+
     <q-input
       v-if="!props.virtual"
       class="task-input q-ml-md q-mr-sm q-pl-sm"
@@ -100,6 +121,25 @@
       </draggable>
     </div>
   </q-card>
+
+  <q-dialog
+    v-model="confirmDelete"
+    no-backdrop-dismiss
+    :on-escape-key="() => confirmDelete = false"
+  >
+    <!-- @keydown.enter="onDelete" -->
+    <q-card>
+      <q-card-section class="row items-center">
+        <q-avatar icon="remove" color="primary" text-color="white" />
+        <span class="q-ml-sm">Do you want to delete this list?</span>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat label="Cancel" color="primary" @click="confirmDelete = false" v-close-popup />
+        <q-btn flat label="Delete" color="red" @click="taskStore.removeList(props.uid); confirmDelete = false" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -128,13 +168,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const taskStore = useTaskStore()
 
+const name = ref<string>(props.label)
 const summary = ref<string>('')
 const onAddTask = () => {
   if (!summary.value) {
     return
   }
 
-  taskStore.addTask(summary.value).then((task) => {
+  taskStore.addTask(props.uid, { summary: summary.value }).then((task) => {
     props.onCreated(task)
   })
 
@@ -143,9 +184,13 @@ const onAddTask = () => {
 
 const showCompleted = ref<boolean>(false)
 
+const confirmDelete = ref<boolean>(false)
+
 const tasks = computed({
   get: () => {
-    return props.filter(props.uid, taskStore.tasks).filter(task => showCompleted.value || !task.completed)
+    // return props.filter(props.uid, taskStore.tasks).filter(task => showCompleted.value || !task.completed)
+    const t = taskStore.tasks
+    return props.filter(props.uid, t)
     /*
     const tabName = tab.value
     return props.filter(tabName, taskStore.tasks)
@@ -202,6 +247,10 @@ const onScroll = (offsetX: number, offsetY: number) => {
 }
  */
 
+const onNameUpdate = (newValue: string) => {
+  taskStore.updateList(props.uid, { name: newValue })
+}
+
 // move outside
 const findSimilar = (summary: string, tasks: Array<Task>) => {
   // console.log('find similar')
@@ -248,5 +297,9 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
 
 .dnd-drag {
   /* opacity: 1 !important; */
+}
+
+.input-wrapper {
+
 }
 </style>

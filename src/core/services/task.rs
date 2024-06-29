@@ -14,7 +14,7 @@ pub trait TaskService: Sync + Send {
     async fn get(&self, task_id: Uuid) -> Result<Task>;
     async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task>;
     async fn update_urgency(&self, task_id: Uuid, urgency: i32) -> Result<()>;
-    async fn delete(&self, task_id: Uuid) -> Result<()>;
+    async fn delete(&self, list_uid: Uuid, task_id: Uuid) -> Result<()>;
 }
 
 //
@@ -89,6 +89,13 @@ pub trait TaskListService: Sync + Send {
         task_uid: Uuid,
         position: i32,
     ) -> Result<TaskList>;
+
+    async fn move_tasks(
+        &self,
+        source_list_uid: Uuid,
+        target_list_uid: Option<Uuid>,
+        tasks: Vec<Option<Uuid>>,
+    ) -> Result<()>;
 
     async fn delete(&self, task_id: Uuid) -> Result<()>;
 }

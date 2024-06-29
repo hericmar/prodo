@@ -110,7 +110,7 @@ export const useTaskStore = defineStore('task', {
 
       const { data } = await api.list.list()
       const fetchedLists: { uid: string, tasks: string[] }[] = data
-      this.lists = data.map((list: Partial<TaskList>) => {
+      const lists = data.map((list: Partial<TaskList>) => {
         return {
           uid: list.uid,
           name: list.name,
@@ -121,6 +121,7 @@ export const useTaskStore = defineStore('task', {
           }
         }
       })
+      this.lists = lists.sort((a: TaskList, b: TaskList) => a.name.localeCompare(b.name))
 
       const dailyTasksListUid = crypto.randomUUID()
       const dailyTasksList = {
@@ -164,12 +165,40 @@ export const useTaskStore = defineStore('task', {
         toTask(task)
         this.tasks.splice(0, 0, task)
 
+        const list = this.lists.find(l => l.uid === uid)
+        if (list) {
+          task.lists.add(uid)
+        }
+
         return this.tasks[0]
       })
     },
+    async addList (payload: { name: string }) {
+      return api.list.create(payload).then(response => {
+        const list = response.data
+        const defaultOnFilter = (uid: string, tasks: Task[]) => {
+          return tasks.filter(t => t.lists.has(uid))
+        }
+        list.onFilter = defaultOnFilter
+        list.isVirtual = false
+        this.lists.push(list)
+
+        return list
+      })
+    },
     remove (task: Task) {
-      api.task.delete(task.uid).then(() => {
-        this.tasks = this.tasks.filter(t => t.uid !== task.uid)
+      const promises = []
+      for (const listUid of task.lists) {
+        promises.push(api.task.delete(listUid, task.uid).then(() => {
+          this.tasks = this.tasks.filter(t => t.uid !== task.uid)
+        }))
+      }
+      return Promise.all(promises)
+    },
+    removeList (uid: string) {
+      api.list.delete(uid).then(() => {
+        this.tasks = this.tasks.filter(t => !t.lists.has(uid))
+        this.lists = this.lists.filter(l => l.uid !== uid)
       })
     },
     update (task: Task) {

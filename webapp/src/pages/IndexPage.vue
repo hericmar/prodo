@@ -27,11 +27,15 @@
       :filter="filterTasks"
     />
     -->
-    <div v-if="!$q.platform.is.mobile">
+    <div
+      v-if="!$q.platform.is.mobile"
+      class="q-mr-md"
+    >
       <q-btn
         icon="add"
         flat
         round
+        @click="taskStore.addList({ name: 'New List' })"
       />
     </div>
   </q-page>

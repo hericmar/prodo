@@ -4,8 +4,9 @@ use crate::api::controllers::calendar::{
     get_calendar_subscription_handler, get_my_calendar_subscription_handler,
 };
 use crate::api::controllers::task::{
-    create_task_handler, delete_task_handler, read_task_lists_handler, read_tasks_handler,
-    update_task_handler, update_task_list_handler, update_task_position_handler,
+    create_task_handler, create_task_list_handler, delete_task_handler, delete_task_list_handler,
+    move_task_handler, read_task_lists_handler, read_tasks_handler, update_task_handler,
+    update_task_list_handler, update_task_position_handler,
 };
 use crate::core::models::person::CreatePerson;
 use crate::core::repositories::calendar::CalendarSubscriptionRepository;
@@ -53,14 +54,23 @@ fn setup(app: &mut web::ServiceConfig) {
             .service(
                 web::scope("/tasks")
                     .route("", web::get().to(read_tasks_handler))
-                    .route("/{task_uid}", web::patch().to(update_task_handler))
-                    .route("/{task_uid}", web::delete().to(delete_task_handler)),
+                    .route("/{task_uid}", web::patch().to(update_task_handler)),
             )
             .service(
                 web::scope("/lists")
                     .route("", web::get().to(read_task_lists_handler))
+                    .route("", web::post().to(create_task_list_handler))
                     .route("/{list_uid}", web::patch().to(update_task_list_handler))
+                    .route("/{list_uid}", web::delete().to(delete_task_list_handler))
                     .route("/{list_uid}/tasks", web::post().to(create_task_handler))
+                    .route(
+                        "/{list_uid}/tasks/{task_uid}",
+                        web::delete().to(delete_task_handler),
+                    )
+                    .route(
+                        "/{list_uid}/tasks/{task_uid}/list",
+                        web::post().to(move_task_handler),
+                    )
                     .route(
                         "/{list_uid}/tasks/{task_uid}/position",
                         web::put().to(update_task_position_handler),

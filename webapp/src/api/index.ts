@@ -20,8 +20,14 @@ export default {
     list () {
       return api.get('/api/v1/lists')
     },
+    create (payload: { name: string }) {
+      return api.post('/api/v1/lists', payload)
+    },
     update (uid: string, payload: { name: string }) {
       return api.patch(`/api/v1/lists/${uid}`, payload)
+    },
+    delete (uid: string) {
+      return api.delete(`/api/v1/lists/${uid}?delete_orphans=true`)
     }
   },
   task: {
@@ -34,11 +40,14 @@ export default {
     update (uid: string, task: Task) {
       return api.patch(`/api/v1/tasks/${uid}`, task)
     },
-    delete (uid: string) {
-      return api.delete(`/api/v1/tasks/${uid}`)
+    delete (listUid: string, uid: string) {
+      return api.delete(`/api/v1/lists/${listUid}/tasks/${uid}`)
     },
     updatePosition (listUid: string, taskUid: string, payload: { position: number }) {
       return api.put(`/api/v1/lists/${listUid}/tasks/${taskUid}/position`, payload)
+    },
+    move (sourceListUid: string, targetListUid: string, taskUid: string) {
+      return api.post(`/api/v1/lists/${sourceListUid}/tasks/${taskUid}/list`, { target_list_uid: targetListUid })
     }
   },
   ical: {

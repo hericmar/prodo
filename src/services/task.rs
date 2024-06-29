@@ -10,6 +10,7 @@ use crate::prelude::*;
 use async_trait::async_trait;
 use chrono::Utc;
 use rrule::RRuleError;
+use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
@@ -120,8 +121,13 @@ impl TaskService for TaskServiceImpl {
         self.repository.update_urgency(task_id, urgency).await
     }
 
-    async fn delete(&self, task_id: Uuid) -> Result<()> {
-        self.repository.delete(task_id).await
+    async fn delete(&self, list_uid: Uuid, task_uid: Uuid) -> Result<()> {
+        // TODO: use transaction
+        self.repository.delete(task_uid).await?;
+        Ok(self
+            .task_list_repository
+            .move_tasks(list_uid, None, vec![Some(task_uid)])
+            .await?)
     }
 }
 //
@@ -182,6 +188,17 @@ impl TaskListService for TaskListServiceImpl {
                     tasks: Some(list.tasks),
                 },
             )
+            .await
+    }
+
+    async fn move_tasks(
+        &self,
+        source_list_uid: Uuid,
+        target_list_uid: Option<Uuid>,
+        tasks: Vec<Option<Uuid>>,
+    ) -> Result<()> {
+        self.repository
+            .move_tasks(source_list_uid, target_list_uid, tasks)
             .await
     }
 

@@ -22,4 +22,13 @@ pub trait TaskListRepository: Send + Sync {
     async fn get(&self, list_uid: Uuid) -> Result<TaskList>;
     async fn update(&self, list_uid: Uuid, list: &UpdateTaskList) -> Result<TaskList>;
     async fn delete(&self, list_uid: Uuid) -> Result<()>;
+
+    //
+
+    async fn move_tasks(
+        &self,
+        source_list_uid: Uuid,
+        target_list_uid: Option<Uuid>,
+        tasks: Vec<Option<Uuid>>,
+    ) -> Result<()>;
 }

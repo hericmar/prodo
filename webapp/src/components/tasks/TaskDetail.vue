@@ -21,8 +21,9 @@
               outlined
             />
             <q-btn
-              class="q-mb-md"
+              class="q-mb-md q-ml-sm"
               flat
+              rounded
               color="red"
               icon="delete"
               @click="emitter.emit('on-delete', { task: props.editedTask })"
@@ -30,6 +31,15 @@
           </div>
 
           <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined />
+
+          <q-select
+            v-model="listUid"
+            :label="$t('list')"
+            stack-label
+            outlined
+            :options="listOptions"
+            @update:modelValue="onListUpdate"
+          />
 
           <div>Due date</div>
           <DatetimePicker v-model="task.due" :label="$t('dueDate')"></DatetimePicker>
@@ -128,6 +138,7 @@ import { isTimeSet } from 'src/utils/datetime'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import RRulePicker from 'components/toolkit/RRulePicker.vue'
 import ButtonToggle from 'components/toolkit/ButtonToggle.vue'
+import api from 'src/api'
 
 const props = defineProps({
   editedTask: {
@@ -139,12 +150,24 @@ const props = defineProps({
 const taskStore = useTaskStore()
 
 const task = ref<Task>(props.editedTask)
+// TODO: only single list is supported
+const listOptions = taskStore.lists.filter(list => !list.isVirtual).map(list => ({ label: list.name, value: list.uid }))
+const list = listOptions.find(l => l.value === task.value.lists.values().next().value)
+const listUid = ref<{label: string, value: string} | null>(list || null)
 
 // handle from and to fields
 const wholeDay = ref<boolean>(task.value.start ? isTimeSet(task.value.start) : false)
 
 const onStartChange = (value: Date) => {
   // onWholeDayClick()
+}
+
+const onListUpdate = (option: { label: string, value: string }) => {
+  const oldLists = task.value.lists.values()
+  for (const oldListUid of oldLists) {
+    api.task.move(oldListUid, option.value, task.value.uid)
+  }
+  task.value.lists = new Set([option.value])
 }
 
 /*

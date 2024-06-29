@@ -6,6 +6,7 @@ use crate::infrastructure::databases::postgres::DBPool;
 use crate::prelude::*;
 use async_trait::async_trait;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -126,5 +127,72 @@ impl TaskListRepository for TaskListRepositoryImpl {
             .execute(&mut conn)
             .map(|_| ())
             .map_err(|e| e.into())
+    }
+
+    async fn move_tasks(
+        &self,
+        source_list_uid: Uuid,
+        target_list_uid: Option<Uuid>,
+        tasks: Vec<Option<Uuid>>,
+    ) -> Result<()> {
+        let mut source_list = self.get(source_list_uid).await?;
+
+        let tasks_set = tasks
+            .iter()
+            .cloned()
+            .map(|uid| uid.unwrap_or(Uuid::default()))
+            .collect::<HashSet<Uuid>>();
+        let source_tasks_set = source_list
+            .tasks
+            .iter()
+            .map(|uid| uid.unwrap_or(Uuid::default()))
+            .collect::<HashSet<Uuid>>();
+
+        let target_tasks_set = match target_list_uid {
+            None => HashSet::new(),
+            Some(target_list_uid) => {
+                let mut target_list = self.get(target_list_uid).await?;
+
+                target_list
+                    .tasks
+                    .iter()
+                    .map(|uid| uid.unwrap_or(Uuid::default()))
+                    .collect::<HashSet<Uuid>>()
+            }
+        };
+
+        let source_tasks_without_removed = source_tasks_set
+            .difference(&tasks_set)
+            .map(|uid| Some(*uid))
+            .collect::<Vec<Option<Uuid>>>();
+        // Not needed for now, task cannot be in multiple lists.
+        // let to_add = tasks.iter().filter(|t| !target_tasks_set.contains(t)).collect::<Vec<_>>();
+
+        self.update(
+            source_list_uid,
+            &UpdateTaskList {
+                name: None,
+                tasks: Some(source_tasks_without_removed),
+            },
+        )
+        .await?;
+
+        if let Some(target_list_uid) = target_list_uid {
+            let target_tasks_with_added = target_tasks_set
+                .union(&tasks_set)
+                .map(|uid| Some(*uid))
+                .collect::<Vec<Option<Uuid>>>();
+
+            self.update(
+                target_list_uid,
+                &UpdateTaskList {
+                    name: None,
+                    tasks: Some(target_tasks_with_added),
+                },
+            )
+            .await?;
+        }
+
+        Ok(())
     }
 }
