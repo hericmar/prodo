@@ -190,7 +190,7 @@ const tasks = computed({
   get: () => {
     // return props.filter(props.uid, taskStore.tasks).filter(task => showCompleted.value || !task.completed)
     const t = taskStore.tasks
-    return props.filter(props.uid, t)
+    return props.filter(props.uid, t).filter(task => showCompleted.value || !task.completed)
     /*
     const tabName = tab.value
     return props.filter(tabName, taskStore.tasks)
