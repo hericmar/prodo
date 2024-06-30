@@ -45,9 +45,9 @@
           <q-tooltip :delay="500">due</q-tooltip>
         </div>
       </q-item-label>
-      <q-item-label v-if="props.task.start && props.task.end">
+      <q-item-label v-if="props.task.dtstart && props.task.dtend">
         <div class="flex self-center">
-          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDateLocal(props.task.start, { hideYear: props.task.start.getFullYear() === props.task.end.getFullYear() }) }} - {{ formatDateLocal(props.task.end, { hideYear: props.task.start.getFullYear() === props.task.end.getFullYear() }) }}
+          <q-icon class="q-pr-sm" name="access_time"></q-icon> {{ formatDateLocal(props.task.dtstart, { hideYear: props.task.dtstart.getFullYear() === props.task.dtend.getFullYear() }) }} - {{ formatDateLocal(props.task.dtend, { hideYear: props.task.dtstart.getFullYear() === props.task.dtend.getFullYear() }) }}
           <q-tooltip :delay="500">duration</q-tooltip>
         </div>
       </q-item-label>

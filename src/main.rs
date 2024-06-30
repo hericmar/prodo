@@ -10,6 +10,7 @@ mod prelude;
 mod schema;
 mod services;
 mod tests;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

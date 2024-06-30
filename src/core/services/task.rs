@@ -100,7 +100,7 @@ pub trait TaskListService: Sync + Send {
     async fn delete(&self, task_id: Uuid) -> Result<()>;
 }
 
-fn into_rrule_datetime(value: DateTime<Utc>) -> DateTime<rrule::Tz> {
+pub fn into_rrule_datetime(value: DateTime<Utc>) -> DateTime<rrule::Tz> {
     rrule::Tz::UTC
         .with_ymd_and_hms(
             value.year(),
@@ -113,7 +113,7 @@ fn into_rrule_datetime(value: DateTime<Utc>) -> DateTime<rrule::Tz> {
         .unwrap()
 }
 
-fn into_rrule_set(dtstart: DateTime<Utc>, rrule: &String) -> Option<RRuleSet> {
+pub fn into_rrule_set(dtstart: DateTime<Utc>, rrule: &String) -> Option<RRuleSet> {
     let rrule_unvalidated: RRule<Unvalidated> = rrule.parse().ok()?;
     let rrule_dtstart = into_rrule_datetime(dtstart);
     let rrule = rrule_unvalidated.validate(rrule_dtstart).ok()?;

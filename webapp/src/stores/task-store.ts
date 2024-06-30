@@ -15,8 +15,8 @@ export interface Task {
   summary: string
   description: string
   created: Date,
-  start?: Date | null,
-  end?: Date | null,
+  dtstart?: Date | null,
+  dtend?: Date | null,
 
   // last completed date
   completed: Date | null,
@@ -62,11 +62,11 @@ function toTask (task: any) {
   if (task.completed) {
     task.completed = new Date(task.completed)
   }
-  if (task.start) {
-    task.start = new Date(task.start)
+  if (task.dtstart) {
+    task.dtstart = new Date(task.dtstart)
   }
-  if (task.end) {
-    task.end = new Date(task.end)
+  if (task.dtend) {
+    task.dtend = new Date(task.dtend)
   }
   if (task.due) {
     task.due = new Date(task.due)

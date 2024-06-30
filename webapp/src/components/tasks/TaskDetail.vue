@@ -47,7 +47,7 @@
           <h2 class="text-h6">{{ $t('duration') }}</h2>
           <div>{{ $t('from') }}</div>
           <DatetimePicker
-            v-model="task.start"
+            v-model="task.dtstart"
             label="Start"
             :date-only="wholeDay"
             @update:modelValue="onStartChange"
@@ -55,7 +55,7 @@
 
           <div>{{ $t('to') }}</div>
           <DatetimePicker
-            v-model="task.end"
+            v-model="task.dtend"
             label="Due"
             :date-only="wholeDay"
           />
@@ -79,7 +79,7 @@
           <h2 class="text-h6">{{ $t('recurrence') }}</h2>
           <RRulePicker
             v-model="task.rrule"
-            :dtstart="task.start"
+            :dtstart="task.dtstart"
           />
           <q-toolbar v-if="!$q.platform.is.mobile">
             <div class="flex justify-between full-width q-px-xl q-py-md">
@@ -156,7 +156,7 @@ const list = listOptions.find(l => l.value === task.value.lists.values().next().
 const listUid = ref<{label: string, value: string} | null>(list || null)
 
 // handle from and to fields
-const wholeDay = ref<boolean>(task.value.start ? isTimeSet(task.value.start) : false)
+const wholeDay = ref<boolean>(task.value.dtstart ? isTimeSet(task.value.dtstart) : false)
 
 const onStartChange = (value: Date) => {
   // onWholeDayClick()
