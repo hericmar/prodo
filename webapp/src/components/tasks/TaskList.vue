@@ -270,6 +270,7 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
   overflow: hidden;
   @media (min-width: $breakpoint-xs) {
     width: 400px !important;
+    min-width: 400px !important;
   }
 }
 

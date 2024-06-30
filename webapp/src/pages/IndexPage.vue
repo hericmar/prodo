@@ -32,6 +32,7 @@
       class="q-mr-md"
     >
       <q-btn
+        class="q-mr-md"
         icon="add"
         flat
         round
@@ -182,7 +183,7 @@ onMounted(() => {
 <style lang="scss">
 .list-container {
   align-items: flex-start;
-  min-width: max-content;
+  // min-width: max-content;
 
   @media (max-width: $breakpoint-xs) {
     align-items: normal;

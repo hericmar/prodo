@@ -25,7 +25,7 @@
 
     <q-item-section
       class="q-pl-md q-py-sm"
-      style="user-select: none"
+      style="user-select: none; word-break: break-all;"
     >
       <q-item-label
         :class="{'q-pt-sm': props.task.description}"
