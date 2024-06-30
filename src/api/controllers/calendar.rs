@@ -44,7 +44,6 @@ pub async fn get_calendar_subscription_handler(
         }
 
         let (day_start, day_end) = to_day_bounds(&task.created);
-        println!("day_start: {}, day_end: {}", day_start, day_end);
 
         // Start time is task dtstart or due - 12 hours, midnight if not set.
         let mut dtstart = task.dtstart.unwrap_or(day_start);
@@ -82,8 +81,7 @@ DTSTART:{}
 DTEND:{}
 SUMMARY:{}
 DESCRIPTION:{}
-STATUS:{}
-END:VEVENT\n",
+STATUS:{}\n",
             task.uid,
             task.created.format("%Y%m%dT%H%M%SZ"),
             dtstart.format("%Y%m%dT%H%M%SZ"),
@@ -95,6 +93,8 @@ END:VEVENT\n",
         if let Some(rrule) = &task.rrule {
             body.push_str(&format!("RRULE:{}\n", rrule));
         }
+
+        body.push_str("END:VEVENT\n")
     }
     body.push_str("END:VCALENDAR\n");
     body = body.replace("\n", "\r\n");
