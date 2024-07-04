@@ -33,23 +33,24 @@ export interface Task {
   lists: Set<string>
 }
 
-export type FilterTaskFn = (uid: string, tasks: Task[]) => Task[]
+export type FilterTaskFn = (list) => Task[]
 
 export interface TaskList {
   uid: string
-  name: string
+  name: string,
+  tasks: Task[]
   isVirtual: boolean
   onFilter: FilterTaskFn
-  onTaskCreate: () => void
+  onTaskCreate: (list: TaskList, task: Task) => void
 }
 
 export type RootState = {
   tasks: Task[],
-  lists: TaskList[],
-  list: {
-    uid: string,
-    name: string
-  }
+  lists: TaskList[]
+}
+
+const FILTER_IN_LIST: FilterTaskFn = (list) => {
+  return list.tasks
 }
 
 export function updateGreyedOut (task: Task) {
@@ -88,86 +89,83 @@ function toTask (task: any) {
   task.lists = new Set()
 }
 
+export const sortLists = (lists: TaskList[]) => {
+  return lists.sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => {
+    if (a.isVirtual) {
+      return -1
+    }
+    if (b.isVirtual) {
+      return 1
+    }
+    return 0
+  })
+}
+
 export const useTaskStore = defineStore('task', {
   state: () => ({
     tasks: [],
-    lists: [],
-    list: {
-      uid: '',
-      name: ''
-    }
+    lists: []
   } as RootState),
   actions: {
     async init () {
-      const defaultOnFilter = (uid: string, tasks: Task[]) => {
-        return tasks.filter(t => t.lists.has(uid))
-      }
-      /*
-      const defaultOnTaskCreate = (uid: string, task: Task) => {
-        this.addTask(uid, { summary: '' })
-      }
-       */
-
-      const { data } = await api.list.list()
-      const fetchedLists: { uid: string, tasks: string[] }[] = data
-      const lists = data.map((list: Partial<TaskList>) => {
-        return {
-          uid: list.uid,
-          name: list.name,
-          isVirtual: false,
-          onFilter: defaultOnFilter,
-          onTaskCreate: () => {
-            this.addTask(list.uid || '', { summary: '' })
-          }
-        }
+      const tasks = await api.task.list().then(response => {
+        const fetchedTasks = response.data
+        fetchedTasks.forEach((task: Task) => {
+          toTask(task)
+        })
+        return fetchedTasks
       })
-      this.lists = lists.sort((a: TaskList, b: TaskList) => a.name.localeCompare(b.name))
+      this.tasks = tasks
 
+      const lookup = new Map<string, Task>()
+      for (const task of this.tasks) {
+        lookup.set(task.uid, task)
+      }
+
+      let lists: TaskList[] = await api.list.list().then(response => {
+        return response.data.map((list: {uid: string, name: string, tasks: string[]}): TaskList => {
+          return {
+            uid: list.uid,
+            name: list.name,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            tasks: list.tasks.map((taskUid: string): Task => lookup.get(taskUid)!),
+            isVirtual: false,
+            onFilter: FILTER_IN_LIST,
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            onTaskCreate: () => {
+            }
+          }
+        })
+      })
+      lists = lists.sort((a, b) => a.name.localeCompare(b.name))
       const dailyTasksListUid = crypto.randomUUID()
-      const dailyTasksList = {
+      const dailyTasksList: TaskList = {
         uid: dailyTasksListUid,
         name: 'Daily Tasks',
         isVirtual: true,
-        onFilter: (uid: string, tasks: Task[]) => {
-          return tasks.filter(t => t.rrule)
+        tasks: this.tasks,
+        onFilter: (list: TaskList) => {
+          return this.tasks.filter(t => t.rrule)
         },
         onTaskCreate: () => {
           // TODO: add task with rrule daily
           // this.addTask(dailyTasksListUid, { summary: '' })
         }
       }
-      this.lists = [dailyTasksList, ...this.lists]
-
-      await api.task.list().then(response => {
-        response.data.forEach((task: Task) => {
-          toTask(task)
-        })
-        this.tasks = response.data
-      })
-
-      for (const task of this.tasks) {
-        for (const list of fetchedLists) {
-          for (const taskWithinListUid of list.tasks) {
-            if (taskWithinListUid === task.uid) {
-              task.lists.add(list.uid)
-            }
-          }
-        }
-      }
+      this.lists = [dailyTasksList, ...lists]
     },
     reload () {
-      this.tasks = []
       return this.init()
     },
-    async addTask (uid: string, payload: { summary: string }) {
-      return api.task.create(uid, payload).then(response => {
+    async addTask (listUid: string, payload: { summary: string }) {
+      return api.task.create(listUid, payload).then(response => {
         const task = response.data
         toTask(task)
         this.tasks.splice(0, 0, task)
 
-        const list = this.lists.find(l => l.uid === uid)
+        const list = this.lists.find(l => l.uid === listUid)
         if (list) {
-          task.lists.add(uid)
+          list.tasks.splice(0, 0, task)
         }
 
         return this.tasks[0]
@@ -175,11 +173,8 @@ export const useTaskStore = defineStore('task', {
     },
     async addList (payload: { name: string }) {
       return api.list.create(payload).then(response => {
-        const list = response.data
-        const defaultOnFilter = (uid: string, tasks: Task[]) => {
-          return tasks.filter(t => t.lists.has(uid))
-        }
-        list.onFilter = defaultOnFilter
+        const list: TaskList = response.data
+        list.onFilter = FILTER_IN_LIST
         list.isVirtual = false
         this.lists.push(list)
 
@@ -225,6 +220,7 @@ export const useTaskStore = defineStore('task', {
         }
         return list
       })
+      this.lists = sortLists(this.lists)
       return api.list.update(uid, payload)
     },
     toggle (task: Task) {
@@ -233,19 +229,15 @@ export const useTaskStore = defineStore('task', {
       } else {
         task.completed = null
       }
-      this.update(task)
+      return this.update(task)
     },
-    /**
-     * Indexes have to be store specific!
-     * @param task
-     * @param newIndex To
-     */
-    setOrder (task: Task, newIndex: number) {
-      const oldIndex = this.tasks.indexOf(task)
-      this.tasks.splice(oldIndex, 1)
-      this.tasks.splice(newIndex, 0, task)
+    async setOrder (listUid: string, task: Task, newIndex: number) {
+      const list = this.lists.find(l => l.uid === listUid)!
+      const oldIndex = list.tasks.indexOf(task)
+      list.tasks.splice(oldIndex, 1)
+      list.tasks.splice(newIndex, 0, task)
 
-      return api.task.updatePosition(this.list.uid, task.uid, { position: newIndex })
+      await api.task.updatePosition(listUid, task.uid, { position: newIndex })
     }
   }
 })

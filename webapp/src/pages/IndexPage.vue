@@ -11,10 +11,7 @@
   >
     <TaskList
       v-for="list in taskStore.lists" :key="list.uid"
-      :uid="list.uid"
-      :label="list.name"
-      :virtual="list.isVirtual"
-      :filter="list.onFilter"
+      :list="list"
     />
     <!--
     <TaskList

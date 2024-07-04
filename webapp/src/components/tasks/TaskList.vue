@@ -16,7 +16,7 @@
           class="text-h6 text-weight-bold q-mr-sm"
           color="blue-6"
           v-model="name"
-          :readonly="props.virtual"
+          :readonly="props.list.isVirtual"
           borderless
           debounce="5000"
           @update:modelValue="onNameUpdate"
@@ -65,7 +65,7 @@
     </q-card-section>
 
     <q-input
-      v-if="!props.virtual"
+      v-if="!props.list.isVirtual"
       class="task-input q-ml-md q-mr-sm q-pl-sm"
       color="blue-6"
       v-model="summary"
@@ -84,7 +84,7 @@
     </q-input>
 
     <div
-      v-if="props.virtual"
+      v-if="props.list.isVirtual"
       class="q-pt-md"
     >
       <SingleTask
@@ -136,14 +136,14 @@
 
       <q-card-actions align="right">
         <q-btn flat label="Cancel" color="primary" @click="confirmDelete = false" v-close-popup />
-        <q-btn flat label="Delete" color="red" @click="taskStore.removeList(props.uid); confirmDelete = false" v-close-popup />
+        <q-btn flat label="Delete" color="red" @click="taskStore.removeList(props.list.uid); confirmDelete = false" v-close-popup />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script lang="ts" setup>
-import { FilterTaskFn, Task, useTaskStore } from 'stores/task-store'
+import { TaskList, Task, useTaskStore } from 'stores/task-store'
 import { computed, onMounted, ref } from 'vue'
 import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
@@ -152,31 +152,22 @@ import EditableText from 'components/toolkit/EditableText.vue'
 // import { scroll } from 'quasar'
 
 interface Props {
-  uid: string,
-  label: string
-  virtual?: boolean
-  filter?: FilterTaskFn
-  onCreated?: (task: Task) => void
+  list: TaskList
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  filter: (uid: string, tasks: Task[]) => tasks,
-  onCreated: () => {
-    // do nothing
-  }
-})
+const props = defineProps<Props>()
 
 const taskStore = useTaskStore()
 
-const name = ref<string>(props.label)
+const name = ref<string>(props.list.name)
 const summary = ref<string>('')
 const onAddTask = () => {
   if (!summary.value) {
     return
   }
 
-  taskStore.addTask(props.uid, { summary: summary.value }).then((task) => {
-    props.onCreated(task)
+  taskStore.addTask(props.list.uid, { summary: summary.value }).then((task) => {
+    props.list.onTaskCreate(props.list, task)
   })
 
   summary.value = ''
@@ -188,13 +179,8 @@ const confirmDelete = ref<boolean>(false)
 
 const tasks = computed({
   get: () => {
-    // return props.filter(props.uid, taskStore.tasks).filter(task => showCompleted.value || !task.completed)
-    const t = taskStore.tasks
-    return props.filter(props.uid, t).filter(task => showCompleted.value || !task.completed)
-    /*
-    const tabName = tab.value
-    return props.filter(tabName, taskStore.tasks)
-     */
+    const filter = props.list.onFilter
+    return filter(props.list).filter(task => showCompleted.value || !task.completed)
   },
   set: () => {
     console.log('drag end')
@@ -228,7 +214,7 @@ const onDragEnd = (e: any) => {
   const droppedTask = tasks.value[e.oldIndex]
   const droppedIndex = taskStore.tasks.indexOf(tasks.value[e.newIndex])
 
-  taskStore.setOrder(droppedTask, droppedIndex)
+  taskStore.setOrder(props.list.uid, droppedTask, e.newIndex)
 }
 
 /*
@@ -248,7 +234,7 @@ const onScroll = (offsetX: number, offsetY: number) => {
  */
 
 const onNameUpdate = (newValue: string) => {
-  taskStore.updateList(props.uid, { name: newValue })
+  taskStore.updateList(props.list.uid, { name: newValue })
 }
 
 // move outside

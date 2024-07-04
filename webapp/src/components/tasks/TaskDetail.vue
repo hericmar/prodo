@@ -152,8 +152,12 @@ const taskStore = useTaskStore()
 const task = ref<Task>(props.editedTask)
 // TODO: only single list is supported
 const listOptions = taskStore.lists.filter(list => !list.isVirtual).map(list => ({ label: list.name, value: list.uid }))
-const list = listOptions.find(l => l.value === task.value.lists.values().next().value)
-const listUid = ref<{label: string, value: string} | null>(list || null)
+// const list = listOptions.find(l => l.value === task.value.lists.values().next().value)
+const listIndex = taskStore.lists.findIndex(l => {
+  return !l.isVirtual && l.tasks.find(t => t.uid === task.value.uid)
+})
+const listOptionIndex = listOptions.findIndex(o => o.value === taskStore.lists[listIndex].uid)
+const listUid = ref<{label: string, value: string} | null>(listOptions[listOptionIndex] || null)
 
 // handle from and to fields
 const wholeDay = ref<boolean>(task.value.dtstart ? isTimeSet(task.value.dtstart) : false)
@@ -163,11 +167,16 @@ const onStartChange = (value: Date) => {
 }
 
 const onListUpdate = (option: { label: string, value: string }) => {
-  const oldLists = task.value.lists.values()
-  for (const oldListUid of oldLists) {
-    api.task.move(oldListUid, option.value, task.value.uid)
-  }
-  task.value.lists = new Set([option.value])
+  const oldList = taskStore.lists[listIndex]
+  const newListUid = option.value
+  // TODO: Only single list is supported
+  const poppedTaskIndex = oldList.tasks.findIndex(t => t.uid === task.value.uid)
+  const poppedTask: Task = oldList.tasks[poppedTaskIndex]
+  oldList.tasks.splice(poppedTaskIndex, 1)
+  const newList = taskStore.lists.find(l => l.uid === newListUid)!
+  // add tasks to the start of the list
+  newList.tasks.splice(0, 0, poppedTask)
+  api.task.move(oldList.uid, newListUid, task.value.uid)
 }
 
 /*
