@@ -7,6 +7,8 @@ use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
 use chrono::{Duration, Utc};
 
+const PRODO_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub async fn create_calendar_subscription_handler(
     user: Identity,
     calendar_service: web::Data<dyn CalendarService>,
@@ -32,8 +34,11 @@ pub async fn get_calendar_subscription_handler(
 
     let mut body = String::new();
     body.push_str("BEGIN:VCALENDAR\n");
-    body.push_str("PRODID:-//Prodo//Prodo Calendar//EN\n");
-    body.push_str("VERSION:2.0.0\n");
+    body.push_str(&format!(
+        "PRODID:-//Phire//Prodo Calendar {}//EN\n",
+        PRODO_VERSION
+    ));
+    body.push_str("VERSION:2.0\n");
     for task in tasks {
         // export precondition: task has a start time, end time, or due time or is recurring.
         if task.rrule.is_none()
