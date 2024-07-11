@@ -86,7 +86,8 @@ DTSTART:{}
 DTEND:{}
 SUMMARY:{}
 DESCRIPTION:{}
-STATUS:{}\n",
+STATUS:{}
+SEQUENCE:{}\n",
             task.uid,
             task.created.format("%Y%m%dT%H%M%SZ"),
             dtstart.format("%Y%m%dT%H%M%SZ"),
@@ -94,6 +95,7 @@ STATUS:{}\n",
             task.summary,
             task.description,
             status,
+            task.sequence
         ));
         if let Some(rrule) = &task.rrule {
             body.push_str(&format!("{}\n", rrule));
