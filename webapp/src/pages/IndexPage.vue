@@ -13,17 +13,6 @@
       v-for="list in taskStore.lists" :key="list.uid"
       :list="list"
     />
-    <!--
-    <TaskList
-      :label="$t('dailyTasks')"
-      :filter="filterDailyTasks"
-      :onCreated="onDailyTaskCreated"
-    />
-    <TaskList
-      :label="$t('tasks')"
-      :filter="filterTasks"
-    />
-    -->
     <div
       v-if="!$q.platform.is.mobile"
       class="q-mr-md"

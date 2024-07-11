@@ -108,7 +108,7 @@
       v-if="$q.platform.is.mobile"
       class="task-toolbar"
     >
-      <div class="flex justify-between full-width q-px-xl q-py-md">
+      <div class="flex justify-between full-width q-px-xl q-pt-md q-pb-lg">
         <q-btn
           flat
           rounded
