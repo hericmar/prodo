@@ -91,7 +91,25 @@ STATUS:{}\n",
             status,
         ));
         if let Some(rrule) = &task.rrule {
-            body.push_str(&format!("RRULE:{}\n", rrule));
+            body.push_str(&format!("{}\n", rrule));
+        }
+        if task.due.is_some() {
+            // A trigger set 15 minutes prior to the start of the event or
+            // to-do.
+            //
+            //   TRIGGER:-P15M
+            //
+            // A trigger set 5 minutes after the end of the event or to-do.
+            //
+            //   TRIGGER;RELATED=END:P5M
+            body.push_str(
+                &"BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1H
+DESCRIPTION:This is an event reminder
+END:VALARM\n"
+                    .to_string(),
+            );
         }
 
         body.push_str("END:VEVENT\n")
