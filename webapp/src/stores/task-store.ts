@@ -29,8 +29,6 @@ export interface Task {
   // set by store when rrule is not null
   recurrence: RRuleEvaluation | null,
   greyedOut: boolean
-
-  lists: Set<string>
 }
 
 export type FilterTaskFn = (list) => Task[]
@@ -85,8 +83,6 @@ function toTask (task: any) {
   }
 
   updateGreyedOut(task)
-
-  task.lists = new Set()
 }
 
 export const sortLists = (lists: TaskList[]) => {
@@ -183,16 +179,21 @@ export const useTaskStore = defineStore('task', {
     },
     remove (task: Task) {
       const promises = []
-      for (const listUid of task.lists) {
-        promises.push(api.task.delete(listUid, task.uid).then(() => {
-          this.tasks = this.tasks.filter(t => t.uid !== task.uid)
-        }))
+      const deleteFn = async (list: TaskList, task: Task) => {
+        list.tasks = list.tasks.filter(t => t.uid !== task.uid)
+        await api.task.delete(list.uid, task.uid)
+      }
+      for (const list of this.lists) {
+        if (list.tasks.includes(task)) {
+          promises.push(deleteFn(list, task))
+        }
       }
       return Promise.all(promises)
     },
     removeList (uid: string) {
       api.list.delete(uid).then(() => {
-        this.tasks = this.tasks.filter(t => !t.lists.has(uid))
+        const list = this.lists.find(l => l.uid === uid)!
+        this.tasks = this.tasks.filter(t => !list.tasks.includes(t))
         this.lists = this.lists.filter(l => l.uid !== uid)
       })
     },
@@ -201,16 +202,9 @@ export const useTaskStore = defineStore('task', {
 
       return api.task.update(task.uid, task).then((response) => {
         const updatedTask = response.data
-        const taskLists = task.lists
-        this.tasks = this.tasks.map(t => {
-          if (t.uid === updatedTask.uid) {
-            toTask(updatedTask)
-            updatedTask.lists = taskLists
-
-            return updatedTask
-          }
-          return t
-        })
+        toTask(updatedTask)
+        const taskIndex = this.tasks.findIndex(t => t.uid === updatedTask.uid)
+        this.tasks[taskIndex] = { ...updatedTask }
       })
     },
     async updateList (uid: string, payload: { name: string }) {

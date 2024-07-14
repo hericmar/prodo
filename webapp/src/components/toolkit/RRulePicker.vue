@@ -168,7 +168,9 @@ const toText = computed(() => {
     }
   }
   rule = new RRule(options)
-  emit('update:modelValue', rule.toString())
+  const ruleString = rule.toString().replace('RRULE:', '')
+
+  emit('update:modelValue', ruleString)
 
   return rule.toText()
 })

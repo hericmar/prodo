@@ -135,7 +135,7 @@ impl TaskListRepository for TaskListRepositoryImpl {
         target_list_uid: Option<Uuid>,
         tasks: Vec<Option<Uuid>>,
     ) -> Result<()> {
-        let mut source_list = self.get(source_list_uid).await?;
+        let source_list = self.get(source_list_uid).await?;
 
         let tasks_set = tasks
             .iter()
@@ -151,7 +151,7 @@ impl TaskListRepository for TaskListRepositoryImpl {
         let target_tasks_set = match target_list_uid {
             None => HashSet::new(),
             Some(target_list_uid) => {
-                let mut target_list = self.get(target_list_uid).await?;
+                let target_list = self.get(target_list_uid).await?;
 
                 target_list
                     .tasks

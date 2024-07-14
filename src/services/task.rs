@@ -10,7 +10,6 @@ use crate::prelude::*;
 use async_trait::async_trait;
 use chrono::Utc;
 use rrule::RRuleError;
-use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
