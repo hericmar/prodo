@@ -24,8 +24,7 @@
     </q-item-section>
 
     <q-item-section
-      class="q-pl-md q-py-sm"
-      style="user-select: none; word-break: break-all;"
+      class="task-content q-pl-md q-py-sm"
     >
       <q-item-label
         :class="{'q-pt-sm': props.task.description}"
@@ -167,6 +166,11 @@ const onCompletedClick = () => {
   * > .task {
     border-color: $separator-dark-color;
   }
+}
+
+.task-content {
+  user-select: none;
+  word-break: break-word;
 }
 
 .marked-text {
