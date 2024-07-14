@@ -54,8 +54,11 @@ export default {
     get () {
       return api.get('/api/v1/calendar/subscription')
     },
-    create () {
-      return api.post('/api/v1/calendar/subscription')
+    create (payload: { timezone: string }) {
+      return api.post('/api/v1/calendar/subscription', payload)
+    },
+    update (payload: { timezone: string }) {
+      return api.patch('/api/v1/calendar/subscription', payload)
     },
     delete () {
       return api.delete('/api/v1/calendar/subscription')

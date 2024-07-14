@@ -589,6 +589,7 @@ dependencies = [
  "chrono",
  "chrono-tz-build 0.3.0",
  "phf",
+ "serde",
 ]
 
 [[package]]
@@ -1585,6 +1586,7 @@ dependencies = [
  "argon2",
  "async-trait",
  "chrono",
+ "chrono-tz 0.9.0",
  "clap",
  "diesel",
  "diesel_migrations",

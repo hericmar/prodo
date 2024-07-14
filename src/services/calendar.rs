@@ -1,10 +1,14 @@
-use crate::core::models::calendar::{CalendarSubscription, CreateCalendarSubscription};
+use crate::core::models::calendar::{
+    CalendarSubscription, CreateCalendarSubscription, UpdateCalendarSubscription,
+};
 use crate::core::repositories::calendar::CalendarSubscriptionRepository;
 use crate::core::services::calendar::CalendarService;
+use crate::error::{Error, ErrorType};
 use crate::prelude::*;
 use async_trait::async_trait;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
+use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -20,7 +24,14 @@ impl CalendarServiceImpl {
 
 #[async_trait]
 impl CalendarService for CalendarServiceImpl {
-    async fn create_subscription(&self, person_uid: Uuid) -> Result<CalendarSubscription> {
+    async fn create_subscription(
+        &self,
+        person_uid: Uuid,
+        timezone: &str,
+    ) -> Result<CalendarSubscription> {
+        chrono_tz::Tz::from_str(timezone)
+            .map_err(|_| Error::new("Invalid timezone", ErrorType::BadRequest))?;
+
         let secret: String = rand::thread_rng()
             .sample_iter(&Alphanumeric)
             .take(255)
@@ -29,6 +40,7 @@ impl CalendarService for CalendarServiceImpl {
         let subscription = CreateCalendarSubscription {
             person_uid,
             secret: secret.clone(),
+            timezone: timezone.to_string(),
         };
 
         self.repository.create(subscription).await
@@ -40,6 +52,14 @@ impl CalendarService for CalendarServiceImpl {
 
     async fn get_subscription(&self, secret: String) -> Result<CalendarSubscription> {
         self.repository.get(&secret).await
+    }
+
+    async fn update_subscription(
+        &self,
+        person_uid: Uuid,
+        payload: &UpdateCalendarSubscription,
+    ) -> Result<CalendarSubscription> {
+        self.repository.update(person_uid, payload).await
     }
 
     async fn delete_subscription(&self, person_uid: Uuid) -> Result<()> {

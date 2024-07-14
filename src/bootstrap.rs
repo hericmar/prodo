@@ -1,7 +1,8 @@
 use crate::api::controllers::auth;
 use crate::api::controllers::calendar::{
     create_calendar_subscription_handler, delete_my_calendar_subscription_handler,
-    get_calendar_subscription_handler, get_my_calendar_subscription_handler,
+    get_calendar_handler, get_my_calendar_subscription_handler,
+    update_my_calendar_subscription_handler,
 };
 use crate::api::controllers::task::{
     create_task_handler, create_task_list_handler, delete_task_handler, delete_task_list_handler,
@@ -80,7 +81,11 @@ fn setup(app: &mut web::ServiceConfig) {
                 web::scope("/calendar")
                     .route(
                         "/subscription/{secret}",
-                        web::get().to(get_calendar_subscription_handler),
+                        web::get().to(get_calendar_handler),
+                    )
+                    .route(
+                        "/subscription",
+                        web::get().to(get_my_calendar_subscription_handler),
                     )
                     .route(
                         "/subscription",
@@ -88,7 +93,7 @@ fn setup(app: &mut web::ServiceConfig) {
                     )
                     .route(
                         "/subscription",
-                        web::get().to(get_my_calendar_subscription_handler),
+                        web::patch().to(update_my_calendar_subscription_handler),
                     )
                     .route(
                         "/subscription",

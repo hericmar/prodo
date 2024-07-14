@@ -5,6 +5,7 @@ diesel::table! {
         #[max_length = 255]
         secret -> Varchar,
         person_uid -> Uuid,
+        timezone -> Text,
     }
 }
 

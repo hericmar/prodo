@@ -1,28 +1,60 @@
 import { defineStore } from 'pinia'
+import api from 'src/api'
 
 const SETTINGS_STORAGE_KEY = 'settings'
 export type Settings = {
   preferDarkMode?: boolean,
   showLandingPage: boolean,
   preferredLocale?: string
+  timezone: string
+  subscriptionSecret: string
 }
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     showLandingPage: true,
     preferredLocale: undefined,
-    preferDarkMode: undefined
+    preferDarkMode: undefined,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    subscriptionSecret: ''
   } as Settings),
   actions: {
-    init () {
+    async init () {
       const settings = localStorage.getItem(SETTINGS_STORAGE_KEY)
       if (settings) {
         this.$patch(JSON.parse(settings))
       }
+      await api.ical.get().then(({ data }) => {
+        this.timezone = data.timezone
+        this.subscriptionSecret = data.secret
+      })
+        .catch(() => {
+          this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+          this.subscriptionSecret = ''
+        })
+      this.$patch(this.$state)
     },
-    updateSettings (settings: Partial<Settings>) {
+    async fetchSubscription () {
+      const { data } = await api.ical.get()
+      this.timezone = data.timezone
+      this.subscriptionSecret = data.secret
+    },
+    async generateSubscription () {
+      const { data } = await api.ical.create({
+        timezone: this.timezone
+      })
+      this.subscriptionSecret = data.secret
+    },
+    async deleteSubscription () {
+      await api.ical.delete()
+      this.subscriptionSecret = ''
+    },
+    async updateSettings (settings: Partial<Settings>) {
       this.$patch(settings)
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(this.$state))
+      if (this.subscriptionSecret) {
+        await api.ical.update({ timezone: this.timezone })
+      }
     }
   }
 })

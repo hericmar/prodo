@@ -3,6 +3,7 @@
     class="page q-pt-sm"
   >
     <h1 class="text-h4">{{ $t('profile') }}</h1>
+
     <q-card
       class="responsive-card q-mb-lg"
       flat
@@ -38,52 +39,43 @@
       class="responsive-card"
       flat
     >
-      <q-card-section>
+      <q-card-section class="q-pb-lg">
         <h2 class="text-h6">Preferences</h2>
         <div>
           Language: <LangSelect class="q-ml-md" display-label size="md" />
         </div>
+        <TimezonePicker
+          v-model="timezone"
+          @update:modelValue="useSettingsStore().updateSettings({ timezone: timezone })"
+        />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import emitter from 'src/plugins/mitt'
+import { computed, ref } from 'vue'
 import { copyToClipboard } from 'quasar'
-import api from 'src/api'
 import LangSelect from 'components/toolkit/LangSelect.vue'
+import TimezonePicker from 'components/toolkit/TimezonePicker.vue'
+import { useSettingsStore } from 'stores/settings-store'
 
-const link = ref('')
+const settingsStore = useSettingsStore()
 
-api.ical.get().then(response => {
-  link.value = getLink(response.data.secret)
-}).catch(() => {
-  link.value = ''
-})
-
-const confirmLink = ref(false)
-emitter.on('on-link', () => {
-  confirmLink.value = true
-})
-
-const onCreateLink = () => {
-  api.ical.create().then(() => {
-    api.ical.get().then(response => {
-      link.value = getLink(response.data.secret)
-    })
-  })
-}
-
-const onRemoveLink = () => {
-  api.ical.delete().then(() => {
-    link.value = ''
-  })
-}
+const timezone = ref(settingsStore.timezone)
 
 const getLink = (secret: string) => {
   return `${window.location.protocol}//${window.location.host}/api/v1/calendar/subscription/${secret}`
+}
+
+const link = computed(() => settingsStore.subscriptionSecret ? getLink(settingsStore.subscriptionSecret) : '')
+
+const onCreateLink = () => {
+  settingsStore.generateSubscription()
+}
+
+const onRemoveLink = () => {
+  settingsStore.deleteSubscription()
 }
 
 const onLinkCopy = () => {

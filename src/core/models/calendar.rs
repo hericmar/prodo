@@ -1,5 +1,5 @@
-use diesel::{Insertable, Queryable, Selectable};
-use serde::Serialize;
+use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Serialize)]
@@ -7,6 +7,7 @@ use uuid::Uuid;
 pub struct CalendarSubscription {
     pub secret: String,
     pub person_uid: Uuid,
+    pub timezone: String,
 }
 
 #[derive(Insertable)]
@@ -14,4 +15,11 @@ pub struct CalendarSubscription {
 pub struct CreateCalendarSubscription {
     pub secret: String,
     pub person_uid: Uuid,
+    pub timezone: String,
+}
+
+#[derive(AsChangeset, Deserialize)]
+#[diesel(table_name = crate::schema::calendar_subscriptions)]
+pub struct UpdateCalendarSubscription {
+    pub timezone: Option<String>,
 }

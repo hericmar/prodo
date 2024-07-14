@@ -1,3 +1,4 @@
+use crate::core::models::calendar::UpdateCalendarSubscription;
 use crate::core::services::calendar::CalendarService;
 use crate::core::services::task::TaskService;
 use crate::prelude::*;
@@ -7,21 +8,11 @@ use chrono::Duration;
 use icalendar::{
     Alarm, Calendar, Component, Event, EventLike, EventStatus, Property, Related, Trigger,
 };
+use serde::Deserialize;
 
 const PRODO_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub async fn create_calendar_subscription_handler(
-    user: Identity,
-    calendar_service: web::Data<dyn CalendarService>,
-) -> Result<HttpResponse> {
-    let subscription = calendar_service
-        .create_subscription(user.id()?.parse().unwrap())
-        .await?;
-
-    Ok(HttpResponse::Ok().json(subscription))
-}
-
-pub async fn get_calendar_subscription_handler(
+pub async fn get_calendar_handler(
     calendar_service: web::Data<dyn CalendarService>,
     task_service: web::Data<dyn TaskService>,
     secret: web::Path<String>,
@@ -37,7 +28,7 @@ pub async fn get_calendar_subscription_handler(
             "PRODID",
             &format!("-//Prodo//Prodo Calendar {}//EN", PRODO_VERSION),
         ))
-        .timezone("Europe/Prague")
+        .timezone(&subscription.timezone)
         .done();
     for task in tasks {
         if task.rrule.is_none()
@@ -98,12 +89,47 @@ pub async fn get_calendar_subscription_handler(
     Ok(response)
 }
 
+#[derive(Deserialize)]
+pub struct CreateCalendarSubscription {
+    pub timezone: Option<String>,
+}
+
+pub async fn create_calendar_subscription_handler(
+    user: Identity,
+    calendar_service: web::Data<dyn CalendarService>,
+    payload: web::Json<CreateCalendarSubscription>,
+) -> Result<HttpResponse> {
+    let timezone = payload
+        .timezone
+        .clone()
+        .unwrap_or("Europe/London".to_string())
+        .clone();
+
+    let subscription = calendar_service
+        .create_subscription(user.id()?.parse().unwrap(), &timezone)
+        .await?;
+
+    Ok(HttpResponse::Ok().json(subscription))
+}
+
 pub async fn get_my_calendar_subscription_handler(
     user: Identity,
     calendar_service: web::Data<dyn CalendarService>,
 ) -> Result<HttpResponse> {
     let subscription = calendar_service
         .get_person_subscription(user.id()?.parse().unwrap())
+        .await?;
+
+    Ok(HttpResponse::Ok().json(subscription))
+}
+
+pub async fn update_my_calendar_subscription_handler(
+    user: Identity,
+    calendar_service: web::Data<dyn CalendarService>,
+    payload: web::Json<UpdateCalendarSubscription>,
+) -> Result<HttpResponse> {
+    let subscription = calendar_service
+        .update_subscription(user.id()?.parse().unwrap(), &payload)
         .await?;
 
     Ok(HttpResponse::Ok().json(subscription))

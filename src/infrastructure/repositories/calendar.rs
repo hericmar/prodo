@@ -1,4 +1,6 @@
-use crate::core::models::calendar::{CalendarSubscription, CreateCalendarSubscription};
+use crate::core::models::calendar::{
+    CalendarSubscription, CreateCalendarSubscription, UpdateCalendarSubscription,
+};
 use crate::core::repositories::calendar::CalendarSubscriptionRepository;
 use crate::infrastructure::databases::postgres::DBPool;
 use crate::prelude::*;
@@ -53,6 +55,19 @@ impl CalendarSubscriptionRepository for CalendarSubscriptionRepositoryImpl {
         crate::schema::calendar_subscriptions::table
             .filter(crate::schema::calendar_subscriptions::person_uid.eq(person_uid))
             .first(&mut conn)
+            .map_err(|e| e.into())
+    }
+
+    async fn update(
+        &self,
+        person_uid: Uuid,
+        payload: &UpdateCalendarSubscription,
+    ) -> Result<CalendarSubscription> {
+        let mut conn = self.pool.get()?;
+        diesel::update(crate::schema::calendar_subscriptions::table)
+            .filter(crate::schema::calendar_subscriptions::person_uid.eq(person_uid))
+            .set(payload)
+            .get_result(&mut conn)
             .map_err(|e| e.into())
     }
 
