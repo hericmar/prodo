@@ -104,6 +104,7 @@
         </q-form>
       </q-card-section>
     </q-scroll-area>
+
     <q-toolbar
       v-if="$q.platform.is.mobile"
       class="task-toolbar"

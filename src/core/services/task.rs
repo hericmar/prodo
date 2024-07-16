@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 #[async_trait]
 pub trait TaskService: Sync + Send {
-    async fn create(&self, task: CreateTask, task_list_uid: Option<Uuid>) -> Result<Task>;
+    async fn create(&self, task: CreateTask, task_list_uid: Uuid) -> Result<Task>;
     async fn list(&self, author_uid: Uuid /*params: TodoQueryParams*/) -> Result<Vec<Task>>;
     async fn get(&self, task_id: Uuid) -> Result<Task>;
     async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task>;

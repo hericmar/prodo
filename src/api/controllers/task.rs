@@ -32,9 +32,7 @@ pub async fn create_task_handler(
         summary: payload.summary.clone(),
         author_uid: user.id()?.parse().unwrap(),
     };
-    let result = task_service
-        .create(new_task, Some(list_uid.into_inner()))
-        .await?;
+    let result = task_service.create(new_task, list_uid.into_inner()).await?;
 
     Ok(HttpResponse::Ok().json(result))
 }
@@ -137,6 +135,7 @@ pub async fn update_task_list_handler(
 #[derive(Deserialize)]
 pub struct DeleteTaskListParams {
     // TODO: Not yet supported, will be implemented in the future.
+    /// This value is treated as always true.
     pub delete_orphans: Option<bool>,
     pub target_list: Option<Uuid>,
 }
@@ -154,12 +153,8 @@ pub async fn delete_task_list_handler(
         return Err(Error::new("unauthorized", ErrorType::Unauthorized));
     }
 
-    if let Some(delete_orphans) = params.delete_orphans {
-        if delete_orphans {
-            for task_uid in &task_list.tasks {
-                let _ = task_service.delete(list_uid, task_uid.unwrap()).await;
-            }
-        }
+    for task_uid in &task_list.tasks {
+        let _ = task_service.delete(list_uid, task_uid.unwrap()).await;
     }
     if params.target_list.is_some() {
         task_list_service

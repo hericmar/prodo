@@ -27,7 +27,7 @@ export default {
       return api.patch(`/api/v1/lists/${uid}`, payload)
     },
     delete (uid: string) {
-      return api.delete(`/api/v1/lists/${uid}?delete_orphans=true`)
+      return api.delete(`/api/v1/lists/${uid}`)
     }
   },
   task: {

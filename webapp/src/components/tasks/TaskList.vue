@@ -144,11 +144,10 @@
 
 <script lang="ts" setup>
 import { TaskList, Task, useTaskStore } from 'stores/task-store'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
-import EditableText from 'components/toolkit/EditableText.vue'
 // import { scroll } from 'quasar'
 
 interface Props {

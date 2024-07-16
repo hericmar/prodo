@@ -33,14 +33,10 @@ impl TaskServiceImpl {
 
 #[async_trait]
 impl TaskService for TaskServiceImpl {
-    async fn create(&self, new_task: CreateTask, _task_list_uid: Option<Uuid>) -> Result<Task> {
+    async fn create(&self, new_task: CreateTask, task_list_uid: Uuid) -> Result<Task> {
         let task = self.repository.create(&new_task).await?;
-        let mut lists = self.task_list_repository.list(new_task.author_uid).await?;
-        // TODO: Only one list for now
-        if lists.is_empty() {
-            return Err(Error::new("List not found", ErrorType::NotFound));
-        }
-        let list = &mut lists[0];
+        let mut list = self.task_list_repository.get(task_list_uid).await?;
+
         list.tasks.insert(0, Some(task.uid));
         self.task_list_repository
             .update(
