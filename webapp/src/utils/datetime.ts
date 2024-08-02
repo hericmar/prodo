@@ -1,3 +1,11 @@
+export const datetime = {
+  isSameDate (a: Date, b: Date) {
+    return a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+  }
+}
+
 /**
  * Get the date format pattern for the given locale.
  * @example

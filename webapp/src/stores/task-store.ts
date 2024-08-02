@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import api from 'src/api'
 import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
-import { stripTime } from 'src/utils/datetime'
+import { datetime, stripTime } from 'src/utils/datetime'
 
 export enum Urgency {
   None = 0,
@@ -31,7 +31,7 @@ export interface Task {
   greyedOut: boolean
 }
 
-export type FilterTaskFn = (list) => Task[]
+export type FilterTaskFn = (list: any) => Task[]
 
 export interface TaskList {
   uid: string
@@ -134,6 +134,10 @@ export const useTaskStore = defineStore('task', {
         })
       })
       lists = lists.sort((a, b) => a.name.localeCompare(b.name))
+
+      const now = new Date()
+
+      // Daily tasks list is a virtual list that contains all tasks with rrule or due today.
       const dailyTasksListUid = crypto.randomUUID()
       const dailyTasksList: TaskList = {
         uid: dailyTasksListUid,
@@ -141,13 +145,14 @@ export const useTaskStore = defineStore('task', {
         isVirtual: true,
         tasks: this.tasks,
         onFilter: (list: TaskList) => {
-          return this.tasks.filter(t => t.rrule)
+          return this.tasks.filter(t => t.rrule || (t.due && datetime.isSameDate(t.due, now)))
         },
         onTaskCreate: () => {
           // TODO: add task with rrule daily
           // this.addTask(dailyTasksListUid, { summary: '' })
         }
       }
+
       this.lists = [dailyTasksList, ...lists]
     },
     reload () {
