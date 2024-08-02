@@ -1,6 +1,6 @@
 <template>
   <q-page
-    class="page q-pt-sm"
+    class="page q-pt-sm q-px-md"
   >
     <h1 class="text-h4">{{ $t('profile') }}</h1>
 
