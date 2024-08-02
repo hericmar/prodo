@@ -36,5 +36,5 @@ import TaskList from 'components/tasks/TaskList.vue'
 const taskStore = useTaskStore()
 taskStore.init()
 
-const lists = computed(() => taskStore.lists)
+const lists = computed(() => taskStore.lists.filter(list => !list.isVirtual))
 </script>

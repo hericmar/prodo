@@ -3,6 +3,9 @@ export const datetime = {
     return a.getFullYear() === b.getFullYear() &&
       a.getMonth() === b.getMonth() &&
       a.getDate() === b.getDate()
+  },
+  isBetween (date: Date, start: Date, end: Date) {
+    return date >= start && date <= end
   }
 }
 

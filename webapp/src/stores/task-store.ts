@@ -101,6 +101,14 @@ export const sortLists = (lists: TaskList[]) => {
   })
 }
 
+const filterDailyTasks = (tasks: Task[], now: Date) => {
+  return tasks.filter(t => {
+    return t.rrule ||
+      (t.due && datetime.isSameDate(t.due, now)) ||
+      ((t.dtstart && t.dtend) && datetime.isBetween(now, t.dtstart, t.dtend))
+  })
+}
+
 export const useTaskStore = defineStore('task', {
   state: () => ({
     tasks: [],
@@ -146,7 +154,7 @@ export const useTaskStore = defineStore('task', {
         isVirtual: true,
         tasks: this.tasks,
         onFilter: (list: TaskList) => {
-          return this.tasks.filter(t => t.rrule || (t.due && datetime.isSameDate(t.due, now)))
+          return filterDailyTasks(this.tasks, now)
         }
       }
 
