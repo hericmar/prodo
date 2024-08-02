@@ -28,31 +28,12 @@
   </q-page>
 
   <q-dialog
-    v-model="confirmDelete"
-    no-backdrop-dismiss
-    :on-escape-key="() => confirmDelete = false"
-  >
-    <!-- @keydown.enter="onDelete" -->
-    <q-card>
-      <q-card-section class="row items-center">
-        <q-avatar icon="remove" color="primary" text-color="white" />
-        <span class="q-ml-sm">Do you want to delete this task?</span>
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" @click="confirmDelete = false" v-close-popup />
-        <q-btn flat label="Delete" color="red" @click="onDelete" v-close-popup />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
     v-model="confirmEdit"
     no-backdrop-dismiss
     :maximized="$q.platform.is.mobile"
     :on-escape-key="() => confirmEdit = false"
   >
-    <TaskDetailForm :edited-task="task" />
+    <TaskDetailForm :edited-task="task!" />
   </q-dialog>
 </template>
 
@@ -65,22 +46,7 @@ import TaskDetailForm from 'components/tasks/TaskDetail.vue'
 
 const taskStore = useTaskStore()
 
-let task: Task
-
-// Delete confirmation dialog
-const confirmDelete = ref(false)
-
-emitter.on('on-delete', (e) => {
-  task = e.task
-  confirmDelete.value = true
-})
-
-const onDelete = () => {
-  taskStore.remove(task)
-  confirmDelete.value = false
-  task = undefined
-  emitter.emit('on-edit-close', {})
-}
+let task: Task | undefined
 
 // Edit task dialog
 const confirmEdit = ref(false)

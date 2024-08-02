@@ -200,6 +200,7 @@ const confirmDelete = () => {
     persistent: true
   }).onOk(() => {
     taskStore.remove(props.editedTask)
+    onClose()
     if ($q.platform.is.mobile) {
       router.back()
     }
