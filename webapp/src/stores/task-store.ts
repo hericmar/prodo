@@ -3,6 +3,11 @@ import api from 'src/api'
 import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
 import { datetime, stripTime } from 'src/utils/datetime'
 
+export enum TaskEvent {
+  OnUpdateSave = 'task-update',
+  OnUpdateCancel = 'task-update-cancel',
+}
+
 export enum Urgency {
   None = 0,
   Low = 1,
@@ -39,7 +44,6 @@ export interface TaskList {
   tasks: Task[]
   isVirtual: boolean
   onFilter: FilterTaskFn
-  onTaskCreate: (list: TaskList, task: Task) => void
 }
 
 export type RootState = {
@@ -126,10 +130,7 @@ export const useTaskStore = defineStore('task', {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             tasks: list.tasks.map((taskUid: string): Task => lookup.get(taskUid)!),
             isVirtual: false,
-            onFilter: FILTER_IN_LIST,
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            onTaskCreate: () => {
-            }
+            onFilter: FILTER_IN_LIST
           }
         })
       })
@@ -146,10 +147,6 @@ export const useTaskStore = defineStore('task', {
         tasks: this.tasks,
         onFilter: (list: TaskList) => {
           return this.tasks.filter(t => t.rrule || (t.due && datetime.isSameDate(t.due, now)))
-        },
-        onTaskCreate: () => {
-          // TODO: add task with rrule daily
-          // this.addTask(dailyTasksListUid, { summary: '' })
         }
       }
 

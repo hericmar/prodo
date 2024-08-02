@@ -1,5 +1,6 @@
 import { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from 'stores/auth-store'
+import { Platform } from 'quasar'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -30,7 +31,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => Platform.is.desktop ? import('layouts/MainLayout.vue') : import('layouts/MobileLayout.vue'),
     beforeEnter: (to, from, next) => {
       const authStore = useAuthStore()
       if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -42,7 +43,36 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'index',
-        component: () => import('pages/IndexPage.vue'),
+        components: {
+          default: () => Platform.is.desktop ? import('pages/IndexPage.vue') : import('pages/mobile/index/IndexPage.vue'),
+          toolbar: () => import('pages/mobile/index/IndexToolbar.vue')
+        },
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        // This is mobile only!
+        path: 'list/:uid',
+        name: 'list',
+        components: {
+          default: () => import('pages/mobile/list/ListPage.vue'),
+          header: () => import('pages/mobile/list/ListHeader.vue')
+          // toolbar: () => import('pages/mobile/list/ListToolbar.vue')
+        },
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        // This is mobile only!
+        path: 'task/:uid',
+        name: 'task',
+        components: {
+          default: () => import('pages/mobile/task/TaskPage.vue'),
+          header: () => import('pages/mobile/task/TaskHeader.vue'),
+          toolbar: () => import('pages/mobile/task/TaskToolbar.vue')
+        },
         meta: {
           requiresAuth: true
         }

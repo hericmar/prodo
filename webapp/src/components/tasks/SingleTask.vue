@@ -78,7 +78,7 @@ import { marked } from 'marked'
 
 interface Props {
   task: Task
-  noDrag?: boolean
+  noDrag?: boolean,
 }
 
 const props = defineProps<Props>()
@@ -98,6 +98,7 @@ const taskStore = useTaskStore()
 const onCompletedClick = () => {
   taskStore.toggle(props.task)
 }
+
 </script>
 
 <style lang="scss">

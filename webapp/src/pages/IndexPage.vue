@@ -59,7 +59,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Task, useTaskStore } from 'stores/task-store'
-import api from 'src/api'
 import TaskList from 'components/tasks/TaskList.vue'
 import emitter from 'src/plugins/mitt'
 import TaskDetailForm from 'components/tasks/TaskDetail.vue'
@@ -118,29 +117,6 @@ const onSwipeDown = (e) => {
     }
   }
 }
-
-//
-
-const filterDailyTasks = (tasks: Task[]) => {
-  // inactive
-  // task.greyedOut
-  return tasks.filter((task) => {
-    return task.rrule
-  })
-}
-
-const onDailyTaskCreated = (task: Task) => {
-  task.rrule = 'FREQ=DAILY'
-  api.task.update(task.uid, task)
-}
-
-const filterTasks = (tasks: Task[]) => {
-  return tasks.filter((task) => {
-    return !task.rrule
-  })
-}
-
-//
 
 const onMouseUp = () => {
   if (!reloading.value) {

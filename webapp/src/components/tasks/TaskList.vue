@@ -40,7 +40,12 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup @click="confirmDelete = true">
+            <q-item
+              v-if="!props.list.isVirtual"
+              clickable
+              v-close-popup
+              @click="confirmDelete"
+            >
               <q-item-section avatar>
                 <q-avatar icon="delete" color="red" text-color="white" />
               </q-item-section>
@@ -121,25 +126,6 @@
       </draggable>
     </div>
   </q-card>
-
-  <q-dialog
-    v-model="confirmDelete"
-    no-backdrop-dismiss
-    :on-escape-key="() => confirmDelete = false"
-  >
-    <!-- @keydown.enter="onDelete" -->
-    <q-card>
-      <q-card-section class="row items-center">
-        <q-avatar icon="remove" color="primary" text-color="white" />
-        <span class="q-ml-sm">Do you want to delete this list?</span>
-      </q-card-section>
-
-      <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" @click="confirmDelete = false" v-close-popup />
-        <q-btn flat label="Delete" color="red" @click="taskStore.removeList(props.list.uid); confirmDelete = false" v-close-popup />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -148,10 +134,12 @@ import { computed, ref } from 'vue'
 import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'
 import draggable from 'vuedraggable'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 // import { scroll } from 'quasar'
 
 interface Props {
-  list: TaskList
+  list: TaskList,
 }
 
 const props = defineProps<Props>()
@@ -165,16 +153,12 @@ const onAddTask = () => {
     return
   }
 
-  taskStore.addTask(props.list.uid, { summary: summary.value }).then((task) => {
-    props.list.onTaskCreate(props.list, task)
-  })
+  taskStore.addTask(props.list.uid, { summary: summary.value })
 
   summary.value = ''
 }
 
 const showCompleted = ref<boolean>(false)
-
-const confirmDelete = ref<boolean>(false)
 
 const tasks = computed({
   get: () => {
@@ -246,6 +230,25 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
 
   return tasks.filter((task: Task) => {
     return task.summary.toLowerCase().includes(summary.toLowerCase())
+  })
+}
+
+// Dialogs
+
+const $q = useQuasar()
+const router = useRouter()
+
+const confirmDelete = () => {
+  $q.dialog({
+    title: 'Confirm',
+    message: 'Do you want to delete this list?',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    taskStore.removeList(props.list.uid)
+    if ($q.platform.is.mobile) {
+      router.back()
+    }
   })
 }
 </script>

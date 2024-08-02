@@ -1,13 +1,13 @@
 <template>
   <q-card
     class="task-card"
-    style="overflow-y: hidden"
     flat
   >
-    <q-scroll-area style="height: 100%; max-width: 100%;">
+    <!-- <q-scroll-area style="height: 100%; max-width: 100%;"> -->
       <q-card-section>
         <q-form
-          class="flex column q-pt-sm q-pr-md q-gutter-md"
+          class="flex column q-pt-sm  q-gutter-md"
+          :class="{'q-pr-md': !$q.platform.is.mobile }"
           @keydown.enter="onEnterDown"
         >
           <div class="flex content-center no-wrap">
@@ -26,7 +26,7 @@
               rounded
               color="red"
               icon="delete"
-              @click="emitter.emit('on-delete', { task: props.editedTask })"
+              @click="confirmDelete"
             />
           </div>
 
@@ -103,36 +103,12 @@
           </q-toolbar>
         </q-form>
       </q-card-section>
-    </q-scroll-area>
-
-    <q-toolbar
-      v-if="$q.platform.is.mobile"
-      class="task-toolbar"
-    >
-      <div class="flex justify-between full-width q-px-xl q-pt-md q-pb-lg">
-        <q-btn
-          flat
-          rounded
-          no-caps
-          label="Cancel"
-          color="blue-7"
-          @click="onClose"
-        />
-        <q-btn
-          flat
-          rounded
-          no-caps
-          label="Save"
-          color="blue-7"
-          @click="onSave"
-        />
-      </div>
-    </q-toolbar>
+    <!-- </q-scroll-area> -->
   </q-card>
 </template>
 
 <script lang="ts" setup>
-import { Task, useTaskStore } from 'stores/task-store'
+import { Task, TaskEvent, useTaskStore } from 'stores/task-store'
 import { PropType, ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { isTimeSet } from 'src/utils/datetime'
@@ -140,6 +116,8 @@ import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import RRulePicker from 'components/toolkit/RRulePicker.vue'
 import ButtonToggle from 'components/toolkit/ButtonToggle.vue'
 import api from 'src/api'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   editedTask: {
@@ -197,12 +175,35 @@ const onEnterDown = (event: KeyboardEvent) => {
 const onClose = () => {
   emitter.emit('on-edit-close', {})
 }
+emitter.on(TaskEvent.OnUpdateCancel, () => {
+  onClose()
+})
 
-const onSave = () => {
-  taskStore.update(task.value)
-    .then(() => {
-      onClose()
-    })
+const onSave = async () => {
+  await taskStore.update(task.value)
+  onClose()
+}
+emitter.on(TaskEvent.OnUpdateSave, () => {
+  onSave()
+})
+
+// Dialogs
+
+const $q = useQuasar()
+const router = useRouter()
+
+const confirmDelete = () => {
+  $q.dialog({
+    title: 'Confirm',
+    message: 'Do you want to delete this task?',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    taskStore.remove(props.editedTask)
+    if ($q.platform.is.mobile) {
+      router.back()
+    }
+  })
 }
 </script>
 
@@ -219,9 +220,8 @@ const onSave = () => {
 .task-toolbar {
   position: sticky;
   bottom: 0;
-  margin: 0;
   padding-bottom: 0;
-  margin-bottom: -16px;
+  margin: 0 0 -16px;
   width: 100vw;
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
@@ -232,17 +232,4 @@ const onSave = () => {
     background-color: rgba(0, 0, 0, 0.7);
   }
 }
-
-@media (max-width: $breakpoint-xs) {
-  .task-toolbar {
-    border-top: 1px solid $separator-color;
-  }
-
-  .body--dark {
-    .task-toolbar {
-      border-top: 1px solid $separator-dark-color;
-    }
-  }
-}
-
 </style>
