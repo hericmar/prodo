@@ -102,10 +102,21 @@ export const sortLists = (lists: TaskList[]) => {
 }
 
 const filterDailyTasks = (tasks: Task[], now: Date) => {
+  const yesterday = new Date(now)
+  yesterday.setDate(now.getDate() - 1)
+
+  const tomorrow = new Date(now)
+  tomorrow.setDate(now.getDate() + 1)
+
   return tasks.filter(t => {
+    const hasDueSoon = t.due && datetime.isBetween(t.due, now, tomorrow)
+    const isMissed = t.due && t.due < now
+    const isScheduled = t.dtstart && t.dtend && datetime.isBetween(now, t.dtstart, t.dtend)
+
     return t.rrule ||
-      (t.due && datetime.isSameDate(t.due, now)) ||
-      ((t.dtstart && t.dtend) && datetime.isBetween(now, t.dtstart, t.dtend))
+      hasDueSoon ||
+      isMissed ||
+      isScheduled
   })
 }
 
