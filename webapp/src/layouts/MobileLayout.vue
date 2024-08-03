@@ -58,4 +58,8 @@ footer {
 .body--dark .prodo-mobile-toolbar {
   border-top: 1px solid $separator-dark-color;
 }
+
+.prodo-mobile-toolbar:not(:empty) {
+  padding-bottom: 8px;
+}
 </style>

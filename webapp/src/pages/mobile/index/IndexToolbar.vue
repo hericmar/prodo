@@ -1,6 +1,7 @@
 <template>
   <div class=" q-px-lg q-pt-md q-pb-lg">
     <q-btn
+      class="text-body1 text-bold"
       flat
       rounded
       no-caps

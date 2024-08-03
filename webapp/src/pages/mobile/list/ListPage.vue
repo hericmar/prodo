@@ -1,6 +1,6 @@
 <template>
   <q-page
-    class="q-pt-lg q-px-md"
+    class="q-py-lg q-px-md"
   >
     <TaskList
       v-if="list"

@@ -1,14 +1,17 @@
 <template>
   <q-page
-    class="q-pt-lg q-px-md"
+    class="q-py-lg q-px-md"
   >
     <TaskList
       v-if="lists.length > 0"
-      :list="lists[0]"
+      :list="taskStore.lists[0]"
     />
 
     <h2 class="text-h6">My lists</h2>
-    <q-card flat>
+    <q-card
+      class="q-mb-md"
+      flat
+    >
       <q-list separator>
         <q-item
           v-for="list in lists"
@@ -18,7 +21,7 @@
           @click="() => $router.push(`/list/${list.uid}`)"
         >
           <q-item-section>
-            <q-item-label>
+            <q-item-label class="text-body1">
               {{ list.name }}
             </q-item-label>
           </q-item-section>
