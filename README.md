@@ -18,5 +18,8 @@ cp .env.example .env
 docker-compose up -d database
 ```
 
+### See also
+- [Material Design Icons](https://fonts.google.com/icons/)
+
 ## References
 - RFC 5545 - Internet Calendaring and Scheduling Core Object Specification (iCalendar) - https://tools.ietf.org/html/rfc5545

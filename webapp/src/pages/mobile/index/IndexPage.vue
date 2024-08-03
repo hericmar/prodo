@@ -21,7 +21,7 @@
           @click="() => $router.push(`/list/${list.uid}`)"
         >
           <q-item-section>
-            <q-item-label class="text-body1">
+            <q-item-label class="text-body1 q-py-sm">
               {{ list.name }}
             </q-item-label>
           </q-item-section>

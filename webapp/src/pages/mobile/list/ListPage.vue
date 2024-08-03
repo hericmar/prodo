@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="ts">
-import { TaskList as TaskListModel, useTaskStore } from 'stores/task-store'
+import { useTaskStore } from 'stores/task-store'
 import { useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import TaskList from 'components/tasks/TaskList.vue'
 
 const taskStore = useTaskStore()
