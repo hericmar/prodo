@@ -1,6 +1,7 @@
 <template>
-  <div class="flex justify-between full-width q-px-xl q-pt-md q-pb-lg">
+  <div class="flex justify-between full-width q-px-xl q-pt-sm q-pb-lg">
     <q-btn
+      class="text-body1 text-bold"
       flat
       rounded
       no-caps
@@ -9,6 +10,7 @@
       @click="onClose"
     />
     <q-btn
+      class="text-body1 text-bold"
       flat
       rounded
       no-caps
