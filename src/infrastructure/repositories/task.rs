@@ -172,6 +172,7 @@ impl TaskListRepository for TaskListRepositoryImpl {
             source_list_uid,
             &UpdateTaskList {
                 name: None,
+                is_archived: None,
                 tasks: Some(source_tasks_without_removed),
             },
         )
@@ -187,6 +188,7 @@ impl TaskListRepository for TaskListRepositoryImpl {
                 target_list_uid,
                 &UpdateTaskList {
                     name: None,
+                    is_archived: None,
                     tasks: Some(target_tasks_with_added),
                 },
             )

@@ -89,14 +89,14 @@ pub async fn delete_task_handler(
 //
 
 #[derive(Deserialize)]
-pub struct CreateUpdateTaskListRequest {
+pub struct CreateTaskListRequest {
     pub name: String,
 }
 
 pub async fn create_task_list_handler(
     user: Identity,
     task_list_service: web::Data<dyn TaskListService>,
-    payload: web::Json<CreateUpdateTaskListRequest>,
+    payload: web::Json<CreateTaskListRequest>,
 ) -> Result<HttpResponse> {
     let new_task_list = CreateTaskList {
         uid: None,
@@ -108,11 +108,17 @@ pub async fn create_task_list_handler(
     Ok(HttpResponse::Ok().json(result))
 }
 
+#[derive(Deserialize)]
+pub struct UpdateTaskListRequest {
+    pub name: Option<String>,
+    pub is_archived: Option<bool>,
+}
+
 pub async fn update_task_list_handler(
     list_uid: web::Path<Uuid>,
     user: Identity,
     task_list_service: web::Data<dyn TaskListService>,
-    payload: web::Json<CreateUpdateTaskListRequest>,
+    payload: web::Json<UpdateTaskListRequest>,
 ) -> Result<HttpResponse> {
     let list_uid = list_uid.into_inner();
     let task_list = task_list_service.get(list_uid.clone()).await?;
@@ -123,7 +129,8 @@ pub async fn update_task_list_handler(
         .update(
             list_uid,
             UpdateTaskList {
-                name: Some(payload.name.clone()),
+                name: payload.name.clone(),
+                is_archived: payload.is_archived,
                 tasks: None,
             },
         )

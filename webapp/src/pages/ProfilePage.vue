@@ -36,7 +36,7 @@
     </q-card>
 
     <q-card
-      class="responsive-card"
+      class="responsive-card q-mb-lg"
       flat
     >
       <q-card-section class="q-pb-lg">
@@ -50,6 +50,45 @@
         />
       </q-card-section>
     </q-card>
+
+    <q-card
+      class="responsive-card"
+      flat
+    >
+      <q-card-section class="q-pb-lg">
+        <h2 class="text-h6">Data</h2>
+        <h3 class="text-body1">Archived Lists</h3>
+        <q-list>
+          <q-item
+            v-for="list in archivedLists"
+            :key="list.uid"
+            v-ripple
+            @click="() => $router.push(`/list/${list.uid}`)"
+          >
+            <q-item-section>
+              <q-item-label class="">
+                {{ list.name }}
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section top side>
+              <q-btn
+                flat
+                dense
+                rounded
+                no-caps
+                @click="taskStore.updateList(list.uid, { is_archived: false })"
+              >
+                Unarchive
+              </q-btn>
+            </q-item-section>
+          </q-item>
+        </q-list>
+        <p v-if="archivedLists.length === 0">
+          None
+        </p>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
@@ -59,8 +98,11 @@ import { copyToClipboard } from 'quasar'
 import LangSelect from 'components/toolkit/LangSelect.vue'
 import TimezonePicker from 'components/toolkit/TimezonePicker.vue'
 import { useSettingsStore } from 'stores/settings-store'
+import { useTaskStore } from 'stores/task-store'
 
 const settingsStore = useSettingsStore()
+const taskStore = useTaskStore()
+taskStore.init()
 
 const timezone = ref(settingsStore.timezone)
 
@@ -69,6 +111,8 @@ const getLink = (secret: string) => {
 }
 
 const link = computed(() => settingsStore.subscriptionSecret ? getLink(settingsStore.subscriptionSecret) : '')
+
+const archivedLists = computed(() => taskStore.lists.filter(list => list.is_archived))
 
 const onCreateLink = () => {
   settingsStore.generateSubscription()

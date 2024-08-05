@@ -15,6 +15,7 @@ diesel::table! {
         name -> Text,
         author_uid -> Uuid,
         tasks -> Array<Nullable<Uuid>>,
+        is_archived -> Bool,
     }
 }
 

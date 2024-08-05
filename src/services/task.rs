@@ -43,6 +43,7 @@ impl TaskService for TaskServiceImpl {
                 list.uid,
                 &UpdateTaskList {
                     name: None,
+                    is_archived: None,
                     tasks: Some(list.tasks.clone()),
                 },
             )
@@ -180,6 +181,7 @@ impl TaskListService for TaskListServiceImpl {
                 list_uid,
                 &UpdateTaskList {
                     name: None,
+                    is_archived: None,
                     tasks: Some(list.tasks),
                 },
             )

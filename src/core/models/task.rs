@@ -93,6 +93,7 @@ pub struct TaskList {
     pub name: String,
     pub author_uid: Uuid,
     pub tasks: Vec<Option<Uuid>>,
+    pub is_archived: bool,
 }
 
 #[derive(Insertable)]
@@ -108,4 +109,5 @@ pub struct CreateTaskList {
 pub struct UpdateTaskList {
     pub name: Option<String>,
     pub tasks: Option<Vec<Option<Uuid>>>,
+    pub is_archived: Option<bool>,
 }

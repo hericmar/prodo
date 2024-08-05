@@ -40,8 +40,9 @@ export type FilterTaskFn = (list: any) => Task[]
 
 export interface TaskList {
   uid: string
-  name: string,
+  name: string
   tasks: Task[]
+  is_archived: boolean
   isVirtual: boolean
   onFilter: FilterTaskFn
 }
@@ -142,12 +143,13 @@ export const useTaskStore = defineStore('task', {
       }
 
       let lists: TaskList[] = await api.list.list().then(response => {
-        return response.data.map((list: {uid: string, name: string, tasks: string[]}): TaskList => {
+        return response.data.map((list: {uid: string, name: string, tasks: string[], is_archived: boolean}): TaskList => {
           return {
             uid: list.uid,
             name: list.name,
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             tasks: list.tasks.map((taskUid: string): Task => lookup.get(taskUid)!),
+            is_archived: list.is_archived,
             isVirtual: false,
             onFilter: FILTER_IN_LIST
           }
@@ -162,8 +164,9 @@ export const useTaskStore = defineStore('task', {
       const dailyTasksList: TaskList = {
         uid: dailyTasksListUid,
         name: 'Daily Tasks',
-        isVirtual: true,
         tasks: this.tasks,
+        is_archived: false,
+        isVirtual: true,
         onFilter: (list: TaskList) => {
           return filterDailyTasks(this.tasks, now)
         }
@@ -228,10 +231,10 @@ export const useTaskStore = defineStore('task', {
         this.tasks[taskIndex] = { ...updatedTask }
       })
     },
-    async updateList (uid: string, payload: { name: string }) {
+    async updateList (uid: string, payload: { name?: string, is_archived?: boolean }) {
       this.lists = this.lists.map(list => {
         if (list.uid === uid) {
-          list.name = payload.name
+          list = { ...list, ...payload }
         }
         return list
       })

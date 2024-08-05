@@ -10,7 +10,7 @@
     @touchend="onMouseUp"
   >
     <TaskList
-      v-for="list in taskStore.lists" :key="list.uid"
+      v-for="list in taskStore.lists.filter(list => !list.is_archived)" :key="list.uid"
       :list="list"
     />
     <div

@@ -23,7 +23,7 @@ export default {
     create (payload: { name: string }) {
       return api.post('/api/v1/lists', payload)
     },
-    update (uid: string, payload: { name: string }) {
+    update (uid: string, payload: { name?: string, is_archived?: boolean }) {
       return api.patch(`/api/v1/lists/${uid}`, payload)
     },
     delete (uid: string) {

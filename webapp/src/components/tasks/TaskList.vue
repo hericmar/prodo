@@ -41,6 +41,18 @@
             </q-item>
             <q-separator />
             <q-item
+              clickable
+              v-close-popup
+              @click="confirmArchive"
+            >
+              <q-item-section avatar>
+                <q-avatar icon="archive" color="blue-6" text-color="white" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Archive list</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item
               v-if="!props.list.isVirtual"
               clickable
               v-close-popup
@@ -237,6 +249,20 @@ const findSimilar = (summary: string, tasks: Array<Task>) => {
 
 const $q = useQuasar()
 const router = useRouter()
+
+const confirmArchive = () => {
+  $q.dialog({
+    title: 'Do you want to archive this list?',
+    message: 'This will hide the list from the main view. You can unarchive it from the settings in the profile page.',
+    cancel: true,
+    persistent: true
+  }).onOk(() => {
+    taskStore.updateList(props.list.uid, { is_archived: true })
+    if ($q.platform.is.mobile) {
+      router.back()
+    }
+  })
+}
 
 const confirmDelete = () => {
   $q.dialog({
