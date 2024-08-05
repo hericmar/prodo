@@ -15,6 +15,10 @@ pub trait TaskService: Sync + Send {
     async fn update(&self, task_id: Uuid, task: UpdateTask) -> Result<Task>;
     async fn update_urgency(&self, task_id: Uuid, urgency: i32) -> Result<()>;
     async fn delete(&self, list_uid: Uuid, task_id: Uuid) -> Result<()>;
+
+    //
+
+    async fn archive(&self, task_id: Uuid) -> Result<()>;
 }
 
 //
@@ -96,6 +100,8 @@ pub trait TaskListService: Sync + Send {
         target_list_uid: Option<Uuid>,
         tasks: Vec<Option<Uuid>>,
     ) -> Result<()>;
+
+    async fn archive_tasks(&self, list_uid: Uuid, tasks: Vec<Uuid>) -> Result<()>;
 
     async fn delete(&self, task_id: Uuid) -> Result<()>;
 }

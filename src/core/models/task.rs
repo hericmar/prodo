@@ -1,6 +1,7 @@
-use crate::core::services::task::TaskTimeParams;
+use crate::core::services::task::{into_rrule_set, TaskTimeParams};
 use chrono::{DateTime, Utc};
 use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use rrule::Tz;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
@@ -27,6 +28,8 @@ pub struct Task {
     pub due: Option<DateTime<Utc>>,
     pub sequence: i32,
     pub urgency: i32,
+    #[serde(skip)]
+    pub is_archived: bool,
 }
 
 #[derive(Deserialize, Insertable)]
@@ -58,6 +61,12 @@ pub struct UpdateTask {
     pub urgency: i32,
 }
 
+#[derive(AsChangeset)]
+#[diesel(table_name = crate::schema::tasks)]
+pub struct ArchiveTask {
+    pub is_archived: bool,
+}
+
 impl Task {
     pub fn time_params(&self, created: DateTime<Utc>) -> TaskTimeParams {
         TaskTimeParams {
@@ -67,6 +76,17 @@ impl Task {
             created,
             rrule: self.rrule.clone(),
             completed: self.completed,
+        }
+    }
+
+    pub fn has_next_occurrence(&self, now: DateTime<Tz>) -> bool {
+        if let Some(rrule) = &self.rrule {
+            let rrule_set = into_rrule_set(self.created, rrule).unwrap();
+            let next_occurrence = rrule_set.after(now).all(5).dates;
+
+            next_occurrence.is_empty()
+        } else {
+            false
         }
     }
 }

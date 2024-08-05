@@ -1,15 +1,17 @@
 use crate::core::models::task::{
     CreateTask, CreateTaskList, Task, TaskList, UpdateTask, UpdateTaskList,
 };
-use crate::core::repositories::task::{TaskListRepository, TaskRepository};
+use crate::core::repositories::task::{ListTaskParams, TaskListRepository, TaskRepository};
 use crate::core::services::person::PersonService;
-use crate::core::services::task::{calculate_urgency, TaskListService, TaskService};
+use crate::core::services::task::{
+    calculate_urgency, into_rrule_datetime, into_rrule_set, TaskListService, TaskService,
+};
 use crate::error::{Error, ErrorType};
 use crate::infrastructure::cron::CronJob;
 use crate::prelude::*;
 use async_trait::async_trait;
 use chrono::Utc;
-use rrule::RRuleError;
+use rrule::{RRule, RRuleError, RRuleSet, Unvalidated};
 use std::sync::Arc;
 use uuid::Uuid;
 use validator::Validate;
@@ -59,7 +61,10 @@ impl TaskService for TaskServiceImpl {
         }
         let list = &lists[0];
 
-        let mut tasks = self.repository.list(author_uid).await?;
+        let mut tasks = self
+            .repository
+            .list(author_uid, ListTaskParams::default())
+            .await?;
         tasks.sort_by(|a, b| {
             let a_pos = list.tasks.iter().position(|t_uid| t_uid == &Some(a.uid));
             let b_pos = list.tasks.iter().position(|t_uid| t_uid == &Some(b.uid));
@@ -124,6 +129,10 @@ impl TaskService for TaskServiceImpl {
             .task_list_repository
             .move_tasks(list_uid, None, vec![Some(task_uid)])
             .await?)
+    }
+
+    async fn archive(&self, task_id: Uuid) -> Result<()> {
+        self.repository.archive(task_id).await
     }
 }
 //
@@ -199,6 +208,10 @@ impl TaskListService for TaskListServiceImpl {
             .await
     }
 
+    async fn archive_tasks(&self, list_uid: Uuid, tasks: Vec<Uuid>) -> Result<()> {
+        self.repository.archive_tasks(list_uid, tasks).await
+    }
+
     async fn delete(&self, task_id: Uuid) -> Result<()> {
         self.repository.delete(task_id).await
     }
@@ -237,6 +250,61 @@ impl CronJob for UpdateTaskUrgencyJob {
                 if let Some(urgency) = calculate_urgency(params, Utc::now()) {
                     self.task_service.update_urgency(task.uid, urgency).await?;
                 }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+//
+
+pub struct ArchiveCompletedTasksJob {
+    pub person_service: Arc<dyn PersonService>,
+    pub task_service: Arc<dyn TaskService>,
+    pub task_list_service: Arc<dyn TaskListService>,
+}
+
+impl ArchiveCompletedTasksJob {
+    pub fn new(
+        person_service: Arc<dyn PersonService>,
+        task_service: Arc<dyn TaskService>,
+        task_list_service: Arc<dyn TaskListService>,
+    ) -> Self {
+        ArchiveCompletedTasksJob {
+            person_service,
+            task_service,
+            task_list_service,
+        }
+    }
+}
+
+#[async_trait]
+impl CronJob for ArchiveCompletedTasksJob {
+    async fn run(&self) -> Result<()> {
+        let now = into_rrule_datetime(Utc::now());
+        let people = self.person_service.list().await?;
+
+        for person in people {
+            let tasks = self.task_service.list(person.uid).await?;
+            let lists = self.task_list_service.list(person.uid).await?;
+
+            let mut tasks_to_archive = vec![];
+
+            for task in &tasks {
+                let completed_before_60_days = task.completed.map_or(false, |completed| {
+                    completed < now - chrono::Duration::days(60)
+                });
+
+                if completed_before_60_days && !task.has_next_occurrence(now) {
+                    tasks_to_archive.push(task.uid);
+                }
+            }
+
+            for list in &lists {
+                self.task_list_service
+                    .archive_tasks(list.uid, tasks_to_archive.clone())
+                    .await?;
             }
         }
 

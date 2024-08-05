@@ -50,6 +50,7 @@ diesel::table! {
         due -> Nullable<Timestamptz>,
         sequence -> Int4,
         urgency -> Int4,
+        is_archived -> Bool,
     }
 }
 

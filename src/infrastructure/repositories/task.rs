@@ -1,11 +1,11 @@
 use crate::core::models::task::{
     CreateTask, CreateTaskList, Task, TaskList, UpdateTask, UpdateTaskList,
 };
-use crate::core::repositories::task::{TaskListRepository, TaskRepository};
+use crate::core::repositories::task::{ListTaskParams, TaskListRepository, TaskRepository};
 use crate::infrastructure::databases::postgres::DBPool;
 use crate::prelude::*;
 use async_trait::async_trait;
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::{Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
 use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -30,12 +30,18 @@ impl TaskRepository for TaskRepositoryImpl {
             .map_err(|e| e.into())
     }
 
-    async fn list(&self, author_uid: Uuid) -> Result<Vec<Task>> {
+    async fn list(&self, author_uid: Uuid, params: ListTaskParams) -> Result<Vec<Task>> {
         let mut conn = self.pool.get()?;
-        crate::schema::tasks::table
-            .filter(crate::schema::tasks::author_uid.eq(author_uid))
-            .load(&mut conn)
-            .map_err(|e| e.into())
+
+        let mut query = crate::schema::tasks::table
+            .into_boxed()
+            .filter(crate::schema::tasks::author_uid.eq(author_uid));
+
+        if !params.include_archived {
+            query = query.filter(crate::schema::tasks::is_archived.eq(false));
+        }
+
+        query.load(&mut conn).map_err(|e| e.into())
     }
 
     async fn get(&self, task_uid: Uuid) -> Result<Task> {
@@ -69,6 +75,16 @@ impl TaskRepository for TaskRepositoryImpl {
         let mut conn = self.pool.get()?;
         diesel::delete(crate::schema::tasks::table)
             .filter(crate::schema::tasks::uid.eq(task_uid))
+            .execute(&mut conn)
+            .map(|_| ())
+            .map_err(|e| e.into())
+    }
+
+    async fn archive(&self, task_uid: Uuid) -> Result<()> {
+        let mut conn = self.pool.get()?;
+        diesel::update(crate::schema::tasks::table)
+            .filter(crate::schema::tasks::uid.eq(task_uid))
+            .set(crate::schema::tasks::is_archived.eq(true))
             .execute(&mut conn)
             .map(|_| ())
             .map_err(|e| e.into())
@@ -118,6 +134,31 @@ impl TaskListRepository for TaskListRepositoryImpl {
             .set(list)
             .get_result(&mut conn)
             .map_err(|e| e.into())
+    }
+
+    async fn archive_tasks(&self, list_uid: Uuid, tasks_to_archive: Vec<Uuid>) -> Result<()> {
+        let mut conn = self.pool.get()?;
+        conn.transaction(|conn| {
+            let list: TaskList = crate::schema::lists::table
+                .filter(crate::schema::lists::uid.eq(list_uid))
+                .first(conn)?;
+
+            diesel::update(crate::schema::tasks::table)
+                .filter(crate::schema::tasks::uid.eq_any(&tasks_to_archive))
+                .set(crate::schema::tasks::is_archived.eq(true))
+                .execute(conn)?;
+
+            // remove tasks to be archived from list
+            let mut updated_tasks = list.tasks.clone();
+            updated_tasks.retain(|t| !tasks_to_archive.contains(&t.unwrap()));
+
+            diesel::update(crate::schema::lists::table)
+                .filter(crate::schema::lists::uid.eq(list_uid))
+                .set(crate::schema::lists::tasks.eq(updated_tasks))
+                .execute(conn)?;
+
+            Ok(())
+        })
     }
 
     async fn delete(&self, list_uid: Uuid) -> Result<()> {

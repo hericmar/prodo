@@ -26,7 +26,9 @@ use crate::infrastructure::repositories::task::{TaskListRepositoryImpl, TaskRepo
 use crate::prelude::*;
 use crate::services::calendar::CalendarServiceImpl;
 use crate::services::person::PersonServiceImpl;
-use crate::services::task::{TaskListServiceImpl, TaskServiceImpl, UpdateTaskUrgencyJob};
+use crate::services::task::{
+    ArchiveCompletedTasksJob, TaskListServiceImpl, TaskServiceImpl, UpdateTaskUrgencyJob,
+};
 use actix_files::Files;
 use actix_identity::IdentityMiddleware;
 use actix_session::config::PersistentSession;
@@ -137,10 +139,21 @@ pub async fn start() -> Result<()> {
     let calendar_service: Arc<dyn CalendarService> =
         Arc::new(CalendarServiceImpl::new(calendar_subscription_repository));
 
-    let cron_jobs: Vec<Arc<dyn CronJob>> = vec![Arc::new(UpdateTaskUrgencyJob::new(
+    // cron jobs
+
+    let update_task_urgency_job = Arc::new(UpdateTaskUrgencyJob::new(
         person_service.clone(),
         task_service.clone(),
-    ))];
+    ));
+    let archive_tasks_job = Arc::new(ArchiveCompletedTasksJob::new(
+        person_service.clone(),
+        task_service.clone(),
+        task_list_service.clone(),
+    ));
+
+    let cron_jobs: Vec<Arc<dyn CronJob>> = vec![update_task_urgency_job, archive_tasks_job];
+
+    // CLI
 
     match Cli::parse().command {
         Commands::User(parent) => match &parent.command {
