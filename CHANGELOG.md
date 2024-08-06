@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.0
+- New design and layout.
+- Backend rewritten in Rust.
+
 ## v1.1.3
 - Added separate daily tasks column to the dashboard.
 - Added task urgency evaluation for daily tasks.
