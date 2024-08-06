@@ -62,6 +62,16 @@ impl CalendarService for CalendarServiceImpl {
         self.repository.update(person_uid, payload).await
     }
 
+    async fn update_last_synced_at(
+        &self,
+        person_uid: Uuid,
+        last_synced_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<CalendarSubscription> {
+        self.repository
+            .update_last_synced_at(person_uid, last_synced_at)
+            .await
+    }
+
     async fn delete_subscription(&self, person_uid: Uuid) -> Result<()> {
         self.repository.delete(person_uid).await
     }

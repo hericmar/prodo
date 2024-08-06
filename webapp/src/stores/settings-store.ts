@@ -7,7 +7,8 @@ export type Settings = {
   showLandingPage: boolean,
   preferredLocale?: string
   timezone: string
-  subscriptionSecret: string
+  subscriptionSecret: string,
+  calendarLastSync?: Date
 }
 
 export const useSettingsStore = defineStore('settings', {
@@ -27,17 +28,13 @@ export const useSettingsStore = defineStore('settings', {
       await api.ical.get().then(({ data }) => {
         this.timezone = data.timezone
         this.subscriptionSecret = data.secret
+        this.calendarLastSync = new Date(data.last_synced_at)
       })
         .catch(() => {
           this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
           this.subscriptionSecret = ''
         })
       this.$patch(this.$state)
-    },
-    async fetchSubscription () {
-      const { data } = await api.ical.get()
-      this.timezone = data.timezone
-      this.subscriptionSecret = data.secret
     },
     async generateSubscription () {
       const { data } = await api.ical.create({

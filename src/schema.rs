@@ -6,6 +6,7 @@ diesel::table! {
         secret -> Varchar,
         person_uid -> Uuid,
         timezone -> Text,
+        last_synced_at -> Nullable<Timestamptz>,
     }
 }
 

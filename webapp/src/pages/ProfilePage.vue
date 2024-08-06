@@ -10,18 +10,21 @@
     >
       <q-card-section>
         <h2 class="text-h6">{{ $t('subscription_header') }}</h2>
-        <p>{{ $t('subscription_url_description') }}</p>
-      </q-card-section>
-      <q-card-section>
-          <span v-if="link === ''" class="flex items-center">
-            <q-btn icon="add" round flat @click="onCreateLink"></q-btn>
-            {{ $t('subscription_generate') }}
-          </span>
-        <q-input v-else outlined v-model="link" :label="$t('subscription_url')" readonly>
-          <template v-slot:after>
-            <q-btn flat icon="content_copy" @click="onLinkCopy" />
-          </template>
-        </q-input>
+        <span v-if="link === ''" class="flex items-center">
+          <q-btn icon="add" round flat @click="onCreateLink"></q-btn>
+          {{ $t('subscription_generate') }}
+        </span>
+        <div v-else>
+          <p>{{ $t('subscription_url_description') }}</p>
+          <q-input outlined v-model="link" :label="$t('subscription_url')" readonly>
+            <template v-slot:after>
+              <q-btn flat icon="content_copy" @click="onLinkCopy" />
+            </template>
+          </q-input>
+            <div class="q-mt-md text-grey-14">
+              Last sync at: {{ formatDateLocal(settingsStore.calendarLastSync) || 'Never' }}
+            </div>
+        </div>
       </q-card-section>
       <q-card-actions align="center">
         <q-btn
@@ -99,6 +102,7 @@ import LangSelect from 'components/toolkit/LangSelect.vue'
 import TimezonePicker from 'components/toolkit/TimezonePicker.vue'
 import { useSettingsStore } from 'stores/settings-store'
 import { useTaskStore } from 'stores/task-store'
+import { formatDateLocal } from 'src/utils/datetime'
 
 const settingsStore = useSettingsStore()
 const taskStore = useTaskStore()

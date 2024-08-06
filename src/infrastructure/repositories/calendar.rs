@@ -5,6 +5,7 @@ use crate::core::repositories::calendar::CalendarSubscriptionRepository;
 use crate::infrastructure::databases::postgres::DBPool;
 use crate::prelude::*;
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use std::sync::Arc;
 use uuid::Uuid;
@@ -68,6 +69,18 @@ impl CalendarSubscriptionRepository for CalendarSubscriptionRepositoryImpl {
             .filter(crate::schema::calendar_subscriptions::person_uid.eq(person_uid))
             .set(payload)
             .get_result(&mut conn)
+            .map_err(|e| e.into())
+    }
+
+    async fn update_last_synced_at(
+        &self,
+        person_uid: Uuid,
+        last_synced_at: DateTime<Utc>,
+    ) -> Result<CalendarSubscription> {
+        diesel::update(crate::schema::calendar_subscriptions::table)
+            .filter(crate::schema::calendar_subscriptions::person_uid.eq(person_uid))
+            .set(crate::schema::calendar_subscriptions::last_synced_at.eq(last_synced_at))
+            .get_result(&mut self.pool.get()?)
             .map_err(|e| e.into())
     }
 

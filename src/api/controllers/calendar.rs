@@ -4,7 +4,7 @@ use crate::core::services::task::TaskService;
 use crate::prelude::*;
 use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
-use chrono::Duration;
+use chrono::{Duration, Utc};
 use icalendar::{
     Alarm, Calendar, Component, Event, EventLike, EventStatus, Property, Related, Trigger,
 };
@@ -30,6 +30,7 @@ pub async fn get_calendar_handler(
         ))
         .timezone(&subscription.timezone)
         .done();
+
     for task in tasks {
         if task.rrule.is_none()
             && (task.dtstart.is_none() || task.dtend.is_none())
@@ -81,6 +82,10 @@ pub async fn get_calendar_handler(
 
         calendar.push(event.done());
     }
+
+    calendar_service
+        .update_last_synced_at(subscription.person_uid, Utc::now())
+        .await?;
 
     let response = HttpResponse::Ok()
         .insert_header(("Content-Type", "text/calendar; charset=utf-8"))

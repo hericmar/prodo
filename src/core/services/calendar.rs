@@ -17,5 +17,10 @@ pub trait CalendarService: Send + Sync {
         person_uid: Uuid,
         payload: &UpdateCalendarSubscription,
     ) -> Result<CalendarSubscription>;
+    async fn update_last_synced_at(
+        &self,
+        person_uid: Uuid,
+        last_synced_at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<CalendarSubscription>;
     async fn delete_subscription(&self, person_uid: Uuid) -> Result<()>;
 }
