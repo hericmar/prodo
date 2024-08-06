@@ -1,6 +1,6 @@
 # Prodo
 Simple web application for managing events and tasks 
-with export to iCalendar format.
+with export to iCalendar format aiming to boost productivity.
 
 ![](docs/img/screenshot.png)
 
@@ -9,8 +9,10 @@ with export to iCalendar format.
 - Schedule them to specific dates, make them recurring.
 - Organize tasks in lists.
 - Export events and tasks to iCalendar format.
+- PWA support (you can add the application to your home screen on mobile devices).
 
-Note: This application is a hobby project and may not be stable.
+Note: This application is a hobby project and may not be stable,
+and may not have all the features you would expect from a task manager.
 
 ## Installation
 You can run the application on bare metal or in a container.
@@ -63,6 +65,9 @@ cp .env.example .env
 # Run development database
 docker-compose up -d database
 ```
+
+## Licence
+This project is licensed under the MPL 2.0 License - see the [LICENCE](LICENCE) file for details.
 
 ## References
 - RFC 5545 - Internet Calendaring and Scheduling Core Object Specification (iCalendar) - https://tools.ietf.org/html/rfc5545
