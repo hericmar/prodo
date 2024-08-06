@@ -38,7 +38,6 @@ import LoginButton from 'components/toolkit/LoginButton.vue'
 
 @media (min-width: $breakpoint-xs) {
   .prodo-header {
-    align-self: center;
     width: 80vw;
     margin-top: 8px;
     margin-left: auto;

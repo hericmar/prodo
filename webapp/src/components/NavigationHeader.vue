@@ -1,10 +1,10 @@
 <template>
   <q-header>
     <q-toolbar class="bg-indigo justify-between">
-      <div class="prodo-header">
+      <div class="prodo-header-title">
         <slot></slot>
 
-        <div>
+        <q-toolbar-title>
           <q-btn
             v-if="isAuthenticated"
             :to="{ name: 'index' }"
@@ -21,7 +21,7 @@
           >
             Prodo
           </q-btn>
-        </div>
+        </q-toolbar-title>
       </div>
 
       <div>
@@ -78,7 +78,7 @@ const onLogout = async () => {
 </script>
 
 <style>
-.prodo-header > :nth-child(2) {
+.prodo-header-title > :nth-child(2) {
   display: none;
 }
 </style>
