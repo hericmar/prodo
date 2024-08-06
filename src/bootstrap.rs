@@ -174,7 +174,7 @@ pub async fn start() -> Result<()> {
                     first_name: "".to_string(),
                     surname: "".to_string(),
                     username: command.username.clone(),
-                    email: "".to_string(),
+                    email: command.email.clone(),
                     password,
                 };
                 person_service.create(person).await?;

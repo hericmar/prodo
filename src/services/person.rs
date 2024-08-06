@@ -52,17 +52,17 @@ impl PersonService for PersonServiceImpl {
             .to_string();
         person.uid = Some(Uuid::new_v4());
 
-        let result = self.repository.create(&person).await;
+        let person = self.repository.create(&person).await?;
 
         self.task_list_repository
             .create(&CreateTaskList {
                 uid: Some(Uuid::new_v4()),
                 name: "Tasks".to_string(),
-                author_uid: person.uid.unwrap(),
+                author_uid: person.uid,
             })
             .await?;
 
-        return result;
+        return Ok(person);
     }
 
     async fn list(&self) -> Result<Vec<Person>> {

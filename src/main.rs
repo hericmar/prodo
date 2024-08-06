@@ -15,7 +15,7 @@ mod utils;
 async fn main() -> std::io::Result<()> {
     bootstrap::start()
         .await
-        .unwrap_or_else(|err| eprintln!("Error: {}", err));
+        .unwrap_or_else(|err| eprintln!("Error: {}", err.what));
 
     Ok(())
 }
