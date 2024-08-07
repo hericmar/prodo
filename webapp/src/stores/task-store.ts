@@ -212,13 +212,17 @@ export const useTaskStore = defineStore('task', {
           promises.push(deleteFn(list, task))
         }
       }
+      this.tasks = this.tasks.filter(t => t.uid !== task.uid)
+
       return Promise.all(promises)
     },
     removeList (uid: string) {
       api.list.delete(uid).then(() => {
-        const list = this.lists.find(l => l.uid === uid)!
-        this.tasks = this.tasks.filter(t => !list.tasks.includes(t))
-        this.lists = this.lists.filter(l => l.uid !== uid)
+        const list = this.lists.find(l => l.uid === uid)
+        if (list) {
+          this.tasks = this.tasks.filter(t => !list.tasks.includes(t))
+          this.lists = this.lists.filter(l => l.uid !== uid)
+        }
       })
     },
     update (task: Task) {
@@ -228,7 +232,7 @@ export const useTaskStore = defineStore('task', {
         const updatedTask = response.data
         toTask(updatedTask)
         const taskIndex = this.tasks.findIndex(t => t.uid === updatedTask.uid)
-        this.tasks[taskIndex] = { ...updatedTask }
+        Object.assign(this.tasks[taskIndex], updatedTask)
       })
     },
     async updateList (uid: string, payload: { name?: string, is_archived?: boolean }) {
@@ -250,12 +254,14 @@ export const useTaskStore = defineStore('task', {
       return this.update(task)
     },
     async setOrder (listUid: string, task: Task, newIndex: number) {
-      const list = this.lists.find(l => l.uid === listUid)!
-      const oldIndex = list.tasks.indexOf(task)
-      list.tasks.splice(oldIndex, 1)
-      list.tasks.splice(newIndex, 0, task)
+      const list = this.lists.find(l => l.uid === listUid)
+      if (list) {
+        const oldIndex = list.tasks.indexOf(task)
+        list.tasks.splice(oldIndex, 1)
+        list.tasks.splice(newIndex, 0, task)
 
-      await api.task.updatePosition(listUid, task.uid, { position: newIndex })
+        await api.task.updatePosition(listUid, task.uid, { position: newIndex })
+      }
     }
   }
 })

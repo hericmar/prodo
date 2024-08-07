@@ -5,13 +5,6 @@
   >
     <q-card-section class="flex justify-between q-pb-none">
       <div class="input-wrapper flex justify-between full-width">
-        <!--
-        <EditableText
-          :readonly="props.virtual"
-          :label="props.label"
-          @update:modelValue="(newValue: string) => taskStore.updateList(props.uid, { name: newValue })"
-        />
-        -->
         <q-input
           class="text-h6 text-weight-bold q-mr-sm"
           color="blue-6"
@@ -174,8 +167,13 @@ const showCompleted = ref<boolean>(false)
 
 const tasks = computed({
   get: () => {
-    const filter = props.list.onFilter
-    return filter(props.list).filter(task => showCompleted.value || !task.completed)
+    const tasks = props.list.tasks.filter(task => showCompleted.value || !task.completed)
+
+    if (props.list.isVirtual) {
+      const filter = props.list.onFilter
+      return filter(props.list)
+    }
+    return tasks
   },
   set: () => {
     console.log('drag end')
