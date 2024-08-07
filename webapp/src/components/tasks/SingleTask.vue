@@ -36,7 +36,7 @@
         caption
         class="q-mb-none"
       >
-        <div class="marked-text" v-html="marked(props.task.description)"></div>
+        <div class="marked-text" v-html="marked(props.task.description, { headerIds: false, mangle: false })"></div>
       </q-item-label>
       <q-item-label v-if="props.task.due">
         <div class="flex self-center">
