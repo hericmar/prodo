@@ -79,6 +79,7 @@
       class="task-input q-ml-md q-mr-sm q-pl-sm"
       color="blue-6"
       v-model="summary"
+      maxlength="255"
       :label="$t('task_newInput')"
       borderless
       @keydown.enter="onAddTask"
