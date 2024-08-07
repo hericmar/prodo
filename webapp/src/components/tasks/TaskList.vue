@@ -79,7 +79,7 @@
       class="task-input q-ml-md q-mr-sm q-pl-sm"
       color="blue-6"
       v-model="summary"
-      maxlength="255"
+      :maxlength="MAX_SUMMARY_LENGTH"
       :label="$t('task_newInput')"
       borderless
       @keydown.enter="onAddTask"
@@ -135,7 +135,7 @@
 </template>
 
 <script lang="ts" setup>
-import { TaskList, Task, useTaskStore } from 'stores/task-store'
+import { TaskList, Task, useTaskStore, MAX_SUMMARY_LENGTH } from 'stores/task-store'
 import { computed, ref } from 'vue'
 import SingleTask from 'components/tasks/SingleTask.vue'
 import emitter from 'src/plugins/mitt'

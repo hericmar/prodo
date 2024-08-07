@@ -47,8 +47,8 @@ export const evaluateRRule = (task: Task) => {
   }
 
   const rrule = RRule.fromString(task.rrule)
-  if (task.start) {
-    rrule.options.dtstart = task.start
+  if (task.dtstart) {
+    rrule.options.dtstart = task.dtstart
   }
 
   const now = stripTime(new Date())

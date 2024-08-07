@@ -9,7 +9,6 @@
 
   <div
     v-if="rruleType === 'custom'"
-    class="q-mb-md"
   >
     <div class="flex items-baseline">
       <span class="q-pr-sm">{{ $t('recurrence_once') }}</span>
@@ -64,11 +63,11 @@
       date-only
     />
   </div>
-  <p class="text-grey-7"><i>{{ toText }}</i></p>
+  <p class="text-grey-7 q-mb-md"><i>{{ toText }}</i></p>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, PropType } from 'vue'
 import { RRule } from 'rrule'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import recurrence from 'src/utils/recurrence'
@@ -80,7 +79,7 @@ const props = defineProps({
     required: true
   },
   dtstart: {
-    type: Date,
+    type: [Date, null, undefined] as PropType<Date | null | undefined>,
     required: true
   }
 })
@@ -148,7 +147,6 @@ const emit = defineEmits(['update:modelValue'])
 
 // Emit updated recurrence rule
 const toText = computed(() => {
-  let rule = null
   let options = null
   if (rruleType.value === 'without_recurrence') {
     emit('update:modelValue', null)
@@ -167,7 +165,7 @@ const toText = computed(() => {
       (options as any).until = until.value
     }
   }
-  rule = new RRule(options)
+  const rule = new RRule(options)
   const ruleString = rule.toString().replace('RRULE:', '')
 
   emit('update:modelValue', ruleString)

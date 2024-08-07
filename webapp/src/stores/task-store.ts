@@ -15,6 +15,8 @@ export enum Urgency {
   High = 3
 }
 
+export const MAX_SUMMARY_LENGTH = 255
+
 export interface Task {
   uid: string
   summary: string

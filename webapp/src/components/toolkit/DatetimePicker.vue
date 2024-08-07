@@ -6,7 +6,7 @@
       v-model="date"
       :rules="[validateDate]"
       class="q-pr-sm"
-      style="max-width: 150px"
+      style="max-width: 120px"
       hide-bottom-space
       outlined
       dense
@@ -15,9 +15,11 @@
       @blur="onBlur"
       @keydown.esc="onEscDown"
     >
+      <!--
       <template v-slot:append>
         <q-icon name="event" />
       </template>
+      -->
       <q-popup-proxy
         v-model="showDatePopup"
         persistent
@@ -39,35 +41,37 @@
     </q-input>
 
     <q-input
+      v-if="!props.dateOnly"
+      class="time-input"
       color="blue-6"
       ref="timeRef"
       v-model="time"
       mask="##:##"
-      style="max-width: 100px"
+      type="time"
       hide-bottom-space
       :rules="[validateTime]"
       outlined
       dense
       @update:modelValue="onUpdate"
-    >
-      <template v-slot:append>
-        <q-icon name="access_time" />
-      </template>
-    </q-input>
+    />
 
-    <div class="q-pl-md">
-      <q-btn
-        v-if="date"
-        dense
-        round
-        unelevated
-        size="sm"
-        color="grey"
-        icon="close"
-        @click="onClear"
-      >
-      </q-btn>
-    </div>
+    <!--
+    onfocus="'showPicker' in HTMLInputElement.prototype && this.showPicker()"
+    onclick="'showPicker' in HTMLInputElement.prototype && this.showPicker()"
+    -->
+
+    <q-btn
+      v-if="date"
+      class="q-ml-md"
+      dense
+      round
+      unelevated
+      size="sm"
+      color="grey"
+      icon="close"
+      @click="onClear"
+    >
+    </q-btn>
   </div>
 </template>
 
@@ -116,15 +120,6 @@ if (props.modelValue) {
   time.value = formatTimeLocal(props.modelValue)
   popupDate.value = toDateModel(props.modelValue)
 }
-
-/*
-watch(
-  () => props.dateOnly,
-  (dateOnly, _) => {
-    model.value = formatDate(props.modelValue, props.dateOnly)
-  }
-)
- */
 
 const validateDate = (date: string) => {
   if (!date) {
@@ -218,4 +213,17 @@ const onBlur = (e: FocusEvent) => {
     dateRef.value.focus()
   }
 }
+
+const showTimePicker = (element: HTMLInputElement) => {
+  element.showPicker()
+}
 </script>
+
+<style lang="scss" scoped>
+.date-input {
+}
+
+.time-input {
+  max-width: 100px;
+}
+</style>

@@ -3,112 +3,123 @@
     class="task-card"
     flat
   >
-    <!-- <q-scroll-area style="height: 100%; max-width: 100%;"> -->
-      <q-card-section>
-        <q-form
-          class="flex column q-pt-sm  q-gutter-md"
-          :class="{'q-pr-md': !$q.platform.is.mobile }"
-          @keydown.enter="onEnterDown"
-        >
-          <div class="flex content-center no-wrap">
-            <q-input
-              class="full-width"
-              v-model="task.summary"
-              :label="$t('summary')"
-              stack-label
-              counter
-              maxlength="60"
-              outlined
-            />
-            <q-btn
-              class="q-mb-md q-ml-sm"
-              flat
-              rounded
-              color="red"
-              icon="delete"
-              @click="confirmDelete"
+    <q-card-section>
+      <q-form
+        class="flex column q-pt-sm q-gutter-md"
+        :class="{'q-pr-md': !$q.platform.is.mobile }"
+        @keydown.enter="onEnterDown"
+      >
+        <div class="flex content-center no-wrap">
+          <q-input
+            class="full-width"
+            v-model="task.summary"
+            :label="$t('summary')"
+            stack-label
+            counter
+            :maxlength="MAX_SUMMARY_LENGTH"
+            outlined
+          />
+          <q-btn
+            class="q-mb-md q-ml-sm"
+            flat
+            rounded
+            color="red"
+            icon="delete"
+            @click="confirmDelete"
+          />
+        </div>
+
+        <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined />
+
+        <q-select
+          v-model="listUid"
+          :label="$t('list')"
+          stack-label
+          outlined
+          :options="listOptions"
+          @update:modelValue="onListUpdate"
+        />
+
+        <div class="form-grid">
+          <div class="form-label">Due date</div>
+          <DatetimePicker
+            v-model="task.due"
+            class="form-input"
+            :label="$t('dueDate')"
+          ></DatetimePicker>
+        </div>
+
+        <h2 class="text-h6 q-mt-lg q-mb-none">{{ $t('duration') }}</h2>
+
+        <div class="form-grid">
+          <div class="form-label">{{ $t('allDay') }}</div>
+          <div class="form-input">
+            <q-toggle
+              v-model="hasAllDayDuration"
             />
           </div>
 
-          <q-input v-model="task.description" :label="$t('description')" stack-label type="textarea" outlined />
-
-          <q-select
-            v-model="listUid"
-            :label="$t('list')"
-            stack-label
-            outlined
-            :options="listOptions"
-            @update:modelValue="onListUpdate"
-          />
-
-          <div>Due date</div>
-          <DatetimePicker v-model="task.due" :label="$t('dueDate')"></DatetimePicker>
-
-          <h2 class="text-h6">{{ $t('duration') }}</h2>
-          <div>{{ $t('from') }}</div>
+          <div class="form-label">{{ $t('starts') }}</div>
           <DatetimePicker
             v-model="task.dtstart"
-            label="Start"
-            :date-only="wholeDay"
+            class="form-input"
+            :label="$t('starts')"
+            :date-only="hasAllDayDuration"
             @update:modelValue="onStartChange"
           />
 
-          <div>{{ $t('to') }}</div>
+          <div class="form-label">{{ $t('ends') }}</div>
           <DatetimePicker
             v-model="task.dtend"
-            label="Due"
-            :date-only="wholeDay"
+            class="form-input"
+            :label="$t('ends')"
+            :date-only="hasAllDayDuration"
           />
-          <!--
-          <div>
-            <q-checkbox v-model="wholeDay" @click="onWholeDayClick">{{ $t('task_wholeDay') }}</q-checkbox>
+        </div>
+
+        <h2 class="text-h6 q-mt-lg q-mb-none">{{ $t('priority') }}</h2>
+        <ButtonToggle
+          v-model="task.priority"
+          :options="[
+            { label: $t('none'), value: 0 },
+            { label: $t('low'), value: 9 },
+            { label: $t('medium'), value: 5 },
+            { label: $t('high'), value: 1 }
+        ]"
+        />
+
+        <h2 class="text-h6 q-mt-lg q-mb-none">{{ $t('recurrence') }}</h2>
+        <RRulePicker
+          v-model="task.rrule"
+          :dtstart="task.dtstart"
+        />
+        <q-toolbar v-if="!$q.platform.is.mobile">
+          <div class="flex justify-between full-width q-px-xl q-py-md">
+            <q-btn
+              flat
+              rounded
+              no-caps
+              label="Cancel"
+              color="blue-7"
+              @click="onClose"
+            />
+            <q-btn
+              flat
+              rounded
+              no-caps
+              label="Save"
+              color="blue-7"
+              @click="onSave"
+            />
           </div>
-          -->
-
-          <h2 class="text-h6">{{ $t('priority') }}</h2>
-          <ButtonToggle
-            v-model="task.priority"
-            :options="[
-              { label: $t('none'), value: 0 },
-              { label: $t('low'), value: 9 },
-              { label: $t('medium'), value: 5 },
-              { label: $t('high'), value: 1 }
-          ]"
-          />
-
-          <h2 class="text-h6">{{ $t('recurrence') }}</h2>
-          <RRulePicker
-            v-model="task.rrule"
-            :dtstart="task.dtstart"
-          />
-          <q-toolbar v-if="!$q.platform.is.mobile">
-            <div class="flex justify-between full-width q-px-xl q-py-md">
-              <q-btn
-                flat
-                rounded
-                no-caps
-                label="Cancel"
-                color="blue-7"
-                @click="onClose"
-              />
-              <q-btn
-                flat
-                rounded
-                no-caps
-                label="Save"
-                color="blue-7"
-                @click="onSave"
-              />
-            </div>
-          </q-toolbar>
-        </q-form>
-      </q-card-section>
-    <!-- </q-scroll-area> -->
+        </q-toolbar>
+      </q-form>
+    </q-card-section>
   </q-card>
 </template>
 
 <script lang="ts" setup>
-import { Task, TaskEvent, useTaskStore } from 'stores/task-store'
+import { Task, TaskEvent, useTaskStore, MAX_SUMMARY_LENGTH } from 'stores/task-store'
 import { PropType, ref } from 'vue'
 import emitter from 'src/plugins/mitt'
 import { isTimeSet } from 'src/utils/datetime'
@@ -140,6 +151,11 @@ const listUid = ref<{label: string, value: string} | null>(listOptions[listOptio
 
 // handle from and to fields
 const wholeDay = ref<boolean>(task.value.dtstart ? isTimeSet(task.value.dtstart) : false)
+
+const isAllDay = ((task.value.dtstart && task.value.dtend) &&
+  (!isTimeSet(task.value.dtstart) && !isTimeSet(task.value.dtend))) || false
+
+const hasAllDayDuration = ref<boolean>(isAllDay)
 
 const onStartChange = (value: Date) => {
   // onWholeDayClick()
@@ -232,5 +248,22 @@ const confirmDelete = () => {
   .task-toolbar {
     background-color: rgba(0, 0, 0, 0.7);
   }
+}
+
+// Form style
+.form-grid {
+  display: grid;
+  grid-template-columns: [labels] auto [inputs] 1fr;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+}
+
+.form-label {
+  grid-column: labels;
+  align-self: center;
+}
+
+.form-input {
+  grid-column: inputs;
 }
 </style>
