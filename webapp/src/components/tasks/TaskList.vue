@@ -168,13 +168,14 @@ const showCompleted = ref<boolean>(false)
 
 const tasks = computed({
   get: () => {
-    const tasks = props.list.tasks.filter(task => showCompleted.value || !task.completed)
+    let tasks = props.list.tasks
 
     if (props.list.isVirtual) {
       const filter = props.list.onFilter
-      return filter(props.list)
+      tasks = filter(props.list)
     }
-    return tasks
+
+    return tasks.filter(task => showCompleted.value || !task.completed)
   },
   set: () => {
     console.log('drag end')
