@@ -1,6 +1,6 @@
 # Prodo
 Simple web application for managing events and tasks 
-with export to iCalendar format aiming to boost productivity.
+with export to iCalendar format aiming to boost your productivity.
 
 ![](docs/img/screenshot.png)
 
@@ -18,7 +18,8 @@ and may not have all the features you would expect from a task manager.
 You can run the application on bare metal or in a container.
 
 ### Bare metal
-You need to have Rust and pnpm installed on your system.
+You need to have Rust and pnpm installed on your system,
+and a PostgreSQL database running.
 
 Build and install application using `make`:
 ```bash
@@ -31,14 +32,14 @@ copy the frontend files to `/usr/share/webapps/prodo` and create
 an OpenRC service if you are using OpenRC.
 
 ### Docker
-You can directly run the application using Docker. 
+Directly run the application using Docker. 
 
 ```bash
 docker compose up --build
 ```
 
 ## Configuration
-You can configure the application using environment variables.
+Configure the application using environment variables.
 See `etc/prodo/config.ev` for available options.
 
 When configured, you will need to create a new user using the following command:
