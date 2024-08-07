@@ -255,6 +255,11 @@ export const useTaskStore = defineStore('task', {
       }
       return this.update(task)
     },
+    /**
+     * @param listUid
+     * @param task
+     * @param newIndex with respect to the completed tasks!
+     */
     async setOrder (listUid: string, task: Task, newIndex: number) {
       const list = this.lists.find(l => l.uid === listUid)
       if (list) {

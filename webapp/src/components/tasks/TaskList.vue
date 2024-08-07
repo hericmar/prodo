@@ -207,9 +207,11 @@ const onDragEnd = (e: any) => {
   }
 
   const droppedTask = tasks.value[e.oldIndex]
-  const droppedIndex = taskStore.tasks.indexOf(tasks.value[e.newIndex])
+  const newIndex = e.newIndex
+  const taskBeforeNewIndex = tasks.value[newIndex]
+  const newIndexWithinCompleted = props.list.tasks.indexOf(taskBeforeNewIndex)
 
-  taskStore.setOrder(props.list.uid, droppedTask, e.newIndex)
+  taskStore.setOrder(props.list.uid, droppedTask, newIndexWithinCompleted)
 }
 
 /*
