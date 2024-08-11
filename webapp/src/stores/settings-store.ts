@@ -4,7 +4,6 @@ import api from 'src/api'
 const SETTINGS_STORAGE_KEY = 'settings'
 export type Settings = {
   preferDarkMode?: boolean,
-  showLandingPage: boolean,
   preferredLocale?: string
   timezone: string
   subscriptionSecret: string,
@@ -13,7 +12,6 @@ export type Settings = {
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    showLandingPage: true,
     preferredLocale: undefined,
     preferDarkMode: undefined,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

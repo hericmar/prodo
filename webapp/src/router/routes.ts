@@ -15,14 +15,6 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '',
-        name: 'landing',
-        component: () => import('pages/LandingPage.vue'),
-        meta: {
-          requiresAuth: false
-        }
-      },
-      {
         path: '/login',
         name: 'login',
         component: () => import('pages/LoginPage.vue')
@@ -35,7 +27,7 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: (to, from, next) => {
       const authStore = useAuthStore()
       if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-        next({ name: 'landing' })
+        next({ name: 'login' })
       }
       next()
     },
@@ -77,24 +69,6 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true
         }
       },
-      /*
-      {
-        path: '',
-        name: 'landing',
-        component: () => import('pages/LandingPage.vue'),
-        meta: {
-          requiresAuth: false
-        }
-      },
-      {
-        path: 'login',
-        name: 'login',
-        component: () => import('pages/LoginPage.vue'),
-        meta: {
-          requiresAuth: false
-        }
-      },
-       */
       {
         path: 'profile',
         name: 'profile',

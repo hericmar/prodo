@@ -22,9 +22,6 @@ export default {
   tasks_inactive: 'Inactive',
   tasks_similar: 'Similar tasks',
 
-  landingTitle: 'Prodo',
-  landing_description: 'New approach to productivity.',
-
   login_title: 'Login to Prodo',
   login_unauthorized: 'Invalid credentials.',
 

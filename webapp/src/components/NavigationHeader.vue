@@ -15,7 +15,7 @@
           </q-btn>
           <q-btn
             v-else
-            :to="{ name: 'landing' }"
+            :to="{ name: 'login' }"
             flat
             rounded
           >
@@ -73,7 +73,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const onLogout = async () => {
   await authStore.logout()
-  router.push({ name: 'landing' })
+  router.push({ name: 'login' })
 }
 </script>
 

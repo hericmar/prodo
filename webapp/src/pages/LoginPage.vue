@@ -38,6 +38,7 @@
               :label="$t('login')"
               type="submit"
               no-caps
+              :loading="loading"
               color="primary"
             />
           </q-form>
@@ -63,17 +64,22 @@ const message = ref()
 
 const router = useRouter()
 
+const loading = ref(false)
+
 const onSubmit = () => {
   const authStore = useAuthStore()
+  loading.value = true
   authStore.login(username.value, password.value)
     .then(() => {
       setTimeout(() => {
         message.value = ''
+        loading.value = false
         router.push({ name: 'index' })
       }, 1000)
     })
     .catch(() => {
       message.value = i18n.t(authStore.message)
+      loading.value = false
     })
 }
 </script>

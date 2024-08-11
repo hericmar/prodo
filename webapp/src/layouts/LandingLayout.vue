@@ -7,7 +7,7 @@
       >
         <q-toolbar-title>
           <q-btn
-            :to="{ name: 'landing' }" flat
+            :to="{ name: 'login' }" flat
           >
             Prodo
           </q-btn>
