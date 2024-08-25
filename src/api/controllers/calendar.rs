@@ -87,9 +87,21 @@ pub async fn get_calendar_handler(
         .update_last_synced_at(subscription.person_uid, Utc::now())
         .await?;
 
+    let calendar_str = calendar.to_string();
+    // Ugly workaround to fix the escaping of the comma and semicolon in RRULE property.
+    let calendar_str = calendar_str.lines().fold(String::new(), |mut acc, line| {
+        if line.starts_with("RRULE") {
+            acc.push_str(line.replace("\\,", ",").replace("\\;", ";").as_str());
+        } else {
+            acc.push_str(line);
+        }
+        acc.push_str("\r\n");
+        acc
+    });
+
     let response = HttpResponse::Ok()
         .insert_header(("Content-Type", "text/calendar; charset=utf-8"))
-        .body(calendar.to_string());
+        .body(calendar_str);
 
     Ok(response)
 }

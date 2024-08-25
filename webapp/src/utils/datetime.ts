@@ -44,8 +44,8 @@ export function isTimeSet (date: Date) {
     date.getMilliseconds() !== 0
 }
 
-export function formatDateLocal (date: Date | null, { dateOnly = false, hideYear = false } = {}) {
-  if (date === null) {
+export function formatDateLocal (date: Date | null | undefined, { dateOnly = false, hideYear = false } = {}) {
+  if (!date) {
     return ''
   }
 

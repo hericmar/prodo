@@ -26,7 +26,7 @@ export const useSettingsStore = defineStore('settings', {
       await api.ical.get().then(({ data }) => {
         this.timezone = data.timezone
         this.subscriptionSecret = data.secret
-        this.calendarLastSync = new Date(data.last_synced_at)
+        this.calendarLastSync = data.last_synced_at || undefined
       })
         .catch(() => {
           this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
