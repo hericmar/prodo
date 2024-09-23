@@ -40,41 +40,47 @@
           @update:modelValue="onListUpdate"
         />
 
-        <div class="form-grid">
-          <div class="form-label">Due date</div>
-          <DatetimePicker
-            v-model="task.due"
-            class="form-input"
-            :label="$t('dueDate')"
-          ></DatetimePicker>
+        <!-- <div> has to be here to prevent grid overflow in Safari -->
+        <div>
+          <div class="form-grid">
+            <div class="form-label">Due date</div>
+            <DatetimePicker
+              v-model="task.due"
+              class="form-input"
+              :label="$t('dueDate')"
+            ></DatetimePicker>
+          </div>
         </div>
 
         <h2 class="text-h6 q-mt-lg q-mb-none">{{ $t('duration') }}</h2>
 
-        <div class="form-grid">
-          <div class="form-label">{{ $t('allDay') }}</div>
-          <div class="form-input">
-            <q-toggle
-              v-model="hasAllDayDuration"
+        <!-- <div> has to be here to prevent grid overflow in Safari -->
+        <div>
+          <div class="form-grid">
+            <div class="form-label">{{ $t('allDay') }}</div>
+            <div class="form-input">
+              <q-toggle
+                v-model="hasAllDayDuration"
+              />
+            </div>
+
+            <div class="form-label">{{ $t('starts') }}</div>
+            <DatetimePicker
+              v-model="task.dtstart"
+              class="form-input"
+              :label="$t('starts')"
+              :date-only="hasAllDayDuration"
+              @update:modelValue="onStartChange"
+            />
+
+            <div class="form-label">{{ $t('ends') }}</div>
+            <DatetimePicker
+              v-model="task.dtend"
+              class="form-input"
+              :label="$t('ends')"
+              :date-only="hasAllDayDuration"
             />
           </div>
-
-          <div class="form-label">{{ $t('starts') }}</div>
-          <DatetimePicker
-            v-model="task.dtstart"
-            class="form-input"
-            :label="$t('starts')"
-            :date-only="hasAllDayDuration"
-            @update:modelValue="onStartChange"
-          />
-
-          <div class="form-label">{{ $t('ends') }}</div>
-          <DatetimePicker
-            v-model="task.dtend"
-            class="form-input"
-            :label="$t('ends')"
-            :date-only="hasAllDayDuration"
-          />
         </div>
 
         <h2 class="text-h6 q-mt-lg q-mb-none">{{ $t('priority') }}</h2>
