@@ -68,7 +68,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, PropType } from 'vue'
-import { RRule } from 'rrule'
+import { RRule, Options } from 'rrule'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import recurrence from 'src/utils/recurrence'
 import RepeatPicker from 'components/toolkit/RepeatPicker.vue'
@@ -147,11 +147,13 @@ const emit = defineEmits(['update:modelValue'])
 
 // Emit updated recurrence rule
 const toText = computed(() => {
-  let options = null
+  let options: Partial<Options> | undefined
   if (rruleType.value === 'without_recurrence') {
     emit('update:modelValue', null)
     return ''
   } else if (rruleType.value !== 'custom') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options = recurrence[rruleType.value]()
   } else {
     options = {
@@ -160,9 +162,9 @@ const toText = computed(() => {
       byweekday: byweekday.value
     }
     if (ends.value === 'after') {
-      (options as any).count = count.value
+      options.count = count.value
     } else if (ends.value === 'on') {
-      (options as any).until = until.value
+      options.until = until.value
     }
   }
   const rule = new RRule(options)

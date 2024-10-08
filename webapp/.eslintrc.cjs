@@ -40,8 +40,6 @@ module.exports = {
   ],
 
   plugins: [
-    'jest',
-
     // required to apply rules which need type information
     '@typescript-eslint',
 
@@ -49,10 +47,6 @@ module.exports = {
     // required to lint *.vue files
     'vue'
   ],
-
-  env: {
-    'jest/globals': true
-  },
 
   globals: {
     ga: 'readonly', // Google Analytics

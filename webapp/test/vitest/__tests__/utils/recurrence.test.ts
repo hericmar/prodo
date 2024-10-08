@@ -1,5 +1,7 @@
 import { RRule } from 'rrule'
 import { evaluateRRule, RRuleEvaluation } from 'src/utils/recurrence'
+import { describe, expect, it } from 'vitest'
+import { Task } from 'stores/task-store'
 
 describe('Recurrence evaluation', () => {
   it('', () => {
@@ -44,7 +46,7 @@ describe('Recurrence evaluation', () => {
         completed: item.completed,
         rrule: rrule.toString()
       }
-      expect(evaluateRRule(task)).toBe(item.result)
+      expect(evaluateRRule(task as Task)).toBe(item.result)
     }
 
     expect(true).toBeTruthy()

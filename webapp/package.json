@@ -7,45 +7,49 @@
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "echo \"See package.json => scripts for available tests.\" && exit 0",
     "dev": "quasar dev",
-    "build": "quasar build"
+    "build": "quasar build",
+    "test:unit": "vitest",
+    "test:unit:ci": "vitest run",
+    "test:e2e": "cross-env NODE_ENV=test start-test \"quasar dev\" http-get://127.0.0.1:8080 \"cypress open --e2e\"",
+    "test:e2e:ci": "cross-env NODE_ENV=test start-test \"quasar dev\" http-get://127.0.0.1:8080 \"cypress run --e2e\"",
+    "test:component": "cross-env NODE_ENV=test cypress open --component",
+    "test:component:ci": "cross-env NODE_ENV=test cypress run --component"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.11",
-    "axios": "^1.7.2",
-    "date-fns": "^2.30.0",
+    "@quasar/extras": "^1.16.12",
+    "axios": "^1.7.7",
     "marked": "^5.1.2",
     "mitt": "^3.0.1",
-    "pinia": "^2.1.7",
+    "pinia": "^2.2.4",
     "quasar": "^2.17.0",
     "rrule": "^2.8.1",
-    "vue": "^3.4.29",
-    "vue-i18n": "^9.13.1",
-    "vue-router": "^4.3.3",
+    "vue": "^3.5.11",
+    "vue-i18n": "^9.14.1",
+    "vue-router": "^4.4.5",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^3.4.0",
-    "@quasar/app-vite": "^1.9.3",
-    "@types/jest": "^29.5.12",
-    "@types/marked": "^6.0.0",
+    "@quasar/app-vite": "^1.10.0",
+    "@quasar/quasar-app-extension-testing-unit-vitest": "^1.1.0",
+    "@types/jest": "^29.5.13",
     "@types/node": "^12.20.55",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vue/cli-plugin-unit-jest": "^5.0.8",
-    "@vue/test-utils": "2.4.0",
-    "autoprefixer": "^10.4.19",
-    "eslint": "^8.57.0",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^15.7.0",
-    "eslint-plugin-promise": "^6.2.0",
-    "eslint-plugin-vue": "^9.26.0",
+    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-vue": "^9.28.0",
     "jsonwebtoken": "^9.0.2",
-    "ts-jest": "^27.1.5",
     "typescript": "^4.9.5",
+    "vitest": "^2.1.2",
     "workbox-build": "^6.6.0",
     "workbox-cacheable-response": "^6.5.4",
     "workbox-core": "^6.6.0",
@@ -59,21 +63,20 @@
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   },
-  "jest": {
-    "verbose": true,
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "vue",
-      "ts"
-    ],
-    "transform": {
-      "^.+\\.js$": "ts-jest",
-      "^.+\\.ts$": "ts-jest"
-    },
-    "moduleDirectories": [
-      "node_modules",
-      "."
-    ]
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.4.31": ">=8.4.31",
+      "axios@>=1.3.2 <=1.7.3": ">=1.7.4",
+      "micromatch@<4.0.8": ">=4.0.8",
+      "body-parser@<1.20.3": ">=1.20.3",
+      "send@<0.19.0": ">=0.19.0",
+      "serve-static@<1.16.0": ">=1.16.0",
+      "express@<4.20.0": ">=4.20.0",
+      "path-to-regexp@<0.1.10": ">=0.1.10",
+      "vite@<3.2.11": ">=3.2.11",
+      "vite@<=3.2.10": ">=3.2.11",
+      "rollup@<2.79.2": ">=2.79.2",
+      "cookie@<0.7.0": ">=0.7.0"
+    }
   }
 }

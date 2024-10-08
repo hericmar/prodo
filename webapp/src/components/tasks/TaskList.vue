@@ -182,11 +182,11 @@ const tasks = computed({
   }
 })
 
+/*
 const similarTasks = computed(() => {
   return findSimilar(summary.value, tasks.value)
 })
-
-const isFocused = ref<boolean>(false)
+ */
 
 // drag and drop
 const dragging = ref<boolean>(false)
@@ -197,7 +197,7 @@ const onDragStart = (e: any) => {
   emitter.emit('on-drag-start')
 }
 
-const message = ref('')
+// const message = ref('')
 const onDragEnd = (e: any) => {
   dragging.value = false
   emitter.emit('on-drag-end')

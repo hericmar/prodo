@@ -27,6 +27,9 @@ export const useSettingsStore = defineStore('settings', {
         this.timezone = data.timezone
         this.subscriptionSecret = data.secret
         this.calendarLastSync = data.last_synced_at || undefined
+        if (this.calendarLastSync) {
+          this.calendarLastSync = new Date(this.calendarLastSync)
+        }
       })
         .catch(() => {
           this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone

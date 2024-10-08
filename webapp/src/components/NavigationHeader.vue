@@ -61,11 +61,9 @@
 
 <script setup lang="ts">
 import ThemeButton from 'components/toolkit/ThemeButton.vue'
-import { computed, useSlots } from 'vue'
+import { computed } from 'vue'
 import { useAuthStore } from 'stores/auth-store'
 import { router } from 'src/router'
-
-const slots = useSlots()
 
 const authStore = useAuthStore()
 

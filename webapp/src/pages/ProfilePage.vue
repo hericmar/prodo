@@ -22,7 +22,7 @@
             </template>
           </q-input>
             <div class="q-mt-md text-grey-14">
-              Last sync at: {{ formatDateLocal(settingsStore.calendarLastSync) || 'Never' }}
+              Last sync at: {{ lastSync ? lastSync.toLocaleDateString(useQuasar().lang.getLocale() || 'en-US', {}) : 'Never' }}
             </div>
         </div>
       </q-card-section>
@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { copyToClipboard } from 'quasar'
+import { copyToClipboard, useQuasar } from 'quasar'
 import LangSelect from 'components/toolkit/LangSelect.vue'
 import TimezonePicker from 'components/toolkit/TimezonePicker.vue'
 import { useSettingsStore } from 'stores/settings-store'
@@ -109,6 +109,7 @@ const taskStore = useTaskStore()
 taskStore.init()
 
 const timezone = ref(settingsStore.timezone)
+const lastSync = ref(settingsStore.calendarLastSync)
 
 const getLink = (secret: string) => {
   return `${window.location.protocol}//${window.location.host}/api/v1/calendar/subscription/${secret}`
