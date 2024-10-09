@@ -67,22 +67,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, PropType } from 'vue'
+import { computed, ref } from 'vue'
 import { RRule, Options } from 'rrule'
 import DatetimePicker from 'components/toolkit/DatetimePicker.vue'
 import recurrence from 'src/utils/recurrence'
 import RepeatPicker from 'components/toolkit/RepeatPicker.vue'
 
-const props = defineProps({
-  modelValue: {
-    type: String,
-    required: true
-  },
-  dtstart: {
-    type: [Date, null, undefined] as PropType<Date | null | undefined>,
-    required: true
-  }
-})
+interface Props {
+  modelValue: string | null
+  dtstart: Date | null | undefined
+}
+
+const props = defineProps<Props>()
 
 // Select recurrence type
 const rruleType = ref(props.modelValue ? 'custom' : 'without_recurrence')
